@@ -16,7 +16,7 @@ Residents should check the [county calendar](https://www.sumtercountyga.us/calen
 
 ### The application and site description
 
-The reported 125-acre site between Brady Road and Sweat Avenue needs to be tied to a public application, parcel record, concept plan, or attributed announcement. Obtain the legal applicant, parcel numbers, requested approval, full site plan, and every proposed phase.
+The reported site between Brady Road and Sweat Avenue — including its acreage — needs to be tied to a public application, parcel record, concept plan, or attributed announcement. Obtain the legal applicant, parcel numbers, acreage, requested approval, full site plan, and every proposed phase.
 
 ### Water demand and cooling design
 

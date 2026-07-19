@@ -21,7 +21,7 @@ This report is intended to help residents bring focused questions about water, s
 - The city holds groundwater-withdrawal permit 129-0001.
 - The permit lists 3.75 million gallons per day (MGD) as the annual-average limit and 4.2 MGD as the monthly-average limit.
 - The Development Authority advertises approximately 2.5 MGD of average city water consumption and a 7 MGD water-plant capacity.
-- A 125-acre tract has been described as the proposed location, but the underlying public application should be obtained and cited.
+- A tract in the J. Frank Myers Industrial Park has been described as the proposed location, but no public application documenting the site or its acreage was located; the underlying record should be obtained and cited.
 
 ## What is not known publicly
 
