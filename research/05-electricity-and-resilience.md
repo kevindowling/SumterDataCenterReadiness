@@ -43,7 +43,8 @@ Important limits:
 
 The report's recommended community benefit is a developer-funded portfolio, not a flat universal grant: efficiency work first, household solar with roughly one day of critical-load battery backup (planning allowance about **$40,000–$55,000 per participating dwelling**, anchored to the NREL 8 kW / 12.5 kWh benchmark), community solar and storage shares for renters and unsuitable roofs, neighborhood resilience hubs, and an emergency-services fund.
 
-Funding scales with the project instead of being a fixed demand: an illustrative **$500,000–$1,000,000 per approved MW** base endowment deposited phase by phase, an annual per-MWh operating contribution, and adders triggered by measured impacts (generator runtime beyond emergency limits, attributed power-quality events, residential curtailments). At 100 MW that implies a **$50–100 million** base plus ongoing contributions. An earlier universal-grant concept with a $1.5 billion trust target was set aside because its cost bore no relationship to project impacts, exposing it to exaction challenge. All figures remain planning ranges pending an independent engineering and economic study.
+Funding scales with the project instead of being a fixed demand: an illustrative **$500,000–$1,000,000 per approved MW** base endowment deposited phase by phase, an annual per-MWh operating contribution, and adders triggered by measured impacts (generator runtime beyond emergency limits, attributed power-quality events, residential curtailments). At 100 MW that implies a **$50–100 million** base plus ongoing contributions. 
+
 
 ## Conditions that matter even without a household grant
 
