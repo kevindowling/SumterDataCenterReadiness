@@ -39,11 +39,11 @@ Important limits:
 - Georgia Power's cited residential tariff limits systems to 10 kW AC and pays exports below retail rates.
 - Large distributed fleets require safe utility interconnection and voltage planning.
 
-## About the proposed $1.5 billion program
+## About the proposed community energy resilience program
 
-One possible community-benefit proposal is universal solar, 40–75 kWh batteries, roof and panel work, long-term replacements, and administration. The proposed **$75,000–$110,000 per dwelling** allowance is not validated by the cited NREL benchmark, which models a much smaller 8 kW / 12.5 kWh system. Treat that figure as a policy concept requiring independent design and cost review—not an established price.
+The report's recommended community benefit is a developer-funded portfolio, not a flat universal grant: efficiency work first, household solar with roughly one day of critical-load battery backup (planning allowance about **$40,000–$55,000 per participating dwelling**, anchored to the NREL 8 kW / 12.5 kWh benchmark), community solar and storage shares for renters and unsuitable roofs, neighborhood resilience hubs, and an emergency-services fund.
 
-Treat the $1.5 billion figure as an **illustrative advocacy proposal**, not an independently engineered or actuarially supported project cost. Current bids, roof suitability, utility rules, replacement schedules, legal authority, and proportionality all require specialist review.
+Funding scales with the project instead of being a fixed demand: an illustrative **$500,000–$1,000,000 per approved MW** base endowment deposited phase by phase, an annual per-MWh operating contribution, and adders triggered by measured impacts (generator runtime beyond emergency limits, attributed power-quality events, residential curtailments). At 100 MW that implies a **$50–100 million** base plus ongoing contributions. An earlier universal-grant concept with a $1.5 billion trust target was set aside because its cost bore no relationship to project impacts, exposing it to exaction challenge. All figures remain planning ranges pending an independent engineering and economic study.
 
 ## Conditions that matter even without a household grant
 

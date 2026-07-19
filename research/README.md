@@ -6,11 +6,14 @@ This is the community research report for the proposed Sumter County data center
 
 The most important fact is also the largest information gap: no complete public project application or engineering package was located. The large planning numbers in this report are therefore **scenarios**, not forecasts for this site.
 
-## July 21 public meeting
+## Upcoming public meetings
 
-The Sumter County calendar lists a **Regular Board Meeting on Tuesday, July 21, 2026 at 6:00 p.m.**, at **500 West Lamar Street, Americus, Georgia 31709**. The meeting is open to the public.
+Two meetings are coming in the same week:
 
-This report is intended to help residents bring focused questions about water, sound, air pollution, electricity, public costs, and enforceable conditions. The county calendar confirms the meeting; residents should still check the posted agenda and any last-minute county notices before attending.
+- **Sumter County Board of Commissioners — Tuesday, July 21, 2026, 6:00 p.m.**, 500 West Lamar Street, Americus. Confirmed by the county calendar.
+- **Americus City Council — Thursday, July 23, 2026, 6:00 p.m.**, Russell Thomas Jr. Public Safety Building, Lee Street (community-reported; confirm via the city's agenda portal or 229-924-4411). The council discussed a draft data-center ordinance the week of July 13–17 — industrial-district siting with special approval, a 250-foot residential buffer, and a 70-decibel sound cap — and the topic is expected to return. See the [meeting prep note](09-council-meeting-2026-07-23.md).
+
+This report is intended to help residents bring focused questions about water, sound, air pollution, electricity, public costs, and enforceable conditions. Residents should check posted agendas and any last-minute notices before attending.
 
 ## What is known
 
@@ -40,6 +43,7 @@ This report is intended to help residents bring focused questions about water, s
 6. [What should officials require before a vote?](06-decision-checklist.md)
 7. [What still needs to be verified?](07-verification-notes.md)
 8. [Where do the key numbers come from?](08-source-desk.md)
+9. [How to prepare for the July 23 city council meeting](09-council-meeting-2026-07-23.md)
 
 ## How to read the labels
 
