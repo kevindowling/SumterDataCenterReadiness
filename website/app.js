@@ -120,7 +120,7 @@ const topbar = () => `
 function fieldMap() {
   return `<div class="field-map" aria-label="Map of knowns, unknowns, and scenarios">
     <div class="map-grid"></div><div class="map-road road-one"></div><div class="map-road road-two"></div>
-    <div class="tract"><span>ACREAGE UNVERIFIED</span><b>PROPOSED TRACT*</b><small>*public application not located</small></div>
+    <div class="tract"><span>PROPOSED TRACT</span><b>*PUBLIC APPLICATION NOT LOCATED</b></div>
     <div class="map-pin pin-water"><i>W</i><span>GROUNDWATER</span></div>
     <div class="map-pin pin-grid"><i>G</i><span>GRID LOAD</span></div>
     <div class="map-pin pin-homes"><i>H</i><span>RECEIVERS</span></div>
