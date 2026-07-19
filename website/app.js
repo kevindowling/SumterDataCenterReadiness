@@ -153,7 +153,7 @@ function home() {
       <div class="question-grid">${entryQuestions.map((item, index) => `<button data-doc="${item.id}" class="question q${index + 1}"><i>${item.mark}</i><span><small>FIELD QUESTION / 0${index + 1}</small><b>${item.label}</b><em>${item.note}</em></span><strong>↗</strong></button>`).join('')}</div>
     </section>
     <section class="logic-section">
-      <div class="logic-copy"><p class="eyebrow"><span></span> THE CENTRAL LOGIC</p><h2>Acreage does not equal impact.</h2><p>The tract size tells us where the project may sit. Four missing design decisions tell us what it may do.</p><button data-doc="project">Open the missing-facts guide →</button></div>
+      <div class="logic-copy"><p class="eyebrow"><span></span> THE CENTRAL LOGIC</p><h2>Land does not equal impact.</h2><p>The tract tells us where the project may sit. Four missing design decisions tell us what it may do.</p><button data-doc="project">Open the missing-facts guide →</button></div>
       <div class="logic-flow"><div><small>01</small><b>IT load</b><span>creates heat</span></div><i>→</i><div><small>02</small><b>Cooling</b><span>drives water + sound</span></div><i>→</i><div><small>03</small><b>Grid service</b><span>sets generation need</span></div><i>→</i><div><small>04</small><b>Operating limits</b><span>make promises real</span></div></div>
     </section>
     <section class="desk-index"><header><p class="eyebrow"><span></span> THE COMPLETE DESK</p><h2>Nine short field notes.</h2></header><div>${documents.map((doc) => `<button data-doc="${doc.id}"><span>${doc.number}</span><i class="tone-${doc.tone}"></i><p><small>${doc.short} · ${doc.time}</small><b>${doc.title}</b></p><em>Open ↗</em></button>`).join('')}</div></section>
