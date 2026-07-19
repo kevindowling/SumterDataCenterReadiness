@@ -1,0 +1,7 @@
+# Source report is intentionally kept local and must not be published.
+/data-center-environmental-research-report.md
+
+# Local and generated files
+/_site/
+.DS_Store
+npm-debug.log*
