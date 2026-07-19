@@ -4,7 +4,7 @@
 
 Not enough has been made public to calculate this project's environmental footprint.
 
-**Unverified description:** The project has been described as a data center on a tract between Brady Road and Sweat Avenue in the J. Frank Myers Industrial Park. No public record documenting the site or its acreage was located; the source for that description should be attached before any of it is repeated as an official project fact.
+**Unverified description:** The project has been described as a data center on a tract between Brady Road and Sweat Avenue in the J. Frank Myers Industrial Park. No public record documenting the site was located; the source for that description should be attached before any of it is repeated as an official project fact.
 
 ## The decision officials are really making
 
@@ -24,7 +24,7 @@ The enforceable project description should include:
 
 ## Do not confuse these quantities
 
-- **Acres** describe land, not resource consumption.
+- **Land size** describes where a project sits, not what it consumes.
 - **IT megawatts** power servers.
 - **Total facility megawatts** include cooling, pumps, lighting, and conversion losses.
 - **Installed generator megawatts** may exceed normal demand because of redundancy.
