@@ -10,15 +10,6 @@ const documents = [
   {id: 'sources', file: '08-source-desk.md', number: '08', short: 'Sources', title: 'The evidence desk', question: 'Where do the numbers come from?', tone: 'source', time: '5 min'},
 ];
 
-const entryQuestions = [
-  {id: 'project', mark: 'A', label: 'What is actually proposed?', note: 'Begin with the missing facts'},
-  {id: 'water', mark: 'W', label: 'Could it strain city water?', note: 'Compare cooling designs'},
-  {id: 'sound', mark: 'S', label: 'What might neighbors hear?', note: 'Separate evidence from alarm'},
-  {id: 'air', mark: 'P', label: 'Backup—or a power plant?', note: 'Follow the fuel and hours'},
-  {id: 'grid', mark: 'G', label: 'Could it affect the grid?', note: 'See scale without guessing'},
-  {id: 'checklist', mark: '✓', label: 'What should happen before a vote?', note: 'Take the meeting checklist'},
-];
-
 const app = document.querySelector('#app');
 const cache = new Map();
 let route = {view: 'home'};
@@ -148,16 +139,6 @@ function home() {
       <div><small>MEETING PLACE</small><b class="meeting-address">500 W. LAMAR ST.</b><span>Americus, Georgia 31709</span></div>
       <div><small>COMMUNITY PURPOSE</small><b class="meeting-address">ASK BEFORE APPROVAL</b><span>facts, conditions, and accountability</span></div>
     </section>
-    <section class="question-deck">
-      <header><p class="eyebrow"><span></span> CHOOSE THE QUESTION IN FRONT OF YOU</p><h2>Six ways into the research.</h2><p>Use the section that supports the question you want answered at the meeting.</p></header>
-      <div class="question-grid">${entryQuestions.map((item, index) => `<button data-doc="${item.id}" class="question q${index + 1}"><i>${item.mark}</i><span><small>FIELD QUESTION / 0${index + 1}</small><b>${item.label}</b><em>${item.note}</em></span><strong>↗</strong></button>`).join('')}</div>
-    </section>
-    <section class="logic-section">
-      <div class="logic-copy"><p class="eyebrow"><span></span> THE CENTRAL LOGIC</p><h2>Land does not equal impact.</h2><p>The tract tells us where the project may sit. Four missing design decisions tell us what it may do.</p><button data-doc="project">Open the missing-facts guide →</button></div>
-      <div class="logic-flow"><div><small>01</small><b>IT load</b><span>creates heat</span></div><i>→</i><div><small>02</small><b>Cooling</b><span>drives water + sound</span></div><i>→</i><div><small>03</small><b>Grid service</b><span>sets generation need</span></div><i>→</i><div><small>04</small><b>Operating limits</b><span>make promises real</span></div></div>
-    </section>
-    <section class="desk-index"><header><p class="eyebrow"><span></span> THE COMPLETE DESK</p><h2>Nine short field notes.</h2></header><div>${documents.map((doc) => `<button data-doc="${doc.id}"><span>${doc.number}</span><i class="tone-${doc.tone}"></i><p><small>${doc.short} · ${doc.time}</small><b>${doc.title}</b></p><em>Open ↗</em></button>`).join('')}</div></section>
-    <footer><div class="brand-seal">SC</div><p><b>Facts before forecasts.</b><br />Conditions before promises.</p><span>Community research report · July 19, 2026<br />Prepared for the July 21 public meeting.</span></footer>
   </main>${searchPanel()}`;
 }
 
