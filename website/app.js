@@ -99,7 +99,7 @@ function readRoute() {
 const topbar = () => `
   <header class="topbar">
     <button class="brand" data-home aria-label="Return to research desk">
-      <span class="brand-seal">SC</span><span><b>SUMTER FIELD DESK</b><small>FOR THE JULY 21 PUBLIC MEETING</small></span>
+      <span class="brand-seal">SC</span><span><b>SUMTER FIELD DESK</b><small>FOR THE JULY 23 PUBLIC MEETING</small></span>
     </button>
     <div class="top-actions">
       <span class="edition">COMMUNITY RESEARCH EDITION</span>
@@ -125,7 +125,7 @@ function home() {
   return `${topbar()}<main class="home">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow"><span></span> CITIZEN RESEARCH FOR THE JULY 21 MEETING</p>
+        <p class="eyebrow"><span></span> CITIZEN RESEARCH FOR THE JULY 23 MEETING</p>
         <h1>Bring facts.<br />Ask for <em>answers.</em></h1>
         <p class="lede">This is the community's research report on the proposed Sumter County data center. It separates verified local facts from planning scenarios and unresolved project details—so residents can press commissioners for precise answers, in public, before decisions are made.</p>
         <div class="hero-actions"><button data-doc="start">Prepare for the meeting <span>→</span></button><button class="quiet" data-doc="verify">See what still needs verification</button></div>
@@ -134,9 +134,9 @@ function home() {
       ${fieldMap()}
     </section>
     <section class="status-strip meeting-strip">
-      <div><small>SUMTER COUNTY REGULAR MEETING</small><b>TUE <i>JUL 21</i></b><span>confirmed on the county calendar</span></div>
+      <div><small>AMERICUS CITY COUNCIL MEETING</small><b>THU <i>JUL 23</i></b><span>check the posted agenda before attending</span></div>
       <div><small>START TIME</small><b>6:00 <i>PM</i></b><span>arrive early and bring notes</span></div>
-      <div><small>MEETING PLACE</small><b class="meeting-address">500 W. LAMAR ST.</b><span>Americus, Georgia 31709</span></div>
+      <div><small>MEETING PLACE</small><b class="meeting-address">RUSSELL THOMAS BLDG.</b><span>Lee Street, Americus, Georgia</span></div>
       <div><small>COMMUNITY PURPOSE</small><b class="meeting-address">ASK BEFORE APPROVAL</b><span>facts, conditions, and accountability</span></div>
     </section>
   </main>${searchPanel()}`;
