@@ -7,7 +7,7 @@
 | Municipal water source | [City of Americus 2024 Water Quality Report](https://cms3.revize.com/revize/americusga/2024%20Americus%20CCR.pdf) | Confirms groundwater wells; contains unrelated editing errors elsewhere |
 | Withdrawal permit | [Georgia EPD water-withdrawal lists](https://epd.georgia.gov/watershed-protection-branch-lists) | Links the official non-farm groundwater permit spreadsheet |
 | Advertised infrastructure | [Sumter County Development Authority](https://www.selectsumter.com/sites-buildings) | Plant, consumption, and wastewater marketing figures |
-| Meetings | [Commissioners page](https://www.sumtercountyga.us/79/Board-of-Commissioners-Members-Meetings) | Recurring meeting schedule and current links |
+| July 21 meeting | [Official county calendar](https://www.sumtercountyga.us/calendar.aspx?day=21&month=7&view=list&year=2026) | Confirms July 21, 2026 at 6:00 p.m., 500 West Lamar Street, and public access |
 | Agendas | [County Agenda Center](https://www.sumtercountyga.us/agendacenter) | Newer agenda interface; separate from legacy archive |
 | Georgia data-center power context | [Georgia PSC Data Center Fact Sheet](https://psc.ga.gov/site/downloads/datacenterfactsheet.pdf) | State load projections, approvals, and ratepayer protections |
 | Residential solar tariff | [Georgia Power FAQ](https://www.georgiapower.com/residential/solutions/solar/rooftop-installations/faqs.html) | 2026 export compensation and 10 kW AC limit |

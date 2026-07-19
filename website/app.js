@@ -6,7 +6,7 @@ const documents = [
   {id: 'air', file: '04-air-and-generators.md', number: '04', short: 'Air', title: 'Backup or power plant?', question: 'What if it generates power on site?', tone: 'air', time: '5 min'},
   {id: 'grid', file: '05-electricity-and-resilience.md', number: '05', short: 'Grid', title: 'Load, reliability & cost', question: 'How large could the grid impact be?', tone: 'grid', time: '6 min'},
   {id: 'checklist', file: '06-decision-checklist.md', number: '06', short: 'Action', title: 'The pre-vote checklist', question: 'What should officials require?', tone: 'action', time: '4 min'},
-  {id: 'audit', file: '07-claim-audit.md', number: '07', short: 'Audit', title: 'Corrections & cautions', question: 'Which claims need correction?', tone: 'caution', time: '5 min'},
+  {id: 'verify', file: '07-verification-notes.md', number: '07', short: 'Verify', title: 'What still needs verification', question: 'What do we still need to confirm?', tone: 'unknown', time: '4 min'},
   {id: 'sources', file: '08-source-desk.md', number: '08', short: 'Sources', title: 'The evidence desk', question: 'Where do the numbers come from?', tone: 'source', time: '5 min'},
 ];
 
@@ -108,10 +108,10 @@ function readRoute() {
 const topbar = () => `
   <header class="topbar">
     <button class="brand" data-home aria-label="Return to research desk">
-      <span class="brand-seal">SC</span><span><b>SUMTER FIELD DESK</b><small>DATA CENTER RESEARCH / JULY 2026</small></span>
+      <span class="brand-seal">SC</span><span><b>SUMTER FIELD DESK</b><small>FOR THE JULY 21 PUBLIC MEETING</small></span>
     </button>
     <div class="top-actions">
-      <span class="edition">PUBLIC WORKING EDITION</span>
+      <span class="edition">COMMUNITY RESEARCH EDITION</span>
       <button class="search-button" data-search><kbd>/</kbd> Search the desk</button>
       <button class="source-link" data-doc="sources">Evidence desk ↗</button>
     </div>
@@ -134,22 +134,22 @@ function home() {
   return `${topbar()}<main class="home">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow"><span></span> A PLAIN-LANGUAGE PUBLIC RESEARCH DESK</p>
-        <h1>Start with<br />what we <em>know.</em></h1>
-        <p class="lede">The proposed data center is still mostly an outline. This desk separates local facts from scale scenarios, unknown project details, and policy recommendations—so a public meeting does not become a contest between marketing and fear.</p>
-        <div class="hero-actions"><button data-doc="start">Read the 3-minute briefing <span>→</span></button><button class="quiet" data-doc="audit">See the claim audit</button></div>
+        <p class="eyebrow"><span></span> CITIZEN RESEARCH FOR THE JULY 21 MEETING</p>
+        <h1>Bring facts.<br />Ask for <em>answers.</em></h1>
+        <p class="lede">This is the community's research report on the proposed Sumter County data center. It separates verified local facts from planning scenarios and unresolved project details—so residents can press commissioners for precise answers, in public, before decisions are made.</p>
+        <div class="hero-actions"><button data-doc="start">Prepare for the meeting <span>→</span></button><button class="quiet" data-doc="verify">See what still needs verification</button></div>
         <div class="evidence-legend"><span class="verified">Verified fact</span><span class="scenario">Scale scenario</span><span class="unknown">Project unknown</span><span class="recommendation">Recommendation</span></div>
       </div>
       ${fieldMap()}
     </section>
-    <section class="status-strip">
-      <div><small>LOCAL WATER PERMIT</small><b>3.75 <i>MGD</i></b><span>annual-average limit</span></div>
-      <div><small>PROJECT WATER USE</small><b class="redacted">NOT DISCLOSED</b><span>cooling design unknown</span></div>
-      <div><small>PROJECT ELECTRIC LOAD</small><b class="redacted">NOT DISCLOSED</b><span>full buildout unknown</span></div>
-      <div><small>PUBLIC APPLICATION</small><b class="redacted">NOT LOCATED</b><span>verify before approval</span></div>
+    <section class="status-strip meeting-strip">
+      <div><small>SUMTER COUNTY REGULAR MEETING</small><b>TUE <i>JUL 21</i></b><span>confirmed on the county calendar</span></div>
+      <div><small>START TIME</small><b>6:00 <i>PM</i></b><span>arrive early and bring notes</span></div>
+      <div><small>MEETING PLACE</small><b class="meeting-address">500 W. LAMAR ST.</b><span>Americus, Georgia 31709</span></div>
+      <div><small>COMMUNITY PURPOSE</small><b class="meeting-address">ASK BEFORE APPROVAL</b><span>facts, conditions, and accountability</span></div>
     </section>
     <section class="question-deck">
-      <header><p class="eyebrow"><span></span> CHOOSE THE QUESTION IN FRONT OF YOU</p><h2>Six ways into the research.</h2><p>You do not need to read a 942-line report to ask a precise question.</p></header>
+      <header><p class="eyebrow"><span></span> CHOOSE THE QUESTION IN FRONT OF YOU</p><h2>Six ways into the research.</h2><p>Use the section that supports the question you want answered at the meeting.</p></header>
       <div class="question-grid">${entryQuestions.map((item, index) => `<button data-doc="${item.id}" class="question q${index + 1}"><i>${item.mark}</i><span><small>FIELD QUESTION / 0${index + 1}</small><b>${item.label}</b><em>${item.note}</em></span><strong>↗</strong></button>`).join('')}</div>
     </section>
     <section class="logic-section">
@@ -157,7 +157,7 @@ function home() {
       <div class="logic-flow"><div><small>01</small><b>IT load</b><span>creates heat</span></div><i>→</i><div><small>02</small><b>Cooling</b><span>drives water + sound</span></div><i>→</i><div><small>03</small><b>Grid service</b><span>sets generation need</span></div><i>→</i><div><small>04</small><b>Operating limits</b><span>make promises real</span></div></div>
     </section>
     <section class="desk-index"><header><p class="eyebrow"><span></span> THE COMPLETE DESK</p><h2>Nine short field notes.</h2></header><div>${documents.map((doc) => `<button data-doc="${doc.id}"><span>${doc.number}</span><i class="tone-${doc.tone}"></i><p><small>${doc.short} · ${doc.time}</small><b>${doc.title}</b></p><em>Open ↗</em></button>`).join('')}</div></section>
-    <footer><div class="brand-seal">SC</div><p><b>Facts before forecasts.</b><br />Conditions before promises.</p><span>Research edition · July 19, 2026<br />Source report retained outside the public site.</span></footer>
+    <footer><div class="brand-seal">SC</div><p><b>Facts before forecasts.</b><br />Conditions before promises.</p><span>Community research report · July 19, 2026<br />Prepared for the July 21 public meeting.</span></footer>
   </main>${searchPanel()}`;
 }
 

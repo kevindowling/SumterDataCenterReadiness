@@ -15,4 +15,4 @@ Run `npm run check` to verify that every research file and site asset exists. No
 
 The workflow at `.github/workflows/deploy-pages.yml` validates the project, assembles `website/` and `research/` into a static artifact, and deploys it from `main`. In the repository's **Settings → Pages**, set **Source** to **GitHub Actions**.
 
-The original source report is deliberately excluded by `.gitignore` and is never copied into the Pages artifact.
+The Pages artifact contains only the public community report: the website and the research notes. Ignored local working files are never copied into it.

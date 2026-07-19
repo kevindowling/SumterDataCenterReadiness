@@ -41,7 +41,7 @@ Important limits:
 
 ## About the proposed $1.5 billion program
 
-The original report proposes universal solar, 40–75 kWh batteries, roof and panel work, long-term replacements, and administration. Its multiplication is correct, but the proposed **$75,000–$110,000 per dwelling** allowance is not validated by the cited NREL benchmark, which models a much smaller 8 kW / 12.5 kWh system.
+One possible community-benefit proposal is universal solar, 40–75 kWh batteries, roof and panel work, long-term replacements, and administration. The proposed **$75,000–$110,000 per dwelling** allowance is not validated by the cited NREL benchmark, which models a much smaller 8 kW / 12.5 kWh system. Treat that figure as a policy concept requiring independent design and cost review—not an established price.
 
 Treat the $1.5 billion figure as an **illustrative advocacy proposal**, not an independently engineered or actuarially supported project cost. Current bids, roof suitability, utility rules, replacement schedules, legal authority, and proportionality all require specialist review.
 

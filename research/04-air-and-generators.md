@@ -54,4 +54,4 @@ The car comparison describes annual CO₂ scale only. Cars spread emissions over
 
 ## Relevant precedent
 
-The Irish example in the original report is real: an official filing describes temporary gas engines followed by nine permanent dual-fuel engines, with seven serving normal load, selective catalytic reduction, and continuous emissions monitoring. The linked document is an operational report for **South Dublin Routing 4 No. 2 Limited**, not an annual report issued under the title used in the original footnote.
+An official Irish filing illustrates why residents should ask whether generation is truly for emergencies. It describes temporary gas engines followed by nine permanent dual-fuel engines, with seven serving normal load, selective catalytic reduction, and continuous emissions monitoring. This is an example from **South Dublin Routing 4 No. 2 Limited**, not evidence about the Sumter County proposal.

@@ -17,7 +17,7 @@ createServer((request, response) => {
   let requested = pathname === '/' ? '/website/index.html' : pathname;
   if (['/app.js', '/styles.css'].includes(requested)) requested = `/website${requested}`;
   const file = normalize(join(projectDir, requested));
-  if (!file.startsWith(projectDir) || !['/website/', '/research/', '/data-center-environmental-research-report.md'].some((allowed) => requested.startsWith(allowed))) {
+  if (!file.startsWith(projectDir) || !['/website/', '/research/'].some((allowed) => requested.startsWith(allowed))) {
     response.writeHead(403); response.end('Forbidden'); return;
   }
   try {
