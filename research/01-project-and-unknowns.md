@@ -4,7 +4,7 @@
 
 Not enough has been made public to calculate this project's environmental footprint.
 
-**Unverified description:** The project has been described as a data center on approximately 125 acres between Brady Road and Sweat Avenue in the J. Frank Myers Industrial Park. The public source for that description should be attached before it is repeated as an official project fact.
+**Unverified description:** The project has been described as a data center on a tract between Brady Road and Sweat Avenue in the J. Frank Myers Industrial Park. No public record documenting the site or its acreage was located; the source for that description should be attached before any of it is repeated as an official project fact.
 
 ## The decision officials are really making
 
