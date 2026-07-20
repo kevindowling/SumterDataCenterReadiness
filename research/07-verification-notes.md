@@ -57,4 +57,4 @@ Do not let an unanswered question be reframed as proof that there is no risk. As
 3. Will commissioners delay action until residents can review it?
 4. Which approval condition will make the answer enforceable?
 
-The honest conclusion today is not that every harm will occur. It is that the public record is not complete enough to know—and approval should not outrun the evidence.
+The honest conclusion today is not that every harm will occur. It is that the public record is not complete enough to know, and approval should not outrun the evidence.

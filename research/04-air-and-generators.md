@@ -6,9 +6,9 @@ Occasional emergency backup is different from regular generation. If engines or 
 
 ## Three numbers officials need
 
-1. **Normal facility demand** — how much power the campus normally uses.
-2. **Installed generating capacity** — often larger because of redundancy.
-3. **Allowed operating hours** — the difference between rare backup and routine pollution.
+1. **Normal facility demand** - how much power the campus normally uses.
+2. **Installed generating capacity** - often larger because of redundancy.
+3. **Allowed operating hours** - the difference between rare backup and routine pollution.
 
 ## Diesel scale scenario
 
