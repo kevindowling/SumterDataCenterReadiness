@@ -20,11 +20,11 @@ The reported site between Brady Road and Sweat Avenue needs to be tied to a publ
 
 ### Water demand and cooling design
 
-The city permit limits and historical withdrawals are documented. The project's average-day, peak-day, maximum-month, and annual demands are not. Obtain the final cooling schematic, water balance, source, blowdown plan, and an independent capacity analysis.
+The [city permit limits](https://epd.georgia.gov/watershed-protection-branch-lists) and [historical withdrawals](https://www.usgs.gov/data/estimate-georgia-water-use-data-county-2020) are documented. The project's average-day, peak-day, maximum-month, and annual demands are not. Obtain the final cooling schematic, water balance, source, blowdown plan, and an independent capacity analysis.
 
 ### Electric load and utility upgrades
 
-Statewide growth figures are documented. The project's IT load, total meter load, service date, transmission path, upgrade cost, and financial guarantees are not. Obtain the utility will-serve letter and full-buildout load schedule.
+[Statewide growth figures](https://psc.ga.gov/site/downloads/datacenterfactsheet.pdf) are documented. The project's IT load, total meter load, service date, transmission path, upgrade cost, and financial guarantees are not. Obtain the utility will-serve letter and full-buildout load schedule.
 
 ### Generators, fuel, and operating hours
 
@@ -32,7 +32,7 @@ The number, model, fuel, capacity, emission controls, and permitted hours of the
 
 ### Sound at nearby homes
 
-Research from other communities documents the kinds of sound problems data centers can create. It does not predict sound levels here. Obtain a local baseline study and a full-buildout model using the final equipment, terrain, property lines, and nearby residences.
+[Research from other communities](https://jlarc.virginia.gov/pdfs/reports/Rpt598.pdf) documents the kinds of sound problems data centers can create. It does not predict sound levels here. Obtain a local baseline study and a full-buildout model using the final equipment, terrain, property lines, and nearby residences.
 
 ### Public costs and enforceable benefits
 

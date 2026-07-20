@@ -12,7 +12,7 @@ Occasional emergency backup is different from regular generation. If engines or 
 
 ## Diesel scale scenario
 
-A representative Caterpillar 3516B has a 1.64 MW continuous rating and uses about 119 gallons of diesel per hour at that rating. Scaling comparable engines to 100 MW of continuous output gives approximately:
+A representative [Caterpillar 3516B](https://turnkey-industries.com/wp-content/uploads/2022/03/Turnkey-Industries-Caterpillar-3516B-Spec-Sheet.pdf) has a 1.64 MW continuous rating and uses about 119 gallons of diesel per hour at that rating. Scaling comparable engines to 100 MW of continuous output gives approximately:
 
 | Measure | Approximate amount |
 |---|---:|
@@ -26,7 +26,7 @@ This is an around-the-clock scale illustration, not an Americus project forecast
 
 ## Natural-gas turbine scale scenario
 
-A representative 16.53 MW turbine with a 9,630 Btu/kWh heat rate scales to approximately:
+A representative [16.53 MW turbine](https://www.solarturbines.com/en_US/products/power-generation-packages/titan-130/) with a 9,630 Btu/kWh heat rate scales to approximately:
 
 | Measure at 100 MW continuous output | Approximate amount |
 |---|---:|
@@ -36,11 +36,11 @@ A representative 16.53 MW turbine with a 9,630 Btu/kWh heat rate scales to appro
 | Direct CO₂ per year | 450,000 metric tons |
 | Passenger-car CO₂ equivalent | 98,000 typical cars |
 
-Natural gas usually emits less direct CO₂, particulate matter, and sulfur pollution than diesel per unit of electricity, but it still emits NOx, CO, VOCs, hazardous pollutants, and CO₂. Upstream methane is outside the stack calculation.
+[Natural gas usually emits less direct CO₂](https://www.eia.gov/environment/emissions/co2_vol_mass.php), particulate matter, and sulfur pollution than diesel per unit of electricity, but it still emits NOx, CO, VOCs, hazardous pollutants, and CO₂. Upstream methane is outside the stack calculation.
 
 ## Local health cannot be reduced to “cars”
 
-The car comparison describes annual CO₂ scale only. Cars spread emissions over many roads; a generator plant concentrates emissions at one property. Local health analysis requires unit-specific emission rates, stack heights, operating hours, weather, and dispersion modeling for NO₂, particulate matter, CO, VOCs, and hazardous pollutants.
+The [car comparison](https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle) describes annual CO₂ scale only. Cars spread emissions over many roads; a generator plant concentrates emissions at one property. Local health analysis requires unit-specific emission rates, stack heights, operating hours, weather, and dispersion modeling for NO₂, particulate matter, CO, VOCs, and hazardous pollutants.
 
 ## Questions that close the loopholes
 
@@ -54,4 +54,4 @@ The car comparison describes annual CO₂ scale only. Cars spread emissions over
 
 ## Relevant precedent
 
-An official Irish filing illustrates why residents should ask whether generation is truly for emergencies. It describes temporary gas engines followed by nine permanent dual-fuel engines, with seven serving normal load, selective catalytic reduction, and continuous emissions monitoring. This is an example from **South Dublin Routing 4 No. 2 Limited**, not evidence about the Sumter County proposal.
+An [official Irish filing](https://epawebapp.epa.ie/licences/lic_eDMS/090151b2808f5072.pdf) illustrates why residents should ask whether generation is truly for emergencies. It describes temporary gas engines followed by nine permanent dual-fuel engines, with seven serving normal load, selective catalytic reduction, and continuous emissions monitoring. This is an example from **South Dublin Routing 4 No. 2 Limited**, not evidence about the Sumter County proposal.
