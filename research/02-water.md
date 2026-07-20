@@ -6,7 +6,7 @@ Possibly, but the outcome depends almost entirely on the cooling design and full
 
 ## The local baseline
 
-| Verified or advertised measure | Amount | What it does—and does not—mean |
+| Verified or advertised measure | Amount | What it does, and does not, mean |
 |---|---:|---|
 | City annual-average groundwater permit limit | 3.75 MGD | Legal withdrawal limit; not a promise of available customer capacity |
 | City monthly-average permit limit | 4.2 MGD | Allows a higher monthly average than the annual limit |
@@ -26,7 +26,7 @@ A sealed loop carries heat to radiator-like dry coolers and rejects it to outdoo
 
 A cooling tower rejects heat by evaporating water. It continuously needs makeup water and also discharges concentrated blowdown. An internal server-water loop may be “closed” while the final outdoor heat-rejection system still consumes substantial water.
 
-## Scale scenario—not a project forecast
+## Scale scenario, not a project forecast
 
 The Department of Energy publishes full-load cooling-tower water estimates. Applying that method directly to IT heat gives this planning range:
 

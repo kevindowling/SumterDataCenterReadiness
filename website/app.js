@@ -121,13 +121,13 @@ function fieldMap() {
 }
 
 function home() {
-  document.title = 'Sumter Field Desk — Data Center Research';
+  document.title = 'Sumter Field Desk - Data Center Research';
   return `${topbar()}<main class="home">
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow"><span></span> CITIZEN RESEARCH FOR THE JULY 23 MEETING</p>
         <h1>Bring facts.<br />Ask for <em>answers.</em></h1>
-        <p class="lede">This is the community's research report on the proposed Sumter County data center. It separates verified local facts from planning scenarios and unresolved project details—so residents can press commissioners for precise answers, in public, before decisions are made.</p>
+        <p class="lede">This is the community's research report on the proposed Sumter County data center. It separates verified local facts from planning scenarios and unresolved project details, so residents can press commissioners for precise answers, in public, before decisions are made.</p>
         <div class="hero-actions"><button data-doc="start">Prepare for the meeting <span>→</span></button><button class="quiet" data-doc="verify">See what still needs verification</button></div>
         <div class="evidence-legend"><span class="verified">Verified fact</span><span class="scenario">Scale scenario</span><span class="unknown">Project unknown</span><span class="recommendation">Recommendation</span></div>
       </div>
@@ -149,7 +149,7 @@ function tocFrom(raw) {
 async function article(id) {
   const doc = documents.find((item) => item.id === id) || documents[0];
   const raw = await loadDocument(doc);
-  document.title = `${doc.title} — Sumter Field Desk`;
+  document.title = `${doc.title} - Sumter Field Desk`;
   const toc = tocFrom(raw);
   return `${topbar()}<main class="reader">
     <aside class="rail"><p>FIELD NOTES</p>${documents.map((item) => `<button data-doc="${item.id}" class="${item.id === doc.id ? 'active' : ''}"><span>${item.number}</span><b>${item.short}</b><i></i></button>`).join('')}<button data-doc="sources" class="rail-source">Evidence desk ↗</button></aside>

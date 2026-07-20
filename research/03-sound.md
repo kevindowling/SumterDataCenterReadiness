@@ -2,7 +2,7 @@
 
 ## Short answer
 
-Yes, depending on equipment, distance, terrain, weather, and mitigation. The most defensible concern is persistent audible or near-audible low-frequency hum—not a claim that inaudible infrasound has been proven to cause a broad list of diseases.
+Yes, depending on equipment, distance, terrain, weather, and mitigation. The most defensible concern is persistent audible or near-audible low-frequency hum, not a claim that inaudible infrasound has been proven to cause a broad list of diseases.
 
 ## Why one dBA number is not enough
 
@@ -38,7 +38,7 @@ Controlled studies generally have not detected acute physiological or sleep effe
 
 For a compact source in open space, sound starts with a rule of thumb of about **6 dB reduction per doubling of distance**. Real campuses are more complicated: rows of fans behave differently from a point source, multiple units combine, buildings reflect sound, and wind or nighttime inversions can improve propagation.
 
-Low frequencies have long wavelengths—about 56 feet at 20 Hz and 18 feet at 63 Hz—so ordinary walls and small barriers are less effective than they are against higher-frequency sound.
+Low frequencies have long wavelengths, about 56 feet at 20 Hz and 18 feet at 63 Hz, so ordinary walls and small barriers are less effective than they are against higher-frequency sound.
 
 ## Practical ordinance protections
 

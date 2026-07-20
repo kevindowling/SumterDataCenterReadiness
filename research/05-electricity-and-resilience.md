@@ -4,7 +4,7 @@
 
 A large data center can equal or exceed the average electricity use of an entire county. That does not automatically mean it will cause local blackouts. The real questions are whether firm generation and transmission capacity exist, who pays for upgrades, and whether the facility rides through ordinary voltage disturbances instead of disconnecting abruptly.
 
-## County comparison—with a source warning
+## County comparison, with a source warning
 
 A commercial data aggregator estimates Sumter County consumption at approximately **406,990 MWh per year**, equal to an average continuous load of **46.5 MW**. The source warns that its data may be incomplete or inconsistent; Georgia Power and Sumter EMC should certify a current figure.
 
