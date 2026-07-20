@@ -8,10 +8,10 @@ Possibly, but the outcome depends almost entirely on the cooling design and full
 
 | Verified or advertised measure | Amount | What it does, and does not, mean |
 |---|---:|---|
-| City annual-average groundwater permit limit | 3.75 MGD | Legal withdrawal limit; not a promise of available customer capacity |
+| City annual-average groundwater permit limit | 3.75 MGD | [Legal withdrawal limit](https://epd.georgia.gov/watershed-protection-branch-lists); not a promise of available customer capacity |
 | City monthly-average permit limit | 4.2 MGD | Allows a higher monthly average than the annual limit |
-| Advertised average city consumption | ~2.5 MGD | Development Authority figure; measurement date is unstated |
-| City withdrawal in 2020 | 2.22 MGD | Historical USGS figure, not current 2026 demand |
+| Advertised average city consumption | ~2.5 MGD | [Development Authority figure](https://www.selectsumter.com/sites-buildings); measurement date is unstated |
+| City withdrawal in 2020 | 2.22 MGD | [Historical USGS figure](https://www.usgs.gov/data/estimate-georgia-water-use-data-county-2020), not current 2026 demand |
 | Advertised water-plant capacity | 7 MGD | Treatment rating; not the same as permitted or sustainable withdrawal |
 
 Using the advertised 2.5 MGD demand, the simple difference below the annual permit limit is about **1.25 MGD**. That is only arithmetic. It does not prove that 1.25 MGD is available after peak demand, leakage, fire flow, drought, existing commitments, or well limitations.
@@ -20,7 +20,7 @@ Using the advertised 2.5 MGD demand, the simple difference below the annual perm
 
 ### Dry cooling
 
-A sealed loop carries heat to radiator-like dry coolers and rejects it to outdoor air. Ordinary cooling-water consumption can be near zero, although the site still needs water for initial fill, maintenance, humidification, cleaning, employees, landscaping, and fire protection.
+A sealed loop carries heat to [radiator-like dry coolers](https://www.ashrae.org/technical-resources/ai-data-center-framework/integrated-design-principles) and rejects it to outdoor air. Ordinary cooling-water consumption can be near zero, although the site still needs water for initial fill, maintenance, humidification, cleaning, employees, landscaping, and fire protection.
 
 ### Evaporative cooling
 
@@ -28,7 +28,7 @@ A cooling tower rejects heat by evaporating water. It continuously needs makeup 
 
 ## Scale scenario, not a project forecast
 
-The Department of Energy publishes full-load cooling-tower water estimates. Applying that method directly to IT heat gives this planning range:
+The [Department of Energy publishes](https://www.energy.gov/cmei/femp/estimating-methods-determining-end-use-water-consumption) full-load cooling-tower water estimates. Applying that method directly to IT heat gives this planning range:
 
 | Constant IT heat load | Evaporative makeup water | Annual amount |
 |---:|---:|---:|
@@ -59,4 +59,4 @@ These figures assume full load around the clock. Weather, utilization, economize
 
 ## Important historical context
 
-An older USGS study identified a small Providence-aquifer cone of depression around Americus. The same study also concluded that groundwater resources in its broader study area were not significantly impaired by 1990 use. That decades-old evidence supports obtaining a current study; it does not prove present harm or present safety.
+An [older USGS study](https://pubs.usgs.gov/of/1996/ofr96-483/pdf/ofr96-483.pdf) identified a small Providence-aquifer cone of depression around Americus. The same study also concluded that groundwater resources in its broader study area were not significantly impaired by 1990 use. That decades-old evidence supports obtaining a current study; it does not prove present harm or present safety.
