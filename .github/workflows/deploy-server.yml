@@ -21,6 +21,10 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install dependencies
+        working-directory: website
+        run: npm ci
+
       - name: Validate public-report files
         run: node website/check.mjs
 
@@ -55,9 +59,28 @@ jobs:
 
       - name: Sync application files
         run: |
-          rsync -az --delete \
-            website research \
+          rsync -az --delete --exclude node_modules \
+            website research deploy/migrations \
             "deploy@${{ secrets.VPS_HOST }}:/opt/sumter-field-desk/"
+
+      - name: Install server dependencies
+        run: ssh "deploy@${{ secrets.VPS_HOST }}" 'cd /opt/sumter-field-desk/website && npm ci --omit=dev'
+
+      - name: Run database migrations
+        # Runs psql on the VPS (the only IP the database trusts). Migration
+        # files are idempotent, so replaying all of them each deploy is safe.
+        # Credentials travel over ssh stdin, never argv. Using PG* env vars
+        # instead of a URL avoids password URL-encoding issues.
+        run: |
+          printf '%s\n' "${{ secrets.DATABASE_HOST }}" "${{ secrets.DATABASE_USER }}" "${{ secrets.DATABASE_PW }}" | \
+            ssh "deploy@${{ secrets.VPS_HOST }}" '
+              IFS= read -r PGHOST; IFS= read -r PGUSER; IFS= read -r PGPASSWORD
+              if [[ "$PGHOST" == *:* ]]; then PGPORT="${PGHOST##*:}"; PGHOST="${PGHOST%%:*}"; export PGPORT; fi
+              export PGHOST PGUSER PGPASSWORD PGDATABASE=scc4t PGSSLMODE=require
+              for file in /opt/sumter-field-desk/migrations/*.sql; do
+                echo "Applying ${file##*/}"
+                psql -v ON_ERROR_STOP=1 -q -f "$file"
+              done'
 
       - name: Restart service
         run: ssh "deploy@${{ secrets.VPS_HOST }}" 'sudo systemctl restart sumter-field-desk'

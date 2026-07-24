@@ -28,12 +28,12 @@ if [[ -n "$DEPLOY_PUBKEY" ]] && ! grep -qF "$DEPLOY_PUBKEY" /home/deploy/.ssh/au
   echo "$DEPLOY_PUBKEY" >> /home/deploy/.ssh/authorized_keys
 fi
 
-echo "==> Installing Node.js 22 and rsync"
+echo "==> Installing Node.js 22, rsync, and psql (for CI-run migrations)"
 if ! command -v node >/dev/null 2>&1; then
   curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
   apt-get install -y nodejs
 fi
-apt-get install -y rsync
+apt-get install -y rsync postgresql-client
 
 echo "==> Creating application directory"
 install -d -o deploy -g deploy /opt/sumter-field-desk

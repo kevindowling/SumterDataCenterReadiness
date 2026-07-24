@@ -18,6 +18,18 @@ const cache = new Map();
 let route = {view: 'home'};
 let searchOpen = false;
 let user = null;
+let stance;              // undefined = not yet fetched, null = unanswered, string = answered
+let surveyOpen = false;
+let surveyState = 'ask'; // ask | saving | thanks | error
+
+// Login survey: which group the resident falls into. Keys match the server
+// and the stance_responses check constraint.
+const stanceOptions = [
+  {key: 'learning', title: 'Still learning', text: "I don't know much about data centers yet."},
+  {key: 'opposed', title: 'Opposed', text: "I'm against building data centers in our community."},
+  {key: 'cautious', title: 'Open, with guardrails', text: 'Not against a data center, but the process needs to be careful and transparent.'},
+  {key: 'expedite', title: 'Frustrated by delays', text: 'Approvals like this take far too long today.'},
+];
 
 const escapeHtml = (value = '') => value.replace(/[&<>"]/g, (char) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[char]));
 const localDocumentRoute = (href) => {
@@ -146,8 +158,6 @@ function home() {
       ${fieldMap()}
     </section>
     <section class="status-strip meeting-strip">
-      <div><small>AMERICUS CITY COUNCIL</small><b class="meeting-address">PUBLIC MEETINGS</b><span>check the posted agenda for the next session</span></div>
-      <div><small>MEETING PLACE</small><b class="meeting-address">RUSSELL THOMAS BLDG.</b><span>Lee Street, Americus, Georgia</span></div>
       <div><small>COMMUNITY PURPOSE</small><b class="meeting-address">ASK BEFORE APPROVAL</b><span>facts, conditions, and accountability</span></div>
       ${communityCell()}
     </section>
@@ -183,8 +193,45 @@ function community() {
     <h1>Welcome, <em>${escapeHtml((user.given_name || user.name || 'neighbor').split(' ')[0])}.</em></h1>
     <p class="lede">This is the community side of the field desk. The features below are being built; the research notes remain open to everyone whether or not the community server is up.</p>
     <p class="server-status" id="server-status">CHECKING THE COMMUNITY SERVER…</p>
+    <p class="stance-line">${stance
+      ? `YOUR STANCE: ${stanceOptions.find((option) => option.key === stance)?.title.toUpperCase() || stance} · <button class="strip-link" data-survey-open>CHANGE</button>`
+      : `<button class="strip-link" data-survey-open>TAKE THE ONE-TAP SURVEY →</button>`}</p>
     <div class="community-grid">${communityFeatures.map((feature) => `<div class="community-card"><i>${feature.number}</i><b>${feature.title}</b><span>${feature.text}</span><em>COMING SOON</em></div>`).join('')}</div>
   </section></main>${searchPanel()}`;
+}
+
+function surveyPanel() {
+  if (!surveyOpen) return '';
+  const body = surveyState === 'thanks'
+    ? '<p class="survey-thanks">Thank you. Your answer helps the desk report where the community actually stands.</p>'
+    : `<div class="survey-options">${stanceOptions.map((option) => `<button data-stance="${option.key}" ${surveyState === 'saving' ? 'disabled' : ''} class="${option.key === stance ? 'current' : ''}"><b>${option.title}</b><span>${option.text}</span></button>`).join('')}</div>
+       ${surveyState === 'error' ? '<p class="survey-error">Could not save your answer. Please try again.</p>' : ''}
+       ${surveyState === 'saving' ? '<p class="survey-hint">SAVING…</p>' : '<p class="survey-hint">One tap · you can change your answer any time from the community desk</p>'}`;
+  return `<div class="search-overlay survey-overlay open" data-survey-overlay><section role="dialog" aria-modal="true" aria-label="Community survey">
+    <header><span>COMMUNITY SURVEY</span><button data-survey-close aria-label="Close survey">×</button></header>
+    <h2>Where do you stand on data centers here?</h2>
+    ${body}
+  </section></div>`;
+}
+
+async function loadStance() {
+  if (!user || stance !== undefined) return;
+  try {
+    const response = await apiFetch('/api/survey/stance');
+    if (!response.ok) return; // server offline or features not enabled: never block login
+    stance = (await response.json()).stance;
+    if (stance === null) { surveyOpen = true; surveyState = 'ask'; render(); }
+  } catch { /* research desk works without the community server */ }
+}
+
+async function submitStance(key) {
+  surveyState = 'saving'; render();
+  try {
+    const response = await apiFetch('/api/survey/stance', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({stance: key})});
+    if (!response.ok) throw new Error(String(response.status));
+    stance = key; surveyState = 'thanks'; render();
+    setTimeout(() => { if (surveyState === 'thanks') { surveyOpen = false; render(); } }, 2200);
+  } catch { surveyState = 'error'; render(); }
 }
 
 async function probeServer() {
@@ -239,7 +286,7 @@ function searchResults(query) {
 
 async function render() {
   app.innerHTML = '<div class="loading">Opening the field desk…</div>';
-  try { app.innerHTML = route.view === 'doc' ? await article(route.id) : route.view === 'community' ? community() : home(); }
+  try { app.innerHTML = (route.view === 'doc' ? await article(route.id) : route.view === 'community' ? community() : home()) + surveyPanel(); }
   catch (error) { app.innerHTML = `<div class="fatal"><b>The research desk could not open.</b><p>${escapeHtml(error.message)}</p><p>Run the included local server instead of opening index.html directly.</p></div>`; }
   bind();
   if (route.view === 'community') probeServer();
@@ -261,6 +308,10 @@ function bind() {
   document.querySelector('#search-input')?.addEventListener('input', (event) => { document.querySelector('#search-results').innerHTML = searchResults(event.target.value); bindSearchResults(); });
   bindSearchResults();
   document.querySelectorAll('[data-anchor]').forEach((button) => button.addEventListener('click', () => document.getElementById(button.dataset.anchor)?.scrollIntoView({behavior: 'smooth', block: 'start'})));
+  document.querySelectorAll('[data-stance]').forEach((button) => button.addEventListener('click', () => submitStance(button.dataset.stance)));
+  document.querySelector('[data-survey-close]')?.addEventListener('click', () => { surveyOpen = false; render(); });
+  document.querySelector('[data-survey-open]')?.addEventListener('click', () => { surveyOpen = true; surveyState = 'ask'; render(); });
+  document.querySelector('[data-survey-overlay]')?.addEventListener('mousedown', (event) => { if (event.target === event.currentTarget) { surveyOpen = false; render(); } });
 }
 
 function bindSearchResults() { document.querySelectorAll('#search-results [data-doc]').forEach((button) => button.addEventListener('click', () => {searchOpen = false; setRoute({view: 'doc', id: button.dataset.doc});})); }
@@ -275,4 +326,5 @@ initAuth().then(({user: signedIn, freshLogin}) => {
   if (!signedIn) { if (route.view === 'community') render(); return; }
   user = signedIn;
   if (freshLogin) setRoute({view: 'community'}); else render();
+  loadStance();
 }).catch((error) => console.warn('Auth0 unavailable:', error));
