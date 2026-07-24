@@ -1,0 +1,24 @@
+[Unit]
+Description=Sumter Field Desk server
+After=network.target
+
+[Service]
+User=deploy
+Group=deploy
+WorkingDirectory=/opt/sumter-field-desk/website
+ExecStart=/usr/bin/node server.mjs
+Environment=PORT=4173
+Restart=always
+RestartSec=2
+
+# Hardening: the app only reads its own files; StateDirectory is writable
+# for future features that need persistence (message board, petitions).
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/opt/sumter-field-desk
+StateDirectory=sumter-field-desk
+
+[Install]
+WantedBy=multi-user.target

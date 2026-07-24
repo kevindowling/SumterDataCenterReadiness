@@ -1,0 +1,87 @@
+#cloud-config
+# Zero-login VPS provisioning. On DigitalOcean, paste this whole file into the
+# "Advanced Options → Add Initialization scripts (free)" / "User data" field
+# when creating the droplet (Ubuntu 22.04 or 24.04). Other providers accept the
+# same file wherever they offer "user data" / cloud-init.
+#
+# REPLACE TWO PLACEHOLDERS BEFORE PASTING:
+#   API_DOMAIN          → your API hostname, e.g. api.yourdomain.com
+#   DEPLOY_PUBLIC_KEY   → one line: the contents of deploy_key.pub
+#                         (ssh-keygen -t ed25519 -f deploy_key -N '' -C github-actions)
+#
+# It replicates deploy/setup-vps.sh: deploy user (restricted sudo), Node 22,
+# the systemd service, Caddy with automatic HTTPS, and a basic firewall.
+# First boot takes a few minutes; verify with: curl https://API_DOMAIN/api/health
+# (it returns 502 from Caddy until GitHub Actions ships the code — that's fine).
+
+users:
+  - name: deploy
+    gecos: GitHub Actions deploy
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys:
+      - DEPLOY_PUBLIC_KEY
+    sudo:
+      - "ALL=(root) NOPASSWD: /usr/bin/systemctl restart sumter-field-desk"
+
+package_update: true
+packages:
+  - rsync
+  - debian-keyring
+  - debian-archive-keyring
+  - apt-transport-https
+  - curl
+
+write_files:
+  - path: /etc/systemd/system/sumter-field-desk.service
+    content: |
+      [Unit]
+      Description=Sumter Field Desk server
+      After=network.target
+
+      [Service]
+      User=deploy
+      Group=deploy
+      WorkingDirectory=/opt/sumter-field-desk/website
+      ExecStart=/usr/bin/node server.mjs
+      Environment=PORT=4173
+      Restart=always
+      RestartSec=2
+      NoNewPrivileges=true
+      ProtectSystem=strict
+      ProtectHome=true
+      PrivateTmp=true
+      ReadOnlyPaths=/opt/sumter-field-desk
+      StateDirectory=sumter-field-desk
+
+      [Install]
+      WantedBy=multi-user.target
+  # Staged outside /etc/caddy so the caddy package's default Caddyfile
+  # can't clobber it; runcmd moves it into place after install.
+  - path: /opt/bootstrap/Caddyfile
+    content: |
+      API_DOMAIN {
+      	encode gzip
+      	reverse_proxy localhost:4173
+      }
+
+runcmd:
+  # Node.js 22
+  - curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+  - apt-get install -y nodejs
+  # Application directory + service
+  - install -d -o deploy -g deploy /opt/sumter-field-desk
+  - systemctl daemon-reload
+  - systemctl enable sumter-field-desk
+  # Caddy (automatic HTTPS)
+  - curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+  - curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
+  - apt-get update
+  - apt-get install -y caddy
+  - cp /opt/bootstrap/Caddyfile /etc/caddy/Caddyfile
+  - systemctl restart caddy
+  # Firewall: SSH + HTTP/HTTPS only
+  - ufw allow OpenSSH
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw --force enable

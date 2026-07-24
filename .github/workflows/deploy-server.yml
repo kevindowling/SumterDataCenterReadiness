@@ -1,0 +1,74 @@
+name: Server CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate public-report files
+        run: node website/check.mjs
+
+      - name: Syntax-check all scripts
+        run: |
+          for file in website/*.mjs website/*.js; do node --check "$file"; done
+
+      - name: Run server tests
+        working-directory: website
+        run: npm test
+
+  deploy:
+    # Enable by setting the repository variable DEPLOY_ENABLED to "true"
+    # (Settings → Secrets and variables → Actions → Variables) once the VPS exists.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.DEPLOY_ENABLED == 'true'
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: vps-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync application files
+        run: |
+          rsync -az --delete \
+            website research \
+            "deploy@${{ secrets.VPS_HOST }}:/opt/sumter-field-desk/"
+
+      - name: Restart service
+        run: ssh "deploy@${{ secrets.VPS_HOST }}" 'sudo systemctl restart sumter-field-desk'
+
+      - name: Verify deployment health
+        run: |
+          ssh "deploy@${{ secrets.VPS_HOST }}" '
+            for attempt in 1 2 3 4 5; do
+              sleep 2
+              if curl -fsS http://localhost:4173/api/health; then exit 0; fi
+            done
+            echo "Health check failed" >&2
+            systemctl status sumter-field-desk --no-pager >&2 || true
+            exit 1'
