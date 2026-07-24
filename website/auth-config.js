@@ -3,9 +3,9 @@
 export const authConfig = {
   domain: 'scc4t.us.auth0.com',
   clientId: 'YEELbmsY27hdZqTLxVd6b6uZ7r8cyvou',
-  // Optional until you add API routes: the Identifier of an Auth0 API
-  // (Applications → APIs). Required for the server to verify access tokens.
-  audience: '',
+  // The Identifier of the Auth0 API (Applications → APIs) — must match it
+  // exactly. Required for the server to verify access tokens.
+  audience: 'https://api.scc4t.com',
   // Where the API server lives. Empty = same origin (local dev with server.mjs).
   // For the GitHub Pages site, set your VPS URL, e.g. 'https://api.yourdomain.com'.
   apiBase: 'https://api.scc4t.com',
