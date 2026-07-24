@@ -21,3 +21,19 @@
 @media(max-width:720px){.hero h1 em{display:block}.paper-cover h1{overflow-wrap:anywhere}.rail .rail-source{display:none}}
 .status-strip .meeting-address{color:var(--orange);font-size:clamp(17px,1.7vw,26px);white-space:normal}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+.account-name{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 10px/1 var(--mono);letter-spacing:.05em}
+@media(max-width:720px){[data-login],[data-logout]{display:inline-block;font:500 10px/1 var(--mono)}.account-name{display:none}}
+.strip-link{padding:0;border:0;background:none;color:var(--orange);cursor:pointer;font:500 clamp(17px,1.7vw,26px)/1 var(--mono);text-decoration:underline 3px;text-underline-offset:6px}
+.community{max-width:1100px;min-height:calc(100vh - 78px);margin:auto;padding:clamp(54px,7vw,110px) clamp(20px,5vw,80px)}
+.community h1{margin:0 0 30px;font-size:clamp(52px,6vw,96px);font-weight:600;line-height:.85;letter-spacing:-.06em}
+.community h1 em{color:var(--orange);font-weight:400}
+.community .lede{max-width:640px}
+.community .hero-actions{margin-top:36px}
+.server-status{margin:34px 0 0;padding:12px 14px;display:inline-block;border:1px solid var(--ink);background:var(--light);font:500 10px/1.4 var(--mono);letter-spacing:.08em}
+.community-grid{margin-top:44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));border-top:1px solid var(--ink);border-left:1px solid var(--ink)}
+.community-card{min-height:210px;padding:24px;display:flex;flex-direction:column;gap:12px;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.community-card i{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border:1px solid;border-radius:50%;font:500 13px/1 var(--mono);font-style:normal}
+.community-card b{font-size:24px;line-height:1.05}
+.community-card span{color:var(--muted);font-size:15px;line-height:1.4}
+.community-card em{margin-top:auto;color:var(--orange);font:500 9px/1 var(--mono);letter-spacing:.12em;font-style:normal}
+@media(max-width:720px){.community{min-height:calc(100vh - 66px)}[data-community]{display:inline-block;font:500 10px/1 var(--mono)}}

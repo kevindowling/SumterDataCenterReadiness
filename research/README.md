@@ -6,12 +6,9 @@ This is the community research report for the proposed Sumter County data center
 
 The most important fact is also the largest information gap: no complete public project application or engineering package was located. The large planning numbers in this report are therefore **scenarios**, not forecasts for this site.
 
-## Upcoming public meetings
+## Public meetings
 
-Two meetings are coming in the same week:
-
-- **Sumter County Board of Commissioners - Tuesday, July 21, 2026, 6:00 p.m.**, 500 West Lamar Street, Americus. Confirmed by the county calendar.
-- **Americus City Council - Thursday, July 23, 2026, 6:00 p.m.**, Russell Thomas Jr. Public Safety Building, Lee Street (community-reported; confirm via the [city's agenda portal](https://www.americusga.gov/) or 229-924-4411). The council discussed a draft data-center ordinance the week of July 13–17 - industrial-district siting with special approval, a 250-foot residential buffer, and a 70-decibel sound cap - and the topic is expected to return. Source: [Americus Times-Recorder, July 17, 2026](https://americustimesrecorder.com/2026/07/17/americus-city-council-discusses-data-center-ordinance/).
+Two public meetings took place in July 2026: the **Sumter County Board of Commissioners** (500 West Lamar Street, Americus; confirmed by the county calendar) and the **Americus City Council** (Russell Thomas Jr. Public Safety Building, Lee Street). The council discussed a draft data-center ordinance - industrial-district siting with special approval, a 250-foot residential buffer, and a 70-decibel sound cap - and the topic is expected to return at future sessions. Source: [Americus Times-Recorder, July 17, 2026](https://americustimesrecorder.com/2026/07/17/americus-city-council-discusses-data-center-ordinance/). Watch the [city's agenda portal](https://www.americusga.gov/) or call 229-924-4411 for upcoming dates.
 
 This report is intended to help residents bring focused questions about water, sound, air pollution, electricity, public costs, and enforceable conditions. Residents should check posted agendas and any last-minute notices before attending.
 
