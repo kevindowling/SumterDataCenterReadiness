@@ -48,13 +48,14 @@ async function verifyToken(request) {
 // no database configured. `pg` is only imported once DATABASE_URL is set.
 let pool = null;
 async function getPool() {
-  if (!process.env.DATABASE_URL) return null;
+  const url = process.env.DATABASE_URL || '';
+  if (!url && !process.env.PGHOST) return null; // pg also reads PGHOST/PGUSER/PGPASSWORD/PGDATABASE/PGPORT
   if (!pool) {
     const {default: pg} = await import('pg');
     // Managed instances require TLS but present provider CAs; verify-full
     // needs the CA bundled, so require-mode connections skip chain checks.
-    const tls = /sslmode=(require|no-verify|verify-)/.test(process.env.DATABASE_URL);
-    pool = new pg.Pool({connectionString: process.env.DATABASE_URL, max: 5, ...(tls ? {ssl: {rejectUnauthorized: false}} : {})});
+    const tls = /sslmode=(require|no-verify|verify-)/.test(url) || /^(require|no-verify|verify-)/.test(process.env.PGSSLMODE || '');
+    pool = new pg.Pool({...(url ? {connectionString: url} : {}), max: 5, ...(tls ? {ssl: {rejectUnauthorized: false}} : {})});
   }
   return pool;
 }

@@ -50,6 +50,8 @@ Group=deploy
 WorkingDirectory=/opt/sumter-field-desk/website
 ExecStart=/usr/bin/node server.mjs
 Environment=PORT=4173
+# Written by the deploy workflow from GitHub secrets; optional until then.
+EnvironmentFile=-/opt/sumter-field-desk/server.env
 Restart=always
 RestartSec=2
 

@@ -66,23 +66,35 @@ jobs:
       - name: Install server dependencies
         run: ssh "deploy@${{ secrets.VPS_HOST }}" 'cd /opt/sumter-field-desk/website && npm ci --omit=dev'
 
-      - name: Run database migrations
-        # Runs psql on the VPS (the only IP the database trusts). Migration
-        # files are idempotent, so replaying all of them each deploy is safe.
-        # Credentials travel over ssh stdin, never argv. Using PG* env vars
-        # instead of a URL avoids password URL-encoding issues.
+      - name: Write server environment file
+        # The systemd unit loads /opt/sumter-field-desk/server.env (optional
+        # EnvironmentFile), so database credentials are fully CI-managed —
+        # update the GitHub secrets and redeploy to rotate. Values travel
+        # over ssh stdin, never argv. PG* vars avoid URL-encoding issues.
         run: |
           printf '%s\n' "${{ secrets.DATABASE_HOST }}" "${{ secrets.DATABASE_USER }}" "${{ secrets.DATABASE_PW }}" | \
             ssh "deploy@${{ secrets.VPS_HOST }}" '
               set -euo pipefail
-              command -v psql >/dev/null || { echo "psql missing on VPS: apt-get install -y postgresql-client" >&2; exit 1; }
-              IFS= read -r PGHOST; IFS= read -r PGUSER; IFS= read -r PGPASSWORD
-              if [[ "$PGHOST" == *:* ]]; then PGPORT="${PGHOST##*:}"; PGHOST="${PGHOST%%:*}"; export PGPORT; fi
-              export PGHOST PGUSER PGPASSWORD PGDATABASE=scc4t PGSSLMODE=require
-              for file in /opt/sumter-field-desk/migrations/*.sql; do
-                echo "Applying ${file##*/}"
-                psql -v ON_ERROR_STOP=1 -q -f "$file"
-              done'
+              IFS= read -r HOST; IFS= read -r DB_USER; IFS= read -r DB_PW
+              PORT=5432
+              if [[ "$HOST" == *:* ]]; then PORT="${HOST##*:}"; HOST="${HOST%%:*}"; fi
+              umask 077
+              printf "PGHOST=%s\nPGPORT=%s\nPGUSER=%s\nPGPASSWORD=%s\nPGDATABASE=scc4t\nPGSSLMODE=require\n" \
+                "$HOST" "$PORT" "$DB_USER" "$DB_PW" > /opt/sumter-field-desk/server.env'
+
+      - name: Run database migrations
+        # Runs psql on the VPS (the only IP the database trusts) using the
+        # environment file written above. Migration files are idempotent, so
+        # replaying all of them each deploy is safe.
+        run: |
+          ssh "deploy@${{ secrets.VPS_HOST }}" '
+            set -euo pipefail
+            command -v psql >/dev/null || { echo "psql missing on VPS: apt-get install -y postgresql-client" >&2; exit 1; }
+            set -a; . /opt/sumter-field-desk/server.env; set +a
+            for file in /opt/sumter-field-desk/migrations/*.sql; do
+              echo "Applying ${file##*/}"
+              psql -v ON_ERROR_STOP=1 -q -f "$file"
+            done'
 
       - name: Restart service
         run: ssh "deploy@${{ secrets.VPS_HOST }}" 'sudo systemctl restart sumter-field-desk'
