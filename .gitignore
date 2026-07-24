@@ -5,8 +5,5 @@
 /_site/
 .DS_Store
 npm-debug.log*
-
 .claude
-SETUP.md
-
 ignore/*
