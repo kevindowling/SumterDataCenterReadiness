@@ -146,8 +146,6 @@ function home() {
       ${fieldMap()}
     </section>
     <section class="status-strip meeting-strip">
-      <div><small>AMERICUS CITY COUNCIL</small><b class="meeting-address">PUBLIC MEETINGS</b><span>check the posted agenda for the next session</span></div>
-      <div><small>MEETING PLACE</small><b class="meeting-address">RUSSELL THOMAS BLDG.</b><span>Lee Street, Americus, Georgia</span></div>
       <div><small>COMMUNITY PURPOSE</small><b class="meeting-address">ASK BEFORE APPROVAL</b><span>facts, conditions, and accountability</span></div>
       ${communityCell()}
     </section>
