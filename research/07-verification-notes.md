@@ -2,15 +2,15 @@
 
 ## An honest note about the evidence
 
-This report uses the best public sources located before the July 21 meeting. It does not have the complete project application, engineering package, utility commitments, or draft approval conditions. That means it can identify credible risks and show their possible scale, but it cannot honestly predict the final facility's impacts.
+This report uses the best public sources located before the July 2026 county and city meetings. It does not have the complete project application, engineering package, utility commitments, or draft approval conditions. That means it can identify credible risks and show their possible scale, but it cannot honestly predict the final facility's impacts.
 
 This is not a reason to dismiss the questions. It is the reason commissioners should require answers before granting rights or approvals.
 
 ## Verified meeting information
 
-The official Sumter County calendar lists a **Regular Board Meeting on Tuesday, July 21, 2026 at 6:00 p.m.**, at **500 West Lamar Street, Americus, Georgia 31709**. County meetings are open to the public.
+The official Sumter County calendar listed a **Regular Board Meeting in July 2026** at **500 West Lamar Street, Americus, Georgia 31709**, which has since taken place. County meetings are open to the public.
 
-Residents should check the [county calendar](https://www.sumtercountyga.us/calendar.aspx?day=21&month=7&view=list&year=2026) and posted agenda again before leaving for the meeting in case details change.
+Residents should check the [county calendar](https://www.sumtercountyga.us/calendar.aspx) and posted agendas for upcoming sessions, since the data-center topic is expected to return.
 
 ## Local project facts still needing documents
 

@@ -1,0 +1,7 @@
+# Replace example.com with your real domain before running setup-vps.sh,
+# or pass the domain as the script's first argument to have it filled in.
+# Caddy obtains and renews the HTTPS certificate automatically.
+example.com {
+	encode gzip
+	reverse_proxy localhost:4173
+}

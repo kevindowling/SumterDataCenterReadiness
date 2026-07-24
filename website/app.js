@@ -1,3 +1,6 @@
+import {apiFetch, initAuth, isConfigured, login, logout} from './auth.js';
+import {authConfig} from './auth-config.js';
+
 const documents = [
   {id: 'start', file: 'README.md', number: '00', short: 'Orientation', title: 'Start with what is known', question: 'What do we actually know?', tone: 'verified', time: '3 min'},
   {id: 'project', file: '01-project-and-unknowns.md', number: '01', short: 'Project', title: 'The missing application', question: 'What is actually proposed?', tone: 'unknown', time: '4 min'},
@@ -14,6 +17,7 @@ const app = document.querySelector('#app');
 const cache = new Map();
 let route = {view: 'home'};
 let searchOpen = false;
+let user = null;
 
 const escapeHtml = (value = '') => value.replace(/[&<>"]/g, (char) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[char]));
 const localDocumentRoute = (href) => {
@@ -85,28 +89,36 @@ async function loadDocument(doc) {
 
 function setRoute(next) {
   route = next;
-  const hash = next.view === 'doc' ? `#/doc/${next.id}` : '#/';
+  const hash = next.view === 'doc' ? `#/doc/${next.id}` : next.view === 'community' ? '#/community' : '#/';
   if (location.hash !== hash) history.pushState(null, '', hash);
   render();
 }
 
 function readRoute() {
   const match = location.hash.match(/^#\/doc\/([a-z-]+)/);
-  route = match ? {view: 'doc', id: match[1]} : {view: 'home'};
+  route = location.hash.startsWith('#/community') ? {view: 'community'} : match ? {view: 'doc', id: match[1]} : {view: 'home'};
   render();
 }
 
 const topbar = () => `
   <header class="topbar">
     <button class="brand" data-home aria-label="Return to research desk">
-      <span class="brand-seal">SC</span><span><b>SUMTER FIELD DESK</b><small>FOR THE JULY 23 PUBLIC MEETING</small></span>
+      <span class="brand-seal">SC</span><span><b>SUMTER FIELD DESK</b><small>COMMUNITY RESEARCH DESK</small></span>
     </button>
     <div class="top-actions">
       <span class="edition">COMMUNITY RESEARCH EDITION</span>
       <button class="search-button" data-search><kbd>/</kbd> Search the desk</button>
       <button class="source-link" data-doc="sources">Evidence desk ↗</button>
+      ${accountControls()}
     </div>
   </header>`;
+
+const accountControls = () => {
+  if (!isConfigured()) return '';
+  return user
+    ? `<button class="source-link" data-community>Community desk ↗</button><span class="account-name" title="${escapeHtml(user.email || '')}">${escapeHtml(user.name || user.email || 'Account')}</span><button class="source-link" data-logout>Sign out</button>`
+    : `<button class="source-link" data-login>Sign in</button>`;
+};
 
 function fieldMap() {
   return `<div class="field-map" aria-label="Map of knowns, unknowns, and scenarios">
@@ -125,21 +137,69 @@ function home() {
   return `${topbar()}<main class="home">
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow"><span></span> CITIZEN RESEARCH FOR THE JULY 23 MEETING</p>
+        <p class="eyebrow"><span></span> CITIZEN RESEARCH FOR SUMTER COUNTY</p>
         <h1>Bring facts.<br />Ask for <em>answers.</em></h1>
         <p class="lede">This is the community's research report on the proposed Sumter County data center. It separates verified local facts from planning scenarios and unresolved project details, so residents can press commissioners for precise answers, in public, before decisions are made.</p>
-        <div class="hero-actions"><button data-doc="start">Prepare for the meeting <span>→</span></button><button class="quiet" data-doc="verify">See what still needs verification</button></div>
+        <div class="hero-actions"><button data-doc="start">Start with what is known <span>→</span></button><button class="quiet" data-doc="verify">See what still needs verification</button></div>
         <div class="evidence-legend"><span class="verified">Verified fact</span><span class="scenario">Scale scenario</span><span class="unknown">Project unknown</span><span class="recommendation">Recommendation</span></div>
       </div>
       ${fieldMap()}
     </section>
     <section class="status-strip meeting-strip">
-      <div><small>AMERICUS CITY COUNCIL MEETING</small><b>THU <i>JUL 23</i></b><span>check the posted agenda before attending</span></div>
-      <div><small>START TIME</small><b>6:00 <i>PM</i></b><span>arrive early and bring notes</span></div>
+      <div><small>AMERICUS CITY COUNCIL</small><b class="meeting-address">PUBLIC MEETINGS</b><span>check the posted agenda for the next session</span></div>
       <div><small>MEETING PLACE</small><b class="meeting-address">RUSSELL THOMAS BLDG.</b><span>Lee Street, Americus, Georgia</span></div>
       <div><small>COMMUNITY PURPOSE</small><b class="meeting-address">ASK BEFORE APPROVAL</b><span>facts, conditions, and accountability</span></div>
+      ${communityCell()}
     </section>
   </main>${searchPanel()}`;
+}
+
+function communityCell() {
+  if (!isConfigured()) return `<div><small>COMMUNITY DESK</small><b class="meeting-address">COMING SOON</b><span>message board, surveys &amp; petitions</span></div>`;
+  return user
+    ? `<div><small>COMMUNITY DESK</small><b class="meeting-address"><button class="strip-link" data-community>OPEN THE DESK →</button></b><span>message board, surveys &amp; petitions</span></div>`
+    : `<div><small>COMMUNITY DESK</small><b class="meeting-address"><button class="strip-link" data-login>SIGN IN TO JOIN →</button></b><span>message board, surveys &amp; petitions</span></div>`;
+}
+
+const communityFeatures = [
+  {number: 'C1', title: 'Message board', text: 'Neighbor-to-neighbor threads on the proposal, meetings, and what people are hearing.'},
+  {number: 'C2', title: 'Surveys', text: 'Structured community input on the draft ordinance and its conditions.'},
+  {number: 'C3', title: 'Petition', text: 'Sign and share petitions asking for answers before approval.'},
+  {number: 'C4', title: 'Contact', text: 'Reach the organizers behind the field desk.'},
+];
+
+function community() {
+  document.title = 'Community Desk - Sumter Field Desk';
+  if (!user) {
+    return `${topbar()}<main class="community"><section class="community-gate">
+      <p class="eyebrow"><span></span> COMMUNITY DESK</p>
+      <h1>Sign in to <em>join.</em></h1>
+      <p class="lede">The community desk is where the message board, surveys, and petitions will live. The research notes stay open to everyone; an account connects you to the community side.</p>
+      <div class="hero-actions">${isConfigured() ? '<button data-login>Sign in or create an account <span>→</span></button>' : '<button disabled>Sign-in not configured yet</button>'}<button class="quiet" data-home>Back to the research desk</button></div>
+    </section></main>${searchPanel()}`;
+  }
+  return `${topbar()}<main class="community"><section class="community-home">
+    <p class="eyebrow"><span></span> COMMUNITY DESK</p>
+    <h1>Welcome, <em>${escapeHtml((user.given_name || user.name || 'neighbor').split(' ')[0])}.</em></h1>
+    <p class="lede">This is the community side of the field desk. The features below are being built; the research notes remain open to everyone whether or not the community server is up.</p>
+    <p class="server-status" id="server-status">CHECKING THE COMMUNITY SERVER…</p>
+    <div class="community-grid">${communityFeatures.map((feature) => `<div class="community-card"><i>${feature.number}</i><b>${feature.title}</b><span>${feature.text}</span><em>COMING SOON</em></div>`).join('')}</div>
+  </section></main>${searchPanel()}`;
+}
+
+async function probeServer() {
+  const status = document.querySelector('#server-status');
+  if (!status) return;
+  try {
+    const health = await fetch(`${authConfig.apiBase || ''}/api/health`);
+    if (!health.ok) throw new Error(String(health.status));
+    const me = await apiFetch('/api/me');
+    if (me.ok) status.textContent = 'COMMUNITY SERVER: CONNECTED';
+    else if (me.status === 501) status.textContent = 'COMMUNITY SERVER: ONLINE — ACCOUNT FEATURES NOT YET ENABLED';
+    else status.textContent = `COMMUNITY SERVER: ONLINE — SIGN-IN NOT ACCEPTED (${me.status})`;
+  } catch {
+    status.textContent = 'COMMUNITY SERVER: OFFLINE — THE RESEARCH DESK STAYS AVAILABLE';
+  }
 }
 
 function tocFrom(raw) {
@@ -179,16 +239,20 @@ function searchResults(query) {
 
 async function render() {
   app.innerHTML = '<div class="loading">Opening the field desk…</div>';
-  try { app.innerHTML = route.view === 'doc' ? await article(route.id) : home(); }
+  try { app.innerHTML = route.view === 'doc' ? await article(route.id) : route.view === 'community' ? community() : home(); }
   catch (error) { app.innerHTML = `<div class="fatal"><b>The research desk could not open.</b><p>${escapeHtml(error.message)}</p><p>Run the included local server instead of opening index.html directly.</p></div>`; }
   bind();
-  if (route.view === 'doc') scrollTo({top: 0, behavior: 'auto'});
+  if (route.view === 'community') probeServer();
+  if (route.view !== 'home') scrollTo({top: 0, behavior: 'auto'});
   if (searchOpen) requestAnimationFrame(() => document.querySelector('#search-input')?.focus());
 }
 
 function bind() {
   document.querySelectorAll('[data-doc]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'doc', id: button.dataset.doc}); }));
   document.querySelectorAll('[data-home]').forEach((button) => button.addEventListener('click', () => setRoute({view: 'home'})));
+  document.querySelectorAll('[data-login]').forEach((button) => button.addEventListener('click', () => login()));
+  document.querySelector('[data-logout]')?.addEventListener('click', () => logout());
+  document.querySelectorAll('[data-community]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'community'}); }));
   document.querySelectorAll('[data-search]').forEach((button) => button.addEventListener('click', async () => {
     await Promise.all(documents.map((doc) => loadDocument(doc).catch(() => ''))); searchOpen = true; render();
   }));
@@ -207,3 +271,8 @@ addEventListener('keydown', async (event) => {
   if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) { event.preventDefault(); await Promise.all(documents.map((doc) => loadDocument(doc).catch(() => ''))); searchOpen = true; render(); }
 });
 readRoute();
+initAuth().then(({user: signedIn, freshLogin}) => {
+  if (!signedIn) { if (route.view === 'community') render(); return; }
+  user = signedIn;
+  if (freshLogin) setRoute({view: 'community'}); else render();
+}).catch((error) => console.warn('Auth0 unavailable:', error));
