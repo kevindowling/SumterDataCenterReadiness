@@ -62,6 +62,14 @@ test('allows CORS from allowlisted origins only', async () => {
   assert.match(preflight.headers.get('access-control-allow-headers'), /Authorization/);
 });
 
+test('survey route sits behind the auth gate', async () => {
+  for (const method of ['GET', 'POST']) {
+    const response = await fetch(`${base}/api/survey/stance`, {method, ...(method === 'POST' ? {headers: {'Content-Type': 'application/json'}, body: '{"stance":"cautious"}'} : {})});
+    // 501 until an Auth0 audience is configured, 401 (missing token) once it is.
+    assert.ok([401, 501].includes(response.status), `${method} unexpected status ${response.status}`);
+  }
+});
+
 test('protected API refuses a forged token', async () => {
   const response = await fetch(`${base}/api/me`, {headers: {Authorization: 'Bearer aaa.bbb.ccc'}});
   assert.ok([401, 501].includes(response.status), `unexpected status ${response.status}`);

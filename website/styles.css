@@ -37,3 +37,19 @@
 .community-card span{color:var(--muted);font-size:15px;line-height:1.4}
 .community-card em{margin-top:auto;color:var(--orange);font:500 9px/1 var(--mono);letter-spacing:.12em;font-style:normal}
 @media(max-width:720px){.community{min-height:calc(100vh - 66px)}[data-community]{display:inline-block;font:500 10px/1 var(--mono)}}
+
+.survey-overlay section{max-width:640px}
+.survey-overlay h2{margin:22px 0 0;font-size:clamp(28px,3.4vw,40px);font-weight:600;line-height:1;letter-spacing:-.04em}
+.survey-options{margin-top:20px;display:grid;gap:10px;border-top:0}
+.survey-overlay .survey-options button{display:block;width:100%;padding:14px 16px;border:1px solid var(--ink);background:none;cursor:pointer;text-align:left}
+.survey-overlay .survey-options button:hover{background:var(--paper)}
+.survey-overlay .survey-options button:disabled{cursor:wait;opacity:.55}
+.survey-overlay .survey-options button.current{background:var(--ink);color:var(--light)}
+.survey-overlay .survey-options button b{display:block;font:500 15px/1.2 var(--mono)}
+.survey-overlay .survey-options button span{display:block;margin-top:5px;color:var(--muted);font-size:14px;line-height:1.35}
+.survey-overlay .survey-options button.current span{color:#bebfb8}
+.survey-hint{margin:16px 0 0;color:var(--muted);font:400 9px/1.5 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.survey-error{margin:14px 0 0;color:var(--red);font:500 11px/1.4 var(--mono)}
+.survey-thanks{margin:24px 0 8px;font-size:18px;line-height:1.45}
+.stance-line{margin:14px 0 0;font:500 10px/1.4 var(--mono);letter-spacing:.08em}
+.stance-line .strip-link{font-size:12px;letter-spacing:0}

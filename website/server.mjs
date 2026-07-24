@@ -44,10 +44,61 @@ async function verifyToken(request) {
   return payload;
 }
 
+// Postgres pool, created lazily so the server (and its tests) run fine with
+// no database configured. `pg` is only imported once DATABASE_URL is set.
+let pool = null;
+async function getPool() {
+  if (!process.env.DATABASE_URL) return null;
+  if (!pool) {
+    const {default: pg} = await import('pg');
+    // Managed instances require TLS but present provider CAs; verify-full
+    // needs the CA bundled, so require-mode connections skip chain checks.
+    const tls = /sslmode=(require|no-verify|verify-)/.test(process.env.DATABASE_URL);
+    pool = new pg.Pool({connectionString: process.env.DATABASE_URL, max: 5, ...(tls ? {ssl: {rejectUnauthorized: false}} : {})});
+  }
+  return pool;
+}
+
+// Login survey: which group the signed-in resident falls into.
+const stances = ['learning', 'opposed', 'cautious', 'expedite'];
+
 const sendJson = (response, status, body) => {
   response.writeHead(status, {'Content-Type': 'application/json; charset=utf-8'});
   response.end(JSON.stringify(body));
 };
+
+function readJsonBody(request) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    request.on('data', (chunk) => {
+      body += chunk;
+      if (body.length > 10_000) { reject(new Error('Body too large')); request.destroy(); }
+    });
+    request.on('end', () => { try { resolve(JSON.parse(body || '{}')); } catch { reject(new Error('Invalid JSON body')); } });
+    request.on('error', reject);
+  });
+}
+
+async function handleSurveyStance(request, response, claims) {
+  const database = await getPool();
+  if (!database) { sendJson(response, 501, {error: 'Database not configured'}); return; }
+  if (request.method === 'GET') {
+    const {rows} = await database.query('SELECT stance FROM stance_responses WHERE user_id = $1', [claims.sub]);
+    sendJson(response, 200, {stance: rows[0]?.stance ?? null});
+    return;
+  }
+  if (request.method === 'POST') {
+    const {stance} = await readJsonBody(request);
+    if (!stances.includes(stance)) { sendJson(response, 400, {error: `stance must be one of: ${stances.join(', ')}`}); return; }
+    await database.query(
+      `INSERT INTO stance_responses (user_id, stance) VALUES ($1, $2)
+       ON CONFLICT (user_id) DO UPDATE SET stance = EXCLUDED.stance, updated_at = now()`,
+      [claims.sub, stance]);
+    sendJson(response, 200, {stance});
+    return;
+  }
+  sendJson(response, 405, {error: 'Method not allowed'});
+}
 
 async function handleApi(pathname, request, response) {
   if (pathname === '/api/health') { sendJson(response, 200, {ok: true}); return; }
@@ -56,6 +107,7 @@ async function handleApi(pathname, request, response) {
   try { claims = await verifyToken(request); }
   catch (error) { sendJson(response, 401, {error: error.message}); return; }
   if (pathname === '/api/me') { sendJson(response, 200, {userId: claims.sub, claims}); return; }
+  if (pathname === '/api/survey/stance') { await handleSurveyStance(request, response, claims); return; }
   sendJson(response, 404, {error: 'Unknown API route'});
 }
 

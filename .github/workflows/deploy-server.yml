@@ -21,6 +21,10 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install dependencies
+        working-directory: website
+        run: npm ci
+
       - name: Validate public-report files
         run: node website/check.mjs
 
@@ -55,9 +59,12 @@ jobs:
 
       - name: Sync application files
         run: |
-          rsync -az --delete \
+          rsync -az --delete --exclude node_modules \
             website research deploy/migrations \
             "deploy@${{ secrets.VPS_HOST }}:/opt/sumter-field-desk/"
+
+      - name: Install server dependencies
+        run: ssh "deploy@${{ secrets.VPS_HOST }}" 'cd /opt/sumter-field-desk/website && npm ci --omit=dev'
 
       - name: Run database migrations
         # Runs psql on the VPS (the only IP the database trusts). Migration
