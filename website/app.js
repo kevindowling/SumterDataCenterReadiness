@@ -200,15 +200,19 @@ function community() {
   </section></main>${searchPanel()}`;
 }
 
+// The survey is mandatory until first answered: no close affordances while
+// `stance` is empty; reopening later via “Change” stays dismissible.
+const surveyMandatory = () => !stance;
+
 function surveyPanel() {
   if (!surveyOpen) return '';
   const body = surveyState === 'thanks'
     ? '<p class="survey-thanks">Thank you. Your answer helps the desk report where the community actually stands.</p>'
     : `<div class="survey-options">${stanceOptions.map((option) => `<button data-stance="${option.key}" ${surveyState === 'saving' ? 'disabled' : ''} class="${option.key === stance ? 'current' : ''}"><b>${option.title}</b><span>${option.text}</span></button>`).join('')}</div>
        ${surveyState === 'error' ? '<p class="survey-error">Could not save your answer. Please try again.</p>' : ''}
-       ${surveyState === 'saving' ? '<p class="survey-hint">SAVING…</p>' : '<p class="survey-hint">One tap · you can change your answer any time from the community desk</p>'}`;
+       ${surveyState === 'saving' ? '<p class="survey-hint">SAVING…</p>' : surveyMandatory() ? '<p class="survey-hint">One tap, one time · required to use the desk while signed in · you can change your answer later</p>' : '<p class="survey-hint">One tap · you can change your answer any time from the community desk</p>'}`;
   return `<div class="search-overlay survey-overlay open" data-survey-overlay><section role="dialog" aria-modal="true" aria-label="Community survey">
-    <header><span>COMMUNITY SURVEY</span><button data-survey-close aria-label="Close survey">×</button></header>
+    <header><span>COMMUNITY SURVEY${surveyMandatory() ? ' · REQUIRED' : ''}</span>${surveyMandatory() ? '' : '<button data-survey-close aria-label="Close survey">×</button>'}</header>
     <h2>Where do you stand on data centers here?</h2>
     ${body}
   </section></div>`;
@@ -311,7 +315,7 @@ function bind() {
   document.querySelectorAll('[data-stance]').forEach((button) => button.addEventListener('click', () => submitStance(button.dataset.stance)));
   document.querySelector('[data-survey-close]')?.addEventListener('click', () => { surveyOpen = false; render(); });
   document.querySelector('[data-survey-open]')?.addEventListener('click', () => { surveyOpen = true; surveyState = 'ask'; render(); });
-  document.querySelector('[data-survey-overlay]')?.addEventListener('mousedown', (event) => { if (event.target === event.currentTarget) { surveyOpen = false; render(); } });
+  document.querySelector('[data-survey-overlay]')?.addEventListener('mousedown', (event) => { if (event.target === event.currentTarget && !surveyMandatory()) { surveyOpen = false; render(); } });
 }
 
 function bindSearchResults() { document.querySelectorAll('#search-results [data-doc]').forEach((button) => button.addEventListener('click', () => {searchOpen = false; setRoute({view: 'doc', id: button.dataset.doc});})); }

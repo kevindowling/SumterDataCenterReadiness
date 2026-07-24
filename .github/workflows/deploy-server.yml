@@ -74,6 +74,8 @@ jobs:
         run: |
           printf '%s\n' "${{ secrets.DATABASE_HOST }}" "${{ secrets.DATABASE_USER }}" "${{ secrets.DATABASE_PW }}" | \
             ssh "deploy@${{ secrets.VPS_HOST }}" '
+              set -euo pipefail
+              command -v psql >/dev/null || { echo "psql missing on VPS: apt-get install -y postgresql-client" >&2; exit 1; }
               IFS= read -r PGHOST; IFS= read -r PGUSER; IFS= read -r PGPASSWORD
               if [[ "$PGHOST" == *:* ]]; then PGPORT="${PGHOST##*:}"; PGHOST="${PGHOST%%:*}"; export PGPORT; fi
               export PGHOST PGUSER PGPASSWORD PGDATABASE=scc4t PGSSLMODE=require
