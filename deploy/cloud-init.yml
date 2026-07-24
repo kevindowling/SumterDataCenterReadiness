@@ -4,14 +4,14 @@
 # when creating the droplet (Ubuntu 22.04 or 24.04). Other providers accept the
 # same file wherever they offer "user data" / cloud-init.
 #
-# REPLACE TWO PLACEHOLDERS BEFORE PASTING:
-#   API_DOMAIN          → your API hostname, e.g. api.yourdomain.com
-#   DEPLOY_PUBLIC_KEY   → one line: the contents of deploy_key.pub
-#                         (ssh-keygen -t ed25519 -f deploy_key -N '' -C github-actions)
+# REPLACE ONE PLACEHOLDER BEFORE PASTING:
+#   DEPLOY_PUBLIC_KEY   → one line: the public half of the keypair whose
+#                         private half is the VPS_SSH_KEY GitHub secret
+#                         (or a fresh pair: ssh-keygen -t ed25519 -f deploy_key -N '' -C github-actions)
 #
 # It replicates deploy/setup-vps.sh: deploy user (restricted sudo), Node 22,
 # the systemd service, Caddy with automatic HTTPS, and a basic firewall.
-# First boot takes a few minutes; verify with: curl https://API_DOMAIN/api/health
+# First boot takes a few minutes; verify with: curl https://api.scc4t.com/api/health
 # (it returns 502 from Caddy until GitHub Actions ships the code — that's fine).
 
 users:
@@ -27,6 +27,7 @@ users:
 package_update: true
 packages:
   - rsync
+  - postgresql-client
   - debian-keyring
   - debian-archive-keyring
   - apt-transport-https
@@ -45,6 +46,7 @@ write_files:
       WorkingDirectory=/opt/sumter-field-desk/website
       ExecStart=/usr/bin/node server.mjs
       Environment=PORT=4173
+      EnvironmentFile=-/opt/sumter-field-desk/server.env
       Restart=always
       RestartSec=2
       NoNewPrivileges=true
@@ -60,7 +62,7 @@ write_files:
   # can't clobber it; runcmd moves it into place after install.
   - path: /opt/bootstrap/Caddyfile
     content: |
-      API_DOMAIN {
+      api.scc4t.com {
       	encode gzip
       	reverse_proxy localhost:4173
       }
