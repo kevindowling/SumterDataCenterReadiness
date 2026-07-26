@@ -1,7 +1,7 @@
 import {createPublicKey, verify as verifySignature} from 'node:crypto';
 import {createReadStream, statSync} from 'node:fs';
 import {createServer} from 'node:http';
-import {extname, join, normalize} from 'node:path';
+import {extname, join, normalize, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {authConfig} from './auth-config.js';
 
@@ -282,8 +282,39 @@ async function handleApi(pathname, request, response) {
   sendJson(response, 404, {error: 'Unknown API route'});
 }
 
+// Public document roots. Everything else under the project directory —
+// server.env, deploy/, ignore/, .git — must stay unreachable.
+const publicRoots = ['/website/', '/research/'];
+const rootAliases = ['/app.js', '/styles.css', '/auth.js', '/auth-config.js', '/map.js'];
+
+// Resolves a request path to a file inside a public root, or null.
+//
+// Order matters: the path is decoded FIRST and normalized AFTER. Doing it the
+// other way round lets "%2f" smuggle a "../" past the allowlist, because
+// new URL() collapses real "../" segments but leaves the encoded form intact,
+// and decoding afterwards recreates the traversal against an already-approved
+// prefix.
+function resolvePublicFile(rawPath) {
+  let decoded;
+  try { decoded = decodeURIComponent(rawPath); } catch { return null; } // malformed %-escape
+  if (decoded.includes('\0') || decoded.includes('\\')) return null;
+
+  let requested = normalize(decoded === '/' ? '/website/index.html' : decoded);
+  if (rootAliases.includes(requested) || requested.startsWith('/vendor/')) {
+    requested = normalize(`/website${requested}`);
+  }
+  // Checked against the normalized path, so "/website/../ignore/x" has already
+  // become "/ignore/x" and fails here.
+  if (!publicRoots.some((root) => requested.startsWith(root))) return null;
+
+  const file = normalize(join(projectDir, requested));
+  if (file !== projectDir && !file.startsWith(projectDir + sep)) return null;
+  return file;
+}
+
 createServer((request, response) => {
-  const pathname = decodeURIComponent(new URL(request.url, `http://${request.headers.host}`).pathname);
+  const rawPath = new URL(request.url, `http://${request.headers.host}`).pathname;
+  const pathname = (() => { try { return decodeURIComponent(rawPath); } catch { return rawPath; } })();
   if (pathname.startsWith('/api/')) {
     const origin = request.headers.origin;
     if (origin && (authConfig.corsOrigins || []).includes(origin)) {
@@ -296,15 +327,8 @@ createServer((request, response) => {
     handleApi(pathname, request, response).catch((error) => sendJson(response, 500, {error: error.message}));
     return;
   }
-  let requested = pathname === '/' ? '/website/index.html' : pathname;
-  // The Pages artifact is flat, so the site asks for these at the root; locally
-  // they live under website/.
-  if (['/app.js', '/styles.css', '/auth.js', '/auth-config.js', '/map.js'].includes(requested)
-    || requested.startsWith('/vendor/')) requested = `/website${requested}`;
-  const file = normalize(join(projectDir, requested));
-  if (!file.startsWith(projectDir) || !['/website/', '/research/'].some((allowed) => requested.startsWith(allowed))) {
-    response.writeHead(403); response.end('Forbidden'); return;
-  }
+  const file = resolvePublicFile(rawPath);
+  if (!file) { response.writeHead(403); response.end('Forbidden'); return; }
   try {
     const resolved = statSync(file).isDirectory() ? join(file, 'index.html') : file;
     response.writeHead(200, {'Content-Type': types[extname(resolved)] || 'application/octet-stream'});
