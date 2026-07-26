@@ -1,0 +1,24 @@
+{
+  "name": "Sumter Field Desk",
+  "short_name": "Field Desk",
+  "description": "Community research on the proposed Sumter County data center: an interactive site map, the research notes, and the neighbourhood message board.",
+  "id": "/",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#eee8d9",
+  "theme_color": "#171a18",
+  "categories": ["news", "utilities", "education"],
+  "icons": [
+    {"src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "./icons/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+    {"src": "./icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+    {"src": "./favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
+  ],
+  "shortcuts": [
+    {"name": "Site map", "short_name": "Map", "url": "./#/map"},
+    {"name": "Message board", "short_name": "Board", "url": "./#/board"}
+  ]
+}

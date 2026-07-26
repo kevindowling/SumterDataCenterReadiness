@@ -79,6 +79,24 @@ Each layer fails independently: if one service is down the rest still draw, and 
 
 **The map is gated, the data is not.** Hiding the route keeps the map off the public front door, but on GitHub Pages `map.js` is still fetchable and every service it calls is public. Treat this as presentation, not access control.
 
+## Icons and install (PWA)
+
+`website/favicon.svg` and `website/icons/*.png` are generated from the **real surveyed boundary of parcel 64-17**, read live from the county tax parcel layer and projected to Web Mercator at true orientation — the same shape, the same way up, as the site map draws. Regenerate with:
+
+```bash
+python3 tools/build-favicon.py     # needs rsvg-convert for the PNGs
+```
+
+Don't hand-edit `favicon.svg`; re-run the script.
+
+The site installs to a home screen via `manifest.webmanifest` and `sw.js`:
+
+- **Android/Chrome** — `install.js` intercepts `beforeinstallprompt` and offers its own button instead of the browser's mini-infobar.
+- **iOS Safari** — no install API exists, so the prompt shows the Share → *Add to Home Screen* steps. Only Safari can install on iOS; Chrome/Firefox on iOS are excluded from the prompt.
+- The prompt is quiet: never on a first visit, hidden once installed, and snoozed 30 days after a dismissal.
+
+The service worker caches the app shell and research notes (network-first, so corrections appear immediately). It **never** caches `/api/*`, Auth0, or any GIS/tile/Overpass request — the desk must not report stale data. Bump `VERSION` in `sw.js` to force clients onto new assets.
+
 ## Message board
 
 `#/board`, signed in only. Threads are rows in `board_posts` with `parent_id IS NULL`; replies point at their thread (migration `deploy/migrations/003-message-board.sql`).

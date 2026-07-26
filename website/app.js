@@ -1,4 +1,5 @@
 import {apiFetch, apiOrigin, initAuth, isConfigured, login, logout} from './auth.js';
+import {initInstallPrompt} from './install.js';
 
 const documents = [
   {id: 'start', file: 'README.md', number: '00', short: 'Orientation', title: 'Start with what is known', question: 'What do we actually know?', tone: 'verified', time: '3 min'},
@@ -623,6 +624,7 @@ addEventListener('keydown', async (event) => {
   if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) { event.preventDefault(); await Promise.all(documents.map((doc) => loadDocument(doc).catch(() => ''))); searchOpen = true; render(); }
 });
 readRoute();
+initInstallPrompt();
 initAuth().then(({user: signedIn, freshLogin}) => {
   if (!signedIn) { if (route.view === 'community') render(); return; }
   user = signedIn;
