@@ -44,7 +44,10 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-// Never cache: anything that must be live, or that belongs to someone's session.
+// Never cache here: anything that belongs to someone's session, plus the GIS
+// and tile services. The GIS is not uncached — map.js keeps those responses in
+// its own store with a 24-hour expiry, so it owns that policy rather than
+// splitting it across two files.
 const isLive = (url) =>
   url.pathname.startsWith('/api/') ||
   /(^|\.)auth0\.com$/.test(url.hostname) ||

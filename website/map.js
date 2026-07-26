@@ -58,6 +58,66 @@ function loadLeaflet() {
   return leafletReady;
 }
 
+// --- Daily cache -----------------------------------------------------------
+// Parcels, districts, flood zones and hydrology change when a property sells or
+// a boundary is redrawn — not hourly. Holding each response for a day keeps the
+// county's server from answering the same eleven questions on every page load,
+// and makes a revisit instant.
+//
+// Kept in Cache Storage rather than localStorage: these payloads run to
+// hundreds of kilobytes, past what localStorage will hold.
+const GIS_CACHE = 'field-desk-gis-v1';
+const GIS_TTL = 24 * 60 * 60 * 1000;
+const CACHED_AT = 'x-field-desk-cached-at';
+
+const cacheStore = async () => {
+  try { return 'caches' in globalThis ? await caches.open(GIS_CACHE) : null; }
+  catch { return null; } // unavailable outside a secure context
+};
+
+const freshness = (response) => Date.now() - Number(response?.headers.get(CACHED_AT) || 0);
+
+// Records when each response was stored so the age is visible to the reader.
+let oldestHit = 0;
+const noteAge = (age) => { oldestHit = Math.max(oldestHit, age); };
+const cacheAge = () => oldestHit;
+
+// `key` lets POST requests (Overpass) be cached, since Cache Storage will only
+// key on a GET.
+async function cachedFetch(url, {key = url, ...init} = {}) {
+  const store = await cacheStore();
+  const request = new Request(key);
+  const hit = store ? await store.match(request) : null;
+
+  if (hit && freshness(hit) < GIS_TTL) { noteAge(freshness(hit)); return hit; }
+
+  try {
+    const response = await fetch(url, init);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (store) {
+      const headers = new Headers(response.headers);
+      headers.set(CACHED_AT, String(Date.now()));
+      await store.put(request, new Response(await response.clone().arrayBuffer(), {status: 200, headers}));
+    }
+    return response;
+  } catch (error) {
+    // A stale copy beats an empty map when the county server or the network is
+    // unreachable, so fall back to it rather than failing the layer.
+    if (hit) { noteAge(freshness(hit)); return hit; }
+    throw error;
+  }
+}
+
+// Drops entries well past their day so the cache cannot grow without bound.
+async function pruneCache() {
+  const store = await cacheStore();
+  if (!store) return;
+  for (const request of await store.keys()) {
+    const entry = await store.match(request);
+    if (entry && freshness(entry) > GIS_TTL * 7) await store.delete(request);
+  }
+}
+
 // One ArcGIS query, returned as GeoJSON in WGS84.
 async function queryLayer(url, {where = '1=1', outFields = '*', envelope} = {}) {
   const params = new URLSearchParams({where, outFields, outSR: '4326', f: 'geojson', returnGeometry: 'true'});
@@ -67,8 +127,7 @@ async function queryLayer(url, {where = '1=1', outFields = '*', envelope} = {}) 
     params.set('inSR', '4326');
     params.set('spatialRel', 'esriSpatialRelIntersects');
   }
-  const response = await fetch(`${url}/query?${params}`);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const response = await cachedFetch(`${url}/query?${params}`);
   const body = await response.json();
   if (body.error) throw new Error(body.error.message || 'GIS query failed');
   return body;
@@ -117,8 +176,13 @@ const OVERPASS = 'https://overpass-api.de/api/interpreter';
 async function overpassPoints(filters) {
   const around = `around:4828,${SITE[0]},${SITE[1]}`;
   const query = `[out:json][timeout:45];(${filters.map((f) => `nwr${f}(${around});`).join('')});out center tags;`;
-  const response = await fetch(OVERPASS, {method: 'POST', body: new URLSearchParams({data: query})});
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  // Overpass needs a POST, which Cache Storage will not key on, so the query
+  // doubles as a synthetic GET key.
+  const response = await cachedFetch(OVERPASS, {
+    method: 'POST',
+    body: new URLSearchParams({data: query}),
+    key: `${OVERPASS}?cache=${encodeURIComponent(query)}`,
+  });
   const body = await response.json();
   return {
     type: 'FeatureCollection',
@@ -433,9 +497,16 @@ export async function renderSiteMap(container, onStatus) {
     }
   }));
 
+  // Say plainly whether this is a fresh read or a cached one, and how old.
+  const age = cacheAge();
+  const hours = Math.floor(age / 3_600_000);
+  const provenance = age === 0
+    ? 'fetched now from the Sumter County GIS service'
+    : `from a local copy taken ${hours < 1 ? 'under an hour' : `${hours} hour${hours === 1 ? '' : 's'}`} ago, refreshed daily`;
   say(failures.length
-    ? `Loaded from Sumter County GIS. These layers did not respond: ${failures.join(', ')}.`
-    : 'All layers loaded live from the Sumter County GIS service.');
+    ? `Layers ${provenance}. These did not respond: ${failures.join(', ')}.`
+    : `All layers ${provenance}.`);
+  pruneCache();
 
   // --- "Am I inside a ring?" -----------------------------------------------
   let youMarker = null;
