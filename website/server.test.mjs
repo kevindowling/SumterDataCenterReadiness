@@ -40,6 +40,34 @@ test('refuses paths outside the public allowlist', async () => {
   }
 });
 
+// Regression: percent-encoded separators must not smuggle a "../" past the
+// public-root allowlist. new URL() collapses literal "../" but leaves "%2f"
+// intact, so decoding before normalizing exposed every file under the project
+// directory — including the deployed server.env.
+test('refuses percent-encoded path traversal', async () => {
+  const attacks = [
+    '/website/..%2fserver.env',
+    '/website/..%2fignore%2fSETUP.md',
+    '/website/%2e%2e%2fignore%2fSETUP.md',
+    '/website/..%2f.git%2fconfig',
+    '/research/..%2fignore%2fSETUP.md',
+    '/website/..%2f..%2f..%2fetc%2fpasswd',
+    '/vendor/..%2f..%2fserver.env',
+    '/website/..%5cserver.env',
+  ];
+  for (const path of attacks) {
+    const response = await fetch(`${base}${path}`);
+    assert.equal(response.status, 403, `${path} must be forbidden, got ${response.status}`);
+  }
+});
+
+test('still serves legitimate assets after traversal hardening', async () => {
+  for (const path of ['/', '/app.js', '/map.js', '/vendor/leaflet/leaflet.js', '/research/README.md']) {
+    const response = await fetch(`${base}${path}`);
+    assert.equal(response.status, 200, `${path} should still be served`);
+  }
+});
+
 test('health endpoint responds without authentication', async () => {
   const response = await fetch(`${base}/api/health`);
   assert.equal(response.status, 200);
@@ -68,6 +96,30 @@ test('survey route sits behind the auth gate', async () => {
     // 501 until an Auth0 audience is configured, 401 (missing token) once it is.
     assert.ok([401, 501].includes(response.status), `${method} unexpected status ${response.status}`);
   }
+});
+
+test('message board sits behind the auth gate', async () => {
+  const calls = [
+    ['GET', '/api/board'],
+    ['POST', '/api/board'],
+    ['GET', '/api/board/1'],
+    ['POST', '/api/board/1/reply'],
+    ['DELETE', '/api/board/1'],
+  ];
+  for (const [method, path] of calls) {
+    const response = await fetch(`${base}${path}`, {
+      method,
+      ...(method === 'POST' ? {headers: {'Content-Type': 'application/json'}, body: '{"title":"x","body":"y"}'} : {}),
+    });
+    // 501 until an Auth0 audience is configured, 401 (missing token) once it is.
+    assert.ok([401, 501].includes(response.status), `${method} ${path} unexpected status ${response.status}`);
+  }
+});
+
+test('board preflight advertises DELETE for moderation', async () => {
+  const preflight = await fetch(`${base}/api/board/1`, {method: 'OPTIONS', headers: {Origin: 'http://localhost:4173'}});
+  assert.equal(preflight.status, 204);
+  assert.match(preflight.headers.get('access-control-allow-methods'), /DELETE/);
 });
 
 test('protected API refuses a forged token', async () => {

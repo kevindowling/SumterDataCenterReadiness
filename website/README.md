@@ -47,6 +47,50 @@ To wire the Pages site to the VPS, set in `website/auth-config.js`:
 - `apiBase` — the VPS URL, e.g. `https://api.yourdomain.com` (leave empty for local dev, where `server.mjs` serves both)
 - `corsOrigins` — add the Pages origin, e.g. `https://<user>.github.io`, so the server accepts cross-origin API calls
 
+## Interactive site map
+
+`website/map.js` renders the signed-in-only map at `#/map` (topbar link and a card on the community desk; neither appears until sign-in). Leaflet 1.9.4 is vendored under `website/vendor/leaflet/` — no npm install, no CDN at runtime. The two files match Leaflet's published SRI hashes:
+
+```
+leaflet.js   sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=
+leaflet.css  sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=
+```
+
+Leaflet and `map.js` are loaded lazily on first visit to `#/map`, so readers who never open the map never download it.
+
+### Where the layers come from
+
+Everything is queried live — nothing is traced from a PDF exhibit, and no geometry is hand-drawn.
+
+| Layer | Source |
+|---|---|
+| Subject parcel 64-17 (301 Brady Rd, 125.1 ac, zoned Industrial) | Sumter County tax parcel service |
+| Council districts (6) and commission districts (5), with rep names | Sumter County GIS; member emails keyed by district from the May 2025 contact sheets |
+| FEMA flood zones, lakes/ponds/wetlands, creeks, industrial areas, schools, hospitals, parks | Sumter County GIS public service |
+| Churches and care homes | OpenStreetMap via Overpass — the county POI layer has one church countywide |
+| Water flow direction | USGS NHDPlus High Resolution — the county creek layer has `FLOWDIR` null on all 1,883 records |
+| ½ / 1 / 3 mile rings | Computed by Leaflet in metres from the parcel centroid |
+| Address lookup | Nominatim (keyless; keep volume low per OSM's usage policy) |
+| Basemaps | Esri World Imagery, OpenStreetMap |
+
+The county service is `https://ga31portal.kcsgis.com/ga31server/rest/services/Public` — the same one behind the [county's public viewer](http://maps.kcsgis.com/ga.americus_sumter_public/). It sends permissive CORS headers, so the browser calls it directly and no API key is needed anywhere.
+
+Each layer fails independently: if one service is down the rest still draw, and the status line under the map names what did not load.
+
+**The map is gated, the data is not.** Hiding the route keeps the map off the public front door, but on GitHub Pages `map.js` is still fetchable and every service it calls is public. Treat this as presentation, not access control.
+
+## Message board
+
+`#/board`, signed in only. Threads are rows in `board_posts` with `parent_id IS NULL`; replies point at their thread (migration `deploy/migrations/003-message-board.sql`).
+
+- **Attribution** — posts carry the Auth0 profile name, snapshotted at post time so a later name change does not rewrite history.
+- **Deletes are soft.** `deleted_at` is set and the API stops returning the body, author, and title; the row stays so replies keep their place. A removed post renders as "This post was removed."
+- **Moderators** — set the repository variable `BOARD_ADMINS` to a comma-separated list of Auth0 `sub` claims (e.g. `auth0|abc123,google-oauth2|456`). The deploy workflow writes it into `server.env`. Authors can always delete their own posts; moderators can delete anyone's. **Unset means nobody can moderate** — find your own `sub` by signing in and calling `/api/me`.
+- **Throttle** — 5 posts per user per minute, in memory. It blunts flooding; it is not moderation, and it resets when the service restarts.
+- **Plain text only.** Bodies are HTML-escaped and only newlines are honoured, so no one can inject links or markup into a public thread.
+
+Routes, all behind `verifyToken()`: `GET /api/board`, `POST /api/board`, `GET /api/board/:id`, `POST /api/board/:id/reply`, `DELETE /api/board/:id`.
+
 ## Server CI/CD (VPS)
 
 `.github/workflows/deploy-server.yml` is the full server-side pipeline:
@@ -67,6 +111,7 @@ To wire the Pages site to the VPS, set in `website/auth-config.js`:
    - Secret `VPS_HOST` — the server's hostname or IP
    - Secret `VPS_SSH_KEY` — the contents of the private `deploy_key` file
    - Variable `DEPLOY_ENABLED` — set to `true` (the deploy job is skipped until this exists, so CI stays green before the VPS is ready)
+   - Variable `BOARD_ADMINS` (optional) — comma-separated Auth0 `sub` claims allowed to moderate the message board
 5. Push to `main`. Watch the **Server CI/CD** workflow deploy and health-check the service.
 
 Remember to add the production URL (e.g. `https://yourdomain.com`) to the Auth0 application's allowed callback/logout/origin lists.

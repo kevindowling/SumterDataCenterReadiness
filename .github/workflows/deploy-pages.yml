@@ -27,7 +27,8 @@ jobs:
       - name: Assemble static site
         run: |
           mkdir -p _site/research
-          cp website/index.html website/app.js website/styles.css website/auth.js website/auth-config.js _site/
+          cp website/index.html website/app.js website/styles.css website/auth.js website/auth-config.js website/map.js _site/
+          cp -r website/vendor _site/vendor
           cp research/*.md _site/research/
           touch _site/.nojekyll
           test ! -e _site/data-center-environmental-research-report.md

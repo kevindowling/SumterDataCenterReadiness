@@ -7,7 +7,11 @@ const docs = [
   '04-air-and-generators.md', '05-electricity-and-resilience.md',
   '06-decision-checklist.md', '07-verification-notes.md', '08-source-desk.md',
 ];
-const required = ['website/index.html', 'website/app.js', 'website/styles.css', 'website/auth.js', 'website/auth-config.js', ...docs.map((name) => `research/${name}`)];
+const required = [
+  'website/index.html', 'website/app.js', 'website/styles.css', 'website/auth.js', 'website/auth-config.js',
+  'website/map.js', 'website/vendor/leaflet/leaflet.js', 'website/vendor/leaflet/leaflet.css',
+  ...docs.map((name) => `research/${name}`),
+];
 const errors = [];
 for (const path of required) {
   try {
