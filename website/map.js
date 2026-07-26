@@ -323,30 +323,43 @@ export async function renderSiteMap(container, onStatus) {
     {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'});
   satellite.addTo(map);
 
-  // Fourteen overlays make an always-open panel taller than a phone screen, so
-  // it collapses to a button below the layout breakpoint and stays open on the
-  // wide layout where there is room for it. Leaflet only decides this once, at
-  // construction, so re-check on resize.
-  const wideEnough = () => matchMedia('(min-width: 900px)').matches;
-  let control = L.control.layers({Satellite: satellite, Streets: streets}, {}, {collapsed: !wideEnough()}).addTo(map);
-  const overlays = [];
+  // Fourteen overlays make an always-open panel taller than a phone screen.
+  // Leaflet's own `collapsed` mode expands on hover, which never reads as a
+  // real toggle and cannot be closed again on a wide screen — so the list is
+  // always built open and driven by an explicit button instead. It starts
+  // closed on narrow screens and open where there is room, and after that it
+  // does what the reader last told it to.
+  const control = L.control.layers({Satellite: satellite, Streets: streets}, {}, {collapsed: false}).addTo(map);
+  const panel = control.getContainer();
+  const list = panel.querySelector('.leaflet-control-layers-list');
 
+  const toggle = L.DomUtil.create('button', 'layer-toggle');
+  toggle.type = 'button';
+  panel.prepend(toggle);
+  L.DomEvent.disableClickPropagation(panel);
+  L.DomEvent.disableScrollPropagation(panel);
+
+  let activeCount = 0;
+  let open = matchMedia('(min-width: 900px)').matches;
+
+  const paint = () => {
+    panel.classList.toggle('is-collapsed', !open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-controls', 'map-layer-list');
+    toggle.innerHTML = `<span>LAYERS${activeCount ? ` · ${activeCount}` : ''}</span><i aria-hidden="true">${open ? '×' : '+'}</i>`;
+  };
+  if (list) list.id = 'map-layer-list';
+  L.DomEvent.on(toggle, 'click', (event) => { L.DomEvent.stop(event); open = !open; paint(); });
+  paint();
+
+  // Register with the control first, so adding the layer to the map raises
+  // `overlayadd` and the counter stays in one place.
   const addOverlay = (name, layer, on) => {
-    overlays.push({name, layer});
     control.addOverlay(layer, name);
     if (on) layer.addTo(map);
   };
-
-  // Rebuild the control when crossing the breakpoint, keeping which layers are
-  // currently on the map.
-  let wide = wideEnough();
-  addEventListener('resize', () => {
-    if (wideEnough() === wide) return;
-    wide = wideEnough();
-    control.remove();
-    control = L.control.layers({Satellite: satellite, Streets: streets}, {}, {collapsed: !wide}).addTo(map);
-    for (const {name, layer} of overlays) control.addOverlay(layer, name);
-  });
+  map.on('overlayadd', () => { activeCount += 1; paint(); });
+  map.on('overlayremove', () => { activeCount -= 1; paint(); });
 
   // --- Distance rings: true geodesic circles in metres, not traced ----------
   const ringLayer = L.layerGroup();
