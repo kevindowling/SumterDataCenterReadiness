@@ -13,6 +13,7 @@ const types = {
   '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8',
   '.md': 'text/markdown; charset=utf-8', '.svg': 'image/svg+xml',
   '.png': 'image/png', '.geojson': 'application/geo+json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8', '.ico': 'image/x-icon',
 };
 
 // Verifies an Auth0-issued RS256 access token without dependencies. Every
@@ -285,7 +286,8 @@ async function handleApi(pathname, request, response) {
 // Public document roots. Everything else under the project directory —
 // server.env, deploy/, ignore/, .git — must stay unreachable.
 const publicRoots = ['/website/', '/research/'];
-const rootAliases = ['/app.js', '/styles.css', '/auth.js', '/auth-config.js', '/map.js'];
+const rootAliases = ['/app.js', '/styles.css', '/auth.js', '/auth-config.js', '/map.js',
+  '/install.js', '/sw.js', '/manifest.webmanifest', '/favicon.svg'];
 
 // Resolves a request path to a file inside a public root, or null.
 //
@@ -300,7 +302,7 @@ function resolvePublicFile(rawPath) {
   if (decoded.includes('\0') || decoded.includes('\\')) return null;
 
   let requested = normalize(decoded === '/' ? '/website/index.html' : decoded);
-  if (rootAliases.includes(requested) || requested.startsWith('/vendor/')) {
+  if (rootAliases.includes(requested) || requested.startsWith('/vendor/') || requested.startsWith('/icons/')) {
     requested = normalize(`/website${requested}`);
   }
   // Checked against the normalized path, so "/website/../ignore/x" has already

@@ -323,8 +323,30 @@ export async function renderSiteMap(container, onStatus) {
     {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'});
   satellite.addTo(map);
 
-  const control = L.control.layers({Satellite: satellite, Streets: streets}, {}, {collapsed: false}).addTo(map);
-  const addOverlay = (name, layer, on) => { control.addOverlay(layer, name); if (on) layer.addTo(map); };
+  // Fourteen overlays make an always-open panel taller than a phone screen, so
+  // it collapses to a button below the layout breakpoint and stays open on the
+  // wide layout where there is room for it. Leaflet only decides this once, at
+  // construction, so re-check on resize.
+  const wideEnough = () => matchMedia('(min-width: 900px)').matches;
+  let control = L.control.layers({Satellite: satellite, Streets: streets}, {}, {collapsed: !wideEnough()}).addTo(map);
+  const overlays = [];
+
+  const addOverlay = (name, layer, on) => {
+    overlays.push({name, layer});
+    control.addOverlay(layer, name);
+    if (on) layer.addTo(map);
+  };
+
+  // Rebuild the control when crossing the breakpoint, keeping which layers are
+  // currently on the map.
+  let wide = wideEnough();
+  addEventListener('resize', () => {
+    if (wideEnough() === wide) return;
+    wide = wideEnough();
+    control.remove();
+    control = L.control.layers({Satellite: satellite, Streets: streets}, {}, {collapsed: !wide}).addTo(map);
+    for (const {name, layer} of overlays) control.addOverlay(layer, name);
+  });
 
   // --- Distance rings: true geodesic circles in metres, not traced ----------
   const ringLayer = L.layerGroup();

@@ -68,6 +68,31 @@ test('still serves legitimate assets after traversal hardening', async () => {
   }
 });
 
+test('serves the PWA assets with correct content types', async () => {
+  const expected = {
+    '/manifest.webmanifest': /application\/manifest\+json/,
+    '/sw.js': /text\/javascript/,
+    '/install.js': /text\/javascript/,
+    '/favicon.svg': /image\/svg\+xml/,
+    '/icons/icon-192.png': /image\/png/,
+    '/icons/icon-512-maskable.png': /image\/png/,
+    '/icons/icon-180.png': /image\/png/,
+  };
+  for (const [path, type] of Object.entries(expected)) {
+    const response = await fetch(`${base}${path}`);
+    assert.equal(response.status, 200, `${path} should be served`);
+    assert.match(response.headers.get('content-type'), type, `${path} content type`);
+  }
+});
+
+test('manifest declares installable icons', async () => {
+  const manifest = await (await fetch(`${base}/manifest.webmanifest`)).json();
+  assert.ok(manifest.name && manifest.start_url && manifest.display === 'standalone');
+  const sizes = manifest.icons.map((icon) => icon.sizes);
+  assert.ok(sizes.includes('192x192') && sizes.includes('512x512'), 'needs 192 and 512 icons');
+  assert.ok(manifest.icons.some((icon) => icon.purpose === 'maskable'), 'needs a maskable icon');
+});
+
 test('health endpoint responds without authentication', async () => {
   const response = await fetch(`${base}/api/health`);
   assert.equal(response.status, 200);

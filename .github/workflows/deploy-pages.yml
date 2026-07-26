@@ -28,7 +28,9 @@ jobs:
         run: |
           mkdir -p _site/research
           cp website/index.html website/app.js website/styles.css website/auth.js website/auth-config.js website/map.js _site/
+          cp website/install.js website/sw.js website/manifest.webmanifest website/favicon.svg _site/
           cp -r website/vendor _site/vendor
+          cp -r website/icons _site/icons
           cp research/*.md _site/research/
           touch _site/.nojekyll
           test ! -e _site/data-center-environmental-research-report.md
