@@ -8,6 +8,10 @@ Group=deploy
 WorkingDirectory=/opt/sumter-field-desk/website
 ExecStart=/usr/bin/node server.mjs
 Environment=PORT=4173
+# Written by the deploy workflow: PG* database credentials, plus BOARD_ADMINS
+# (comma-separated Auth0 `sub` claims allowed to moderate the message board).
+# The leading "-" keeps the service starting before the file exists.
+EnvironmentFile=-/opt/sumter-field-desk/server.env
 Restart=always
 RestartSec=2
 

@@ -70,6 +70,30 @@ test('survey route sits behind the auth gate', async () => {
   }
 });
 
+test('message board sits behind the auth gate', async () => {
+  const calls = [
+    ['GET', '/api/board'],
+    ['POST', '/api/board'],
+    ['GET', '/api/board/1'],
+    ['POST', '/api/board/1/reply'],
+    ['DELETE', '/api/board/1'],
+  ];
+  for (const [method, path] of calls) {
+    const response = await fetch(`${base}${path}`, {
+      method,
+      ...(method === 'POST' ? {headers: {'Content-Type': 'application/json'}, body: '{"title":"x","body":"y"}'} : {}),
+    });
+    // 501 until an Auth0 audience is configured, 401 (missing token) once it is.
+    assert.ok([401, 501].includes(response.status), `${method} ${path} unexpected status ${response.status}`);
+  }
+});
+
+test('board preflight advertises DELETE for moderation', async () => {
+  const preflight = await fetch(`${base}/api/board/1`, {method: 'OPTIONS', headers: {Origin: 'http://localhost:4173'}});
+  assert.equal(preflight.status, 204);
+  assert.match(preflight.headers.get('access-control-allow-methods'), /DELETE/);
+});
+
 test('protected API refuses a forged token', async () => {
   const response = await fetch(`${base}/api/me`, {headers: {Authorization: 'Bearer aaa.bbb.ccc'}});
   assert.ok([401, 501].includes(response.status), `unexpected status ${response.status}`);

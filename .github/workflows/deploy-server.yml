@@ -72,15 +72,15 @@ jobs:
         # update the GitHub secrets and redeploy to rotate. Values travel
         # over ssh stdin, never argv. PG* vars avoid URL-encoding issues.
         run: |
-          printf '%s\n' "${{ secrets.DATABASE_HOST }}" "${{ secrets.DATABASE_USER }}" "${{ secrets.DATABASE_PW }}" | \
+          printf '%s\n' "${{ secrets.DATABASE_HOST }}" "${{ secrets.DATABASE_USER }}" "${{ secrets.DATABASE_PW }}" "${{ vars.BOARD_ADMINS }}" | \
             ssh "deploy@${{ secrets.VPS_HOST }}" '
               set -euo pipefail
-              IFS= read -r HOST; IFS= read -r DB_USER; IFS= read -r DB_PW
+              IFS= read -r HOST; IFS= read -r DB_USER; IFS= read -r DB_PW; IFS= read -r ADMINS
               PORT=5432
               if [[ "$HOST" == *:* ]]; then PORT="${HOST##*:}"; HOST="${HOST%%:*}"; fi
               umask 077
-              printf "PGHOST=%s\nPGPORT=%s\nPGUSER=%s\nPGPASSWORD=%s\nPGDATABASE=scc4t\nPGSSLMODE=require\n" \
-                "$HOST" "$PORT" "$DB_USER" "$DB_PW" > /opt/sumter-field-desk/server.env'
+              printf "PGHOST=%s\nPGPORT=%s\nPGUSER=%s\nPGPASSWORD=%s\nPGDATABASE=scc4t\nPGSSLMODE=require\nBOARD_ADMINS=%s\n" \
+                "$HOST" "$PORT" "$DB_USER" "$DB_PW" "$ADMINS" > /opt/sumter-field-desk/server.env'
 
       - name: Run database migrations
         # Runs psql on the VPS (the only IP the database trusts) using the
