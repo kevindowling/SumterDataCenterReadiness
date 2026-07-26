@@ -232,9 +232,12 @@ async function buildFlowLayer(L) {
   return {group, lines: (data.features || []).length, arrows};
 }
 
+// Only the rings and the parcel are on at first load. Everything else is a
+// deliberate choice by the reader: switching on all fourteen at once buries
+// the parcel the map exists to show.
 const LAYERS = [
   {
-    name: 'FEMA flood zones', url: `${PUBLIC_LAYERS}/42`, on: true, clip: true, pane: 'flood',
+    name: 'FEMA flood zones', url: `${PUBLIC_LAYERS}/42`, clip: true, pane: 'flood',
     style: {color: '#1f6feb', weight: 1, fillColor: '#1f6feb', fillOpacity: 0.25},
     popup: (p) => `<b>Flood zone ${esc(clean(p.FLOODZONE))}</b>${popupTable([
       ['Special flood hazard area', p.SFHA === 'T' ? 'Yes' : 'No'],
@@ -242,7 +245,7 @@ const LAYERS = [
     ])}<small>${esc(clean(p.LEGEND))}</small>`,
   },
   {
-    name: 'Lakes, ponds & wetlands', url: `${PUBLIC_LAYERS}/19`, on: true, clip: true, pane: 'water',
+    name: 'Lakes, ponds & wetlands', url: `${PUBLIC_LAYERS}/19`, clip: true, pane: 'water',
     style: {color: '#0e7490', weight: 1, fillColor: '#22d3ee', fillOpacity: 0.45},
     popup: (p) => `<b>${esc(clean(p.NAME) || clean(p.FEATURE) || 'Water body')}</b>${popupTable([
       ['Type', p.TYPE], ['Area (acres)', p.WATERAREA?.toFixed?.(1)],
@@ -264,25 +267,25 @@ const LAYERS = [
     ])}`,
   },
   {
-    name: 'Schools', url: `${PUBLIC_LAYERS}/3`, on: true, clip: true, pane: 'points', marker: '#b9362c',
+    name: 'Schools', url: `${PUBLIC_LAYERS}/3`, clip: true, pane: 'points', marker: '#b9362c',
     popup: (p) => `<b>${esc(clean(p.Name) || clean(p.Schools) || 'School')}</b>${popupTable([
       ['Grades', p.Grades], ['Type', p.Education], ['Address', p.Address], ['Phone', p.Phone],
     ])}`,
   },
   {
-    name: 'Hospitals & medical', url: `${PUBLIC_LAYERS}/2`, on: true, clip: true, pane: 'points', marker: '#0e7490',
+    name: 'Hospitals & medical', url: `${PUBLIC_LAYERS}/2`, clip: true, pane: 'points', marker: '#0e7490',
     popup: (p) => `<b>${esc(clean(p.Name) || 'Medical facility')}</b>${popupTable([
       ['Address', p.Address], ['Community', p.Community], ['Open', p.OPERDAYS], ['Hours', p.OPERHOURS],
     ])}`,
   },
   {
-    name: 'Churches (OSM)', overpass: ['["amenity"="place_of_worship"]'], on: true, pane: 'points', marker: '#8d6824',
+    name: 'Churches (OSM)', overpass: ['["amenity"="place_of_worship"]'], pane: 'points', marker: '#8d6824',
     popup: (p) => `<b>${esc(clean(p.name) || 'Place of worship')}</b>${popupTable([
       ['Denomination', p.denomination], ['Address', [clean(p['addr:housenumber']), clean(p['addr:street'])].filter(Boolean).join(' ')],
     ])}<small>OpenStreetMap. The county POI layer does not map churches.</small>`,
   },
   {
-    name: 'Care homes (OSM)', on: true, pane: 'points', marker: '#b45309',
+    name: 'Care homes (OSM)', pane: 'points', marker: '#b45309',
     overpass: ['["amenity"="social_facility"]', '["amenity"="nursing_home"]', '["healthcare"~"nursing|hospice"]'],
     popup: (p) => `<b>${esc(clean(p.name) || 'Care facility')}</b>${popupTable([
       ['Type', p.social_facility || p.amenity || p.healthcare],
@@ -290,7 +293,7 @@ const LAYERS = [
     ])}<small>OpenStreetMap coverage of care homes here is incomplete.</small>`,
   },
   {
-    name: 'Parks & recreation', url: `${PUBLIC_LAYERS}/1`, on: true, clip: true, pane: 'points', marker: '#527553',
+    name: 'Parks & recreation', url: `${PUBLIC_LAYERS}/1`, clip: true, pane: 'points', marker: '#527553',
     filter: (p) => RECREATION.includes(clean(p.TYPE)),
     popup: (p) => `<b>${esc(clean(p.DESCRIP) || 'Park or recreation')}</b>${popupTable([
       ['Type', p.TYPE], ['Address', [clean(p.NUMBER_), clean(p.ADDRESS)].filter(Boolean).join(' ')],
@@ -403,7 +406,7 @@ export async function renderSiteMap(container, onStatus) {
   const failures = [];
   try {
     const flow = await buildFlowLayer(L);
-    addOverlay(`Water flow direction (${flow.lines})`, flow.group, true);
+    addOverlay(`Water flow direction (${flow.lines})`, flow.group, false);
   } catch {
     failures.push('water flow direction');
   }
