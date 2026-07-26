@@ -71,8 +71,21 @@ jobs:
         # EnvironmentFile), so database credentials are fully CI-managed —
         # update the GitHub secrets and redeploy to rotate. Values travel
         # over ssh stdin, never argv. PG* vars avoid URL-encoding issues.
+        env:
+          # Passed as environment variables, never interpolated into the script
+          # text. `${{ }}` substitution happens before bash parses the line, so
+          # a "|" in an Auth0 sub — or a quote, space or "$" in a password —
+          # would otherwise become shell syntax on the runner.
+          DB_HOST: ${{ secrets.DATABASE_HOST }}
+          DB_USER: ${{ secrets.DATABASE_USER }}
+          DB_PW: ${{ secrets.DATABASE_PW }}
+          ADMINS: ${{ vars.BOARD_ADMINS }}
         run: |
-          printf '%s\n' "${{ secrets.DATABASE_HOST }}" "${{ secrets.DATABASE_USER }}" "${{ secrets.DATABASE_PW }}" "${{ vars.BOARD_ADMINS }}" | \
+          # Tolerate a value pasted with surrounding quotes, which is easy to do
+          # in the GitHub variables UI and otherwise ends up inside the sub.
+          ADMINS="${ADMINS%\"}"; ADMINS="${ADMINS#\"}"
+          ADMINS="${ADMINS%\'}"; ADMINS="${ADMINS#\'}"
+          printf '%s\n' "$DB_HOST" "$DB_USER" "$DB_PW" "$ADMINS" | \
             ssh "deploy@${{ secrets.VPS_HOST }}" '
               set -euo pipefail
               IFS= read -r HOST; IFS= read -r DB_USER; IFS= read -r DB_PW; IFS= read -r ADMINS
@@ -90,7 +103,15 @@ jobs:
           ssh "deploy@${{ secrets.VPS_HOST }}" '
             set -euo pipefail
             command -v psql >/dev/null || { echo "psql missing on VPS: apt-get install -y postgresql-client" >&2; exit 1; }
-            set -a; . /opt/sumter-field-desk/server.env; set +a
+            # Read the file literally instead of sourcing it. Sourcing runs the
+            # values through a shell, so a "|" in an Auth0 sub or a space or "$"
+            # in a password becomes syntax. Only PG* is needed here, so
+            # BOARD_ADMINS is never touched by this step at all.
+            while IFS= read -r line; do
+              case "$line" in
+                PG*=*) export "${line%%=*}=${line#*=}" ;;
+              esac
+            done < /opt/sumter-field-desk/server.env
             for file in /opt/sumter-field-desk/migrations/*.sql; do
               echo "Applying ${file##*/}"
               psql -v ON_ERROR_STOP=1 -q -f "$file"
