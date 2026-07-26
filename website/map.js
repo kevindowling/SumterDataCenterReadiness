@@ -232,9 +232,12 @@ async function buildFlowLayer(L) {
   return {group, lines: (data.features || []).length, arrows};
 }
 
+// Only the rings and the parcel are on at first load. Everything else is a
+// deliberate choice by the reader: switching on all fourteen at once buries
+// the parcel the map exists to show.
 const LAYERS = [
   {
-    name: 'FEMA flood zones', url: `${PUBLIC_LAYERS}/42`, on: true, clip: true, pane: 'flood',
+    name: 'FEMA flood zones', url: `${PUBLIC_LAYERS}/42`, clip: true, pane: 'flood',
     style: {color: '#1f6feb', weight: 1, fillColor: '#1f6feb', fillOpacity: 0.25},
     popup: (p) => `<b>Flood zone ${esc(clean(p.FLOODZONE))}</b>${popupTable([
       ['Special flood hazard area', p.SFHA === 'T' ? 'Yes' : 'No'],
@@ -242,7 +245,7 @@ const LAYERS = [
     ])}<small>${esc(clean(p.LEGEND))}</small>`,
   },
   {
-    name: 'Lakes, ponds & wetlands', url: `${PUBLIC_LAYERS}/19`, on: true, clip: true, pane: 'water',
+    name: 'Lakes, ponds & wetlands', url: `${PUBLIC_LAYERS}/19`, clip: true, pane: 'water',
     style: {color: '#0e7490', weight: 1, fillColor: '#22d3ee', fillOpacity: 0.45},
     popup: (p) => `<b>${esc(clean(p.NAME) || clean(p.FEATURE) || 'Water body')}</b>${popupTable([
       ['Type', p.TYPE], ['Area (acres)', p.WATERAREA?.toFixed?.(1)],
@@ -264,25 +267,25 @@ const LAYERS = [
     ])}`,
   },
   {
-    name: 'Schools', url: `${PUBLIC_LAYERS}/3`, on: true, clip: true, pane: 'points', marker: '#b9362c',
+    name: 'Schools', url: `${PUBLIC_LAYERS}/3`, clip: true, pane: 'points', marker: '#b9362c',
     popup: (p) => `<b>${esc(clean(p.Name) || clean(p.Schools) || 'School')}</b>${popupTable([
       ['Grades', p.Grades], ['Type', p.Education], ['Address', p.Address], ['Phone', p.Phone],
     ])}`,
   },
   {
-    name: 'Hospitals & medical', url: `${PUBLIC_LAYERS}/2`, on: true, clip: true, pane: 'points', marker: '#0e7490',
+    name: 'Hospitals & medical', url: `${PUBLIC_LAYERS}/2`, clip: true, pane: 'points', marker: '#0e7490',
     popup: (p) => `<b>${esc(clean(p.Name) || 'Medical facility')}</b>${popupTable([
       ['Address', p.Address], ['Community', p.Community], ['Open', p.OPERDAYS], ['Hours', p.OPERHOURS],
     ])}`,
   },
   {
-    name: 'Churches (OSM)', overpass: ['["amenity"="place_of_worship"]'], on: true, pane: 'points', marker: '#8d6824',
+    name: 'Churches (OSM)', overpass: ['["amenity"="place_of_worship"]'], pane: 'points', marker: '#8d6824',
     popup: (p) => `<b>${esc(clean(p.name) || 'Place of worship')}</b>${popupTable([
       ['Denomination', p.denomination], ['Address', [clean(p['addr:housenumber']), clean(p['addr:street'])].filter(Boolean).join(' ')],
     ])}<small>OpenStreetMap. The county POI layer does not map churches.</small>`,
   },
   {
-    name: 'Care homes (OSM)', on: true, pane: 'points', marker: '#b45309',
+    name: 'Care homes (OSM)', pane: 'points', marker: '#b45309',
     overpass: ['["amenity"="social_facility"]', '["amenity"="nursing_home"]', '["healthcare"~"nursing|hospice"]'],
     popup: (p) => `<b>${esc(clean(p.name) || 'Care facility')}</b>${popupTable([
       ['Type', p.social_facility || p.amenity || p.healthcare],
@@ -290,7 +293,7 @@ const LAYERS = [
     ])}<small>OpenStreetMap coverage of care homes here is incomplete.</small>`,
   },
   {
-    name: 'Parks & recreation', url: `${PUBLIC_LAYERS}/1`, on: true, clip: true, pane: 'points', marker: '#527553',
+    name: 'Parks & recreation', url: `${PUBLIC_LAYERS}/1`, clip: true, pane: 'points', marker: '#527553',
     filter: (p) => RECREATION.includes(clean(p.TYPE)),
     popup: (p) => `<b>${esc(clean(p.DESCRIP) || 'Park or recreation')}</b>${popupTable([
       ['Type', p.TYPE], ['Address', [clean(p.NUMBER_), clean(p.ADDRESS)].filter(Boolean).join(' ')],
@@ -323,30 +326,43 @@ export async function renderSiteMap(container, onStatus) {
     {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'});
   satellite.addTo(map);
 
-  // Fourteen overlays make an always-open panel taller than a phone screen, so
-  // it collapses to a button below the layout breakpoint and stays open on the
-  // wide layout where there is room for it. Leaflet only decides this once, at
-  // construction, so re-check on resize.
-  const wideEnough = () => matchMedia('(min-width: 900px)').matches;
-  let control = L.control.layers({Satellite: satellite, Streets: streets}, {}, {collapsed: !wideEnough()}).addTo(map);
-  const overlays = [];
+  // Fourteen overlays make an always-open panel taller than a phone screen.
+  // Leaflet's own `collapsed` mode expands on hover, which never reads as a
+  // real toggle and cannot be closed again on a wide screen — so the list is
+  // always built open and driven by an explicit button instead. It starts
+  // closed on narrow screens and open where there is room, and after that it
+  // does what the reader last told it to.
+  const control = L.control.layers({Satellite: satellite, Streets: streets}, {}, {collapsed: false}).addTo(map);
+  const panel = control.getContainer();
+  const list = panel.querySelector('.leaflet-control-layers-list');
 
+  const toggle = L.DomUtil.create('button', 'layer-toggle');
+  toggle.type = 'button';
+  panel.prepend(toggle);
+  L.DomEvent.disableClickPropagation(panel);
+  L.DomEvent.disableScrollPropagation(panel);
+
+  let activeCount = 0;
+  let open = matchMedia('(min-width: 900px)').matches;
+
+  const paint = () => {
+    panel.classList.toggle('is-collapsed', !open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-controls', 'map-layer-list');
+    toggle.innerHTML = `<span>LAYERS${activeCount ? ` · ${activeCount}` : ''}</span><i aria-hidden="true">${open ? '×' : '+'}</i>`;
+  };
+  if (list) list.id = 'map-layer-list';
+  L.DomEvent.on(toggle, 'click', (event) => { L.DomEvent.stop(event); open = !open; paint(); });
+  paint();
+
+  // Register with the control first, so adding the layer to the map raises
+  // `overlayadd` and the counter stays in one place.
   const addOverlay = (name, layer, on) => {
-    overlays.push({name, layer});
     control.addOverlay(layer, name);
     if (on) layer.addTo(map);
   };
-
-  // Rebuild the control when crossing the breakpoint, keeping which layers are
-  // currently on the map.
-  let wide = wideEnough();
-  addEventListener('resize', () => {
-    if (wideEnough() === wide) return;
-    wide = wideEnough();
-    control.remove();
-    control = L.control.layers({Satellite: satellite, Streets: streets}, {}, {collapsed: !wide}).addTo(map);
-    for (const {name, layer} of overlays) control.addOverlay(layer, name);
-  });
+  map.on('overlayadd', () => { activeCount += 1; paint(); });
+  map.on('overlayremove', () => { activeCount -= 1; paint(); });
 
   // --- Distance rings: true geodesic circles in metres, not traced ----------
   const ringLayer = L.layerGroup();
@@ -390,7 +406,7 @@ export async function renderSiteMap(container, onStatus) {
   const failures = [];
   try {
     const flow = await buildFlowLayer(L);
-    addOverlay(`Water flow direction (${flow.lines})`, flow.group, true);
+    addOverlay(`Water flow direction (${flow.lines})`, flow.group, false);
   } catch {
     failures.push('water flow direction');
   }

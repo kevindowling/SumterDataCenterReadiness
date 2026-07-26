@@ -76,13 +76,17 @@ table.map-popup{margin:9px 0 0;border-collapse:collapse;font-size:13px}
 table.map-popup th{padding:3px 10px 3px 0;color:var(--muted);font:400 9px/1.4 var(--mono);letter-spacing:.06em;text-align:left;text-transform:uppercase;vertical-align:top}
 table.map-popup td{padding:3px 0;vertical-align:top}
 .map-mail{display:inline-block;margin-top:10px;font:500 11px/1 var(--mono)}
-/* Layer control: cap its height and let it scroll, so a long overlay list can
-   never grow past the map on a phone. */
-.leaflet-control-layers{max-height:calc(100% - 20px);overflow:hidden auto;font:400 12px/1.35 var(--mono)}
-.leaflet-control-layers-expanded{padding:10px 12px 10px 10px;max-width:min(74vw,280px)}
-.leaflet-control-layers label{margin:1px 0}
-.leaflet-control-layers-separator{margin:8px 0}
-@media(max-width:899px){.leaflet-control-layers-toggle{width:40px;height:40px;background-size:22px 22px}}
+/* Layer control: an explicit toggle at every width, with the list capped and
+   scrollable so it can never grow past the map on a phone. */
+.leaflet-control-layers{border:1px solid var(--ink);border-radius:0;background:var(--light);font:400 12px/1.35 var(--mono);box-shadow:0 6px 18px #171a1826}
+.leaflet-control-layers-expanded{padding:0;max-width:min(76vw,290px);color:var(--ink)}
+.layer-toggle{display:flex;width:100%;align-items:center;justify-content:space-between;gap:14px;padding:9px 11px;border:0;background:var(--ink);color:var(--light);cursor:pointer;font:500 10px/1 var(--mono);letter-spacing:.11em}
+.layer-toggle i{font-style:normal;font-size:15px;line-height:1}
+.leaflet-control-layers-list{display:block;max-height:min(52vh,420px);margin:0;padding:9px 11px;overflow-y:auto;overscroll-behavior:contain}
+.leaflet-control-layers.is-collapsed .leaflet-control-layers-list{display:none}
+.leaflet-control-layers label{margin:2px 0}
+.leaflet-control-layers-separator{margin:8px 0;border-top:1px solid #171a1833}
+@media(max-width:720px){.leaflet-control-layers-expanded{max-width:min(82vw,260px)}.leaflet-control-layers-list{max-height:44vh}}
 .flow-arrow-icon{background:none;border:0}
 .flow-arrow{display:block;width:0;height:0;margin:4px 0 0 3px;border-left:8px solid #0b3f8f;border-top:4px solid transparent;border-bottom:4px solid transparent;transform-origin:50% 50%;filter:drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1.5px #fff)}
 .community-card.live{border-top:0;border-left:0;background:none;cursor:pointer;text-align:left;font:inherit;color:inherit}
