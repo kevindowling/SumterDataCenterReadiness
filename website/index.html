@@ -15,8 +15,8 @@
     <meta property="og:title" content="Sumter Field Desk - Data Center Research" />
     <meta property="og:description" content="A community research report on the proposed Sumter County data center." />
     <meta property="og:url" content="https://scc4t.com/" />
-    <meta property="og:image" content="https://scc4t.com/icons/icon-512.png" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://scc4t.com/icons/preview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Sumter Field Desk - Data Center Research" />
     <meta name="twitter:description" content="A community research report on the proposed Sumter County data center." />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
@@ -31,12 +31,16 @@
     <meta name="apple-mobile-web-app-title" content="Field Desk" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&display=swap" rel="stylesheet" />
+    <!-- Loaded without blocking the first paint: the stylesheet is applied once
+         it arrives, and `display=swap` means text is readable in a fallback face
+         until then. The <noscript> copy keeps it working with scripting off. -->
+    <link rel="stylesheet" media="print" onload="this.media='all'; this.onload=null"
+          href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&display=swap" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&display=swap" /></noscript>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div id="app"><noscript>This research desk requires JavaScript.</noscript></div>
-    <script src="https://cdn.jsdelivr.net/npm/@auth0/auth0-spa-js@2/dist/auth0-spa-js.production.js"></script>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

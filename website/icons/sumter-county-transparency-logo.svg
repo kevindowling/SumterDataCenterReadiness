@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <defs>
+    <path id="topArc" d="M 90,250 A 160,160 0 0 1 410,250" />
+    <path id="bottomArc" d="M 90,270 A 160,160 0 0 0 410,270" />
+  </defs>
+
+  <!-- Background -->
+  <circle cx="250" cy="250" r="245" fill="#F7F5EF" stroke="#1B3A5C" stroke-width="6"/>
+  <circle cx="250" cy="250" r="222" fill="none" stroke="#C9A227" stroke-width="3"/>
+
+  <!-- Signature mark: an eye formed from overlapping translucent panes ("seeing through") -->
+  <g transform="translate(250,246)">
+    <!-- Outer eye silhouette -->
+    <path d="M -108,0 C -70,-58 -30,-84 0,-84 C 30,-84 70,-58 108,0
+             C 70,58 30,84 0,84 C -30,84 -70,58 -108,0 Z"
+          fill="none" stroke="#1B3A5C" stroke-width="7" stroke-linejoin="round"/>
+
+    <!-- Overlapping glass panes forming the iris, layered for transparency motif -->
+    <polygon points="0,-46 40,-14 24,34 -24,34 -40,-14" fill="#1B3A5C" opacity="0.55"/>
+    <polygon points="-34,-30 30,-40 46,10 6,44 -44,20" fill="#2E7D8C" opacity="0.5"/>
+    <polygon points="34,-30 44,20 -6,44 -46,10 -30,-40" fill="#C9A227" opacity="0.55"/>
+
+    <!-- Pupil -->
+    <circle cx="0" cy="0" r="15" fill="#1B3A5C"/>
+    <circle cx="-5" cy="-5" r="4" fill="#F7F5EF"/>
+  </g>
+
+  <!-- Arced text -->
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#1B3A5C" letter-spacing="4">
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">SUMTER COUNTY</textPath>
+  </text>
+
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="23" fill="#1B3A5C" letter-spacing="2.5">
+    <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">CITIZENS FOR TRANSPARENCY</textPath>
+  </text>
+
+  <!-- Small divider dots between icon and text bands -->
+  <circle cx="97" cy="255" r="3.5" fill="#C9A227"/>
+  <circle cx="403" cy="255" r="3.5" fill="#C9A227"/>
+</svg>

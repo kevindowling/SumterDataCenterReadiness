@@ -1,7 +1,8 @@
 import {apiFetch, apiOrigin, initAuth, isConfigured, login, logout} from './auth.js';
 import {initInstallPrompt} from './install.js';
 import {
-  allDocuments, docPath, documents, escapeHtml, findDocument, inline, isUnlisted, markdown, unlistedDocuments,
+  HOME_TITLE, allDocuments, docPath, documents, escapeHtml, findDocument, inline, isUnlisted,
+  markdown, seoTitle, unlistedDocuments,
 } from './content.js';
 
 
@@ -550,12 +551,13 @@ function searchResults(query) {
 // router takes over.
 function updateHead() {
   const doc = route.view === 'doc' ? findDocument(route.id) : null;
-  const label = doc ? doc.title
-    : route.view === 'community' ? 'Community desk'
-    : route.view === 'map' ? 'Site map'
-    : route.view === 'board' ? 'Message board'
-    : null;
-  document.title = label ? `${label} — Sumter Field Desk` : 'Sumter Field Desk - Data Center Research';
+  // Matches the prerendered <title> exactly, so a note reads the same in the
+  // tab whether it was landed on directly or navigated to in-app.
+  document.title = doc ? seoTitle(doc)
+    : route.view === 'community' ? 'Community desk — Sumter Field Desk'
+    : route.view === 'map' ? 'Site map — Sumter Field Desk'
+    : route.view === 'board' ? 'Message board — Sumter Field Desk'
+    : HOME_TITLE;
   const canonical = document.querySelector('link[rel="canonical"]');
   if (canonical) canonical.href = new URL(pathFor(route), location.origin).href;
 }

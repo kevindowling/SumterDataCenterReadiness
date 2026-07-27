@@ -13,7 +13,7 @@ const required = [
   'website/content.js', 'website/prerender.mjs',
   'website/map.js', 'website/vendor/leaflet/leaflet.js', 'website/vendor/leaflet/leaflet.css',
   'website/install.js', 'website/sw.js', 'website/manifest.webmanifest', 'website/favicon.svg',
-  'website/icons/icon-192.png', 'website/icons/icon-512.png',
+  'website/icons/icon-192.png', 'website/icons/icon-512.png', 'website/icons/preview.png',
   'website/icons/icon-192-maskable.png', 'website/icons/icon-512-maskable.png', 'website/icons/icon-180.png',
   ...docs.map((name) => `research/${name}`),
 ];

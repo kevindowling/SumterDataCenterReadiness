@@ -13,19 +13,35 @@
 //
 // Usage: node prerender.mjs <output-dir>
 
+import {execFileSync} from 'node:child_process';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {
-  SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN, docPath, docUrl, documents, escapeHtml,
-  isUnlisted, markdown, summarize, unlistedDocuments,
+  HOME_DESCRIPTION, HOME_TITLE, SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN, docPath, docUrl,
+  documents, escapeHtml, isUnlisted, markdown, seoDescription, seoTitle, unlistedDocuments,
 } from './content.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = join(here, '..');
 const out = process.argv[2] || join(repo, '_site');
 
-const PREVIEW_IMAGE = `${SITE_ORIGIN}/icons/icon-512.png`;
+// A 1200x630 card, not the square site icon: scrapers crop link previews to a
+// wide box, which letterboxes or slices a square logo. Built by
+// tools/build-preview-image.py.
+const PREVIEW_IMAGE = `${SITE_ORIGIN}/icons/preview.png`;
+const PREVIEW_ALT = 'Sumter Field Desk - data center research for Americus, Georgia';
+
+// Last commit date for a file, for an honest sitemap <lastmod>. Stamping every
+// URL with the build date tells a crawler the whole site changed on every
+// deploy, which is exactly how the signal gets ignored.
+function lastModified(path) {
+  try {
+    const date = execFileSync('git', ['log', '-1', '--format=%cs', '--', path], {cwd: repo, encoding: 'utf8'}).trim();
+    if (date) return date;
+  } catch { /* not a git checkout, or no history for this file */ }
+  return new Date().toISOString().slice(0, 10);
+}
 
 // The shell uses "./asset" paths, which are correct only at the site root. A
 // page at /doc/records/ would resolve them against its own directory, so the
@@ -47,25 +63,91 @@ function head({title, description, url, image = PREVIEW_IMAGE, noindex = false})
     `<meta property="og:description" content="${safe.description}" />`,
     `<meta property="og:url" content="${url}" />`,
     `<meta property="og:image" content="${image}" />`,
-    '<meta name="twitter:card" content="summary" />',
+    '<meta property="og:image:width" content="1200" />',
+    '<meta property="og:image:height" content="630" />',
+    `<meta property="og:image:alt" content="${escapeHtml(PREVIEW_ALT)}" />`,
+    '<meta name="twitter:card" content="summary_large_image" />',
     `<meta name="twitter:title" content="${safe.title}" />`,
     `<meta name="twitter:description" content="${safe.description}" />`,
     `<meta name="twitter:image" content="${image}" />`,
   ].join('\n    ');
 }
 
+// Structured data. Tells a crawler what kind of thing the page is and how the
+// notes relate, rather than leaving it to infer both from markup.
+function jsonLd(objects) {
+  // Escaped so a "</script>" inside any string cannot close the tag early.
+  const payload = JSON.stringify(objects.length === 1 ? objects[0] : objects).replace(/</g, '\\u003c');
+  return `<script type="application/ld+json">${payload}</script>`;
+}
+
+const publisher = {'@type': 'Organization', name: SITE_NAME, url: `${SITE_ORIGIN}/`};
+
+function articleLd(doc, {title, description, modified}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description,
+    url: docUrl(doc.id),
+    mainEntityOfPage: docUrl(doc.id),
+    dateModified: modified,
+    image: PREVIEW_IMAGE,
+    isPartOf: {'@type': 'Report', name: 'Sumter County Data Center Community Research Report', url: `${SITE_ORIGIN}/`},
+    publisher,
+    author: publisher,
+  };
+}
+
+function breadcrumbLd(doc) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {'@type': 'ListItem', position: 1, name: SITE_NAME, item: `${SITE_ORIGIN}/`},
+      {'@type': 'ListItem', position: 2, name: doc.title, item: docUrl(doc.id)},
+    ],
+  };
+}
+
+const homeLd = () => [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_NAME,
+    alternateName: 'Sumter County Data Center Research',
+    url: `${SITE_ORIGIN}/`,
+    description: HOME_DESCRIPTION,
+    publisher,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Sumter County Data Center Community Research Report',
+    itemListElement: documents.map((doc, index) => ({
+      '@type': 'ListItem', position: index + 1, name: doc.title, url: docUrl(doc.id),
+    })),
+  },
+];
+
 // Replaces the shell's own title/description/canonical block with this page's.
-function withHead(shell, meta) {
+function withHead(shell, meta, structuredData = []) {
+  const extra = structuredData.length ? `\n    ${jsonLd(structuredData)}` : '';
   return shell
     .replace(/<title>[^<]*<\/title>/, '@@HEAD@@')
     .replace(/\n\s*<meta name="description"[^>]*>/, '')
     .replace(/\n\s*<link rel="canonical"[^>]*>/, '')
-    .replace('@@HEAD@@', head(meta));
+    .replace('@@HEAD@@', head(meta) + extra);
 }
 
 // What a crawler or a reader without JavaScript is served. Mirrors the
 // structure app.js renders so the page reads correctly on its own, and links
 // out to the other notes so the crawler can walk the whole report.
+// The cover already carries the note's title as the page H1, and the app hides
+// the note's own leading "# ..." with CSS. Left in the prerendered markup it is
+// a second, visually hidden H1 competing with the first, so drop it here.
+const withoutLeadingHeading = (html) => html.replace(/^<h1[^>]*>.*?<\/h1>/, '');
+
 function staticBody(doc, body) {
   const others = documents
     .filter((item) => item.id !== doc.id)
@@ -78,7 +160,7 @@ function staticBody(doc, body) {
         <h1>${escapeHtml(doc.title)}</h1>
         <p class="cover-question">${escapeHtml(doc.question)}</p>
       </header>
-      <div class="paper-grid"><div class="markdown">${body}</div></div>
+      <div class="paper-grid"><div class="markdown">${withoutLeadingHeading(body)}</div></div>
     </article>
     <nav class="prerender-nav"><h2>The rest of the report</h2><ul>${others}</ul></nav>`;
 }
@@ -95,13 +177,17 @@ const written = [];
 
 for (const doc of [...documents, ...unlistedDocuments]) {
   const raw = await readFile(join(repo, 'research', doc.file), 'utf8');
-  const description = summarize(raw);
+  // No brand suffix: a result shows roughly sixty characters, and the site name
+  // already travels in og:site_name.
+  const title = seoTitle(doc);
+  const description = seoDescription(doc, raw);
+  const modified = lastModified(`research/${doc.file}`);
   const page = withHead(shell, {
-    title: `${doc.title} — ${SITE_NAME}`,
+    title,
     description,
     url: docUrl(doc.id),
     noindex: isUnlisted(doc),
-  }).replace(
+  }, isUnlisted(doc) ? [] : [articleLd(doc, {title, description, modified}), breadcrumbLd(doc)]).replace(
     '<div id="app"><noscript>This research desk requires JavaScript.</noscript></div>',
     // The marker tells app.js this route is already on screen, so it renders
     // over the prerendered note instead of blanking it to a loading message.
@@ -126,10 +212,10 @@ for (const [path, title, description] of [
 
 // Home page: the shell itself, with the canonical tag the others carry.
 written.push(await emit('index.html', withHead(shell, {
-  title: 'Sumter Field Desk - Data Center Research',
-  description: SITE_DESCRIPTION,
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
   url: `${SITE_ORIGIN}/`,
-})));
+}, homeLd())));
 
 // GitHub Pages has no rewrite rules, so an unknown path — including a board
 // thread, which is generated per post and cannot be prerendered — is served
@@ -141,14 +227,23 @@ written.push(await emit('404.html', withHead(shell, {
   noindex: true,
 })));
 
-const today = new Date().toISOString().slice(0, 10);
-const urls = [`${SITE_ORIGIN}/`, ...documents.map((doc) => docUrl(doc.id))];
+const newest = (dates) => dates.slice().sort().pop();
+const noteDates = documents.map((doc) => lastModified(`research/${doc.file}`));
+const urls = [
+  {loc: `${SITE_ORIGIN}/`, lastmod: newest(noteDates)},
+  ...documents.map((doc, index) => ({loc: docUrl(doc.id), lastmod: noteDates[index]})),
+];
 written.push(await emit('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((url) => `  <url><loc>${url}</loc><lastmod>${today}</lastmod></url>`).join('\n')}
+${urls.map(({loc, lastmod}) => `  <url><loc>${loc}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}
 </urlset>
 `));
 
+// /research/ holds the markdown each note is rendered from. Those files are
+// served, so without this every note has a second crawlable copy competing
+// with the page built from it. Blocking them here does not affect the app,
+// which fetches them at runtime — robots.txt governs crawlers, not fetch.
+//
 // Unlisted notes are kept out of this file on purpose. robots.txt is public, so
 // a Disallow line would publish the very URL it is meant to keep quiet — and it
 // would stop crawlers from fetching the page and reading its noindex tag, which
@@ -157,6 +252,7 @@ written.push(await emit('robots.txt', `User-agent: *
 Allow: /
 Disallow: /community/
 Disallow: /board/
+Disallow: /research/
 
 Sitemap: ${SITE_ORIGIN}/sitemap.xml
 `));
