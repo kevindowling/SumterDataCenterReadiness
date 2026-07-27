@@ -31,8 +31,11 @@ jobs:
       - name: Assemble static site
         run: |
           mkdir -p _site/research
-          cp website/index.html website/app.js website/styles.css website/auth.js website/auth-config.js website/content.js website/map.js _site/
-          cp website/install.js website/sw.js website/manifest.webmanifest website/favicon.svg _site/
+          # Every browser script is a .js; the build and server scripts are .mjs
+          # and stay behind. Globbing means a new module ships without anyone
+          # having to remember this list — app.js imports petition.js, and an
+          # omission here breaks the whole app, not just one feature.
+          cp website/*.js website/index.html website/styles.css website/manifest.webmanifest website/favicon.svg _site/
           cp -r website/vendor _site/vendor
           cp -r website/icons _site/icons
           cp research/*.md _site/research/
