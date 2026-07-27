@@ -77,6 +77,10 @@ The county service is `https://ga31portal.kcsgis.com/ga31server/rest/services/Pu
 
 Each layer fails independently: if one service is down the rest still draw, and the status line under the map names what did not load.
 
+`map.js` keeps its own day-long copy of every GIS and Overpass response in Cache Storage, separate from the service worker. When a request fails it retries three times with a widening pause — Overpass returns a 504 under load often enough to lose a layer otherwise — and then falls back to an expired copy rather than dropping the layer. Expired copies are kept for 90 days and are only pruned once the upstream has answered something on that page load, because during an outage the expired copy is the only copy there is. The county has taken the whole `Public` folder offline before (`Error: Service Public/Public/MapServer not started`, HTTP 500 on every layer), so this is the difference between an older map and a blank one. The status line distinguishes the three cases: fetched now, today's local copy, or an older local copy with its age.
+
+A reader who has never opened the map before an outage has nothing to fall back on and will see the layers listed as unavailable.
+
 **The map is gated, the data is not.** Hiding the route keeps the map off the public front door, but on GitHub Pages `map.js` is still fetchable and every service it calls is public. Treat this as presentation, not access control.
 
 ## Icons and install (PWA)

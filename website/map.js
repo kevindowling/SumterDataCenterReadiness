@@ -68,6 +68,11 @@ function loadLeaflet() {
 // hundreds of kilobytes, past what localStorage will hold.
 const GIS_CACHE = 'field-desk-gis-v1';
 const GIS_TTL = 24 * 60 * 60 * 1000;
+// How long an expired copy is still worth keeping. The county has taken its
+// whole ArcGIS service offline before, for longer than a day, and a boundary
+// drawn three months ago is far better than a blank map. Only the age shown to
+// the reader changes.
+const GIS_KEEP = 90 * 24 * 60 * 60 * 1000;
 const CACHED_AT = 'x-field-desk-cached-at';
 
 const cacheStore = async () => {
@@ -77,10 +82,35 @@ const cacheStore = async () => {
 
 const freshness = (response) => Date.now() - Number(response?.headers.get(CACHED_AT) || 0);
 
-// Records when each response was stored so the age is visible to the reader.
-let oldestHit = 0;
-const noteAge = (age) => { oldestHit = Math.max(oldestHit, age); };
-const cacheAge = () => oldestHit;
+// Where a response came from, so the reader can be told plainly. Only a stored
+// copy carries the stamp, so its absence means this came off the wire.
+const sourceOf = (response) => {
+  const stamp = Number(response.headers.get(CACHED_AT) || 0);
+  if (!stamp) return {from: 'network', age: 0};
+  const age = Date.now() - stamp;
+  return {from: age < GIS_TTL ? 'cache' : 'stale', age};
+};
+
+// Both upstreams fail transiently — Overpass returns a 504 under load often
+// enough to lose a layer on any given page load, and the county's ArcGIS box
+// drops connections. One stumble should not cost the reader a layer, so try a
+// few times with a widening pause. A 404 or a bad query will not fix itself on
+// a retry, so only server-side and rate-limit failures are worth repeating.
+async function fetchWithRetry(url, init, attempts = 3) {
+  let failure;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const response = await fetch(url, init);
+      if (response.ok) return response;
+      failure = new Error(`HTTP ${response.status}`);
+      if (response.status < 500 && response.status !== 429) break;
+    } catch (error) {
+      failure = error;
+    }
+    if (attempt < attempts - 1) await new Promise((resume) => setTimeout(resume, 400 * 2 ** attempt));
+  }
+  throw failure;
+}
 
 // `key` lets POST requests (Overpass) be cached, since Cache Storage will only
 // key on a GET.
@@ -89,11 +119,10 @@ async function cachedFetch(url, {key = url, ...init} = {}) {
   const request = new Request(key);
   const hit = store ? await store.match(request) : null;
 
-  if (hit && freshness(hit) < GIS_TTL) { noteAge(freshness(hit)); return hit; }
+  if (hit && freshness(hit) < GIS_TTL) return hit;
 
   try {
-    const response = await fetch(url, init);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const response = await fetchWithRetry(url, init);
     if (store) {
       const headers = new Headers(response.headers);
       headers.set(CACHED_AT, String(Date.now()));
@@ -103,18 +132,21 @@ async function cachedFetch(url, {key = url, ...init} = {}) {
   } catch (error) {
     // A stale copy beats an empty map when the county server or the network is
     // unreachable, so fall back to it rather than failing the layer.
-    if (hit) { noteAge(freshness(hit)); return hit; }
+    if (hit) return hit;
     throw error;
   }
 }
 
-// Drops entries well past their day so the cache cannot grow without bound.
-async function pruneCache() {
+// Drops entries well past their keep window so the cache cannot grow without
+// bound. Runs only once the upstream has actually answered something this
+// load: during an outage the expired copy is the only copy there is, and
+// deleting it would empty the map for as long as the county stays down.
+async function pruneCache(upstreamAnswered) {
   const store = await cacheStore();
-  if (!store) return;
+  if (!store || !upstreamAnswered) return;
   for (const request of await store.keys()) {
     const entry = await store.match(request);
-    if (entry && freshness(entry) > GIS_TTL * 7) await store.delete(request);
+    if (entry && freshness(entry) > GIS_KEEP) await store.delete(request);
   }
 }
 
@@ -130,7 +162,7 @@ async function queryLayer(url, {where = '1=1', outFields = '*', envelope} = {}) 
   const response = await cachedFetch(`${url}/query?${params}`);
   const body = await response.json();
   if (body.error) throw new Error(body.error.message || 'GIS query failed');
-  return body;
+  return {data: body, source: sourceOf(response)};
 }
 
 // Bounding box roughly covering the 3-mile ring, so point and line layers come
@@ -185,16 +217,19 @@ async function overpassPoints(filters) {
   });
   const body = await response.json();
   return {
-    type: 'FeatureCollection',
-    features: (body.elements || []).map((element) => {
-      const lat = element.lat ?? element.center?.lat;
-      const lon = element.lon ?? element.center?.lon;
-      return lat == null ? null : {
-        type: 'Feature',
-        geometry: {type: 'Point', coordinates: [lon, lat]},
-        properties: element.tags || {},
-      };
-    }).filter(Boolean),
+    source: sourceOf(response),
+    data: {
+      type: 'FeatureCollection',
+      features: (body.elements || []).map((element) => {
+        const lat = element.lat ?? element.center?.lat;
+        const lon = element.lon ?? element.center?.lon;
+        return lat == null ? null : {
+          type: 'Feature',
+          geometry: {type: 'Point', coordinates: [lon, lat]},
+          properties: element.tags || {},
+        };
+      }).filter(Boolean),
+    },
   };
 }
 
@@ -252,7 +287,7 @@ function arrowsAlong(L, coords, spacing = 520) {
 }
 
 async function buildFlowLayer(L) {
-  const data = await queryLayer(NHD_FLOWLINES, {
+  const {data, source} = await queryLayer(NHD_FLOWLINES, {
     envelope: AREA, outFields: 'gnis_name,streamorde,flowdir,lengthkm',
   });
   const group = L.layerGroup();
@@ -293,7 +328,7 @@ async function buildFlowLayer(L) {
       }
     }
   }
-  return {group, lines: (data.features || []).length, arrows};
+  return {group, lines: (data.features || []).length, arrows, source};
 }
 
 // Only the rings and the parcel are on at first load. Everything else is a
@@ -428,6 +463,16 @@ export async function renderSiteMap(container, onStatus) {
   map.on('overlayadd', () => { activeCount += 1; paint(); });
   map.on('overlayremove', () => { activeCount -= 1; paint(); });
 
+  // Counted per layer, not per request, so the note under the map can say
+  // exactly how much of what the reader is looking at is today's record and
+  // how much is an older copy standing in for a server that did not answer.
+  const sources = {network: 0, cache: 0, stale: 0};
+  let oldestStale = 0;
+  const noteSource = ({from, age}) => {
+    sources[from] += 1;
+    if (from === 'stale') oldestStale = Math.max(oldestStale, age);
+  };
+
   // --- Distance rings: true geodesic circles in metres, not traced ----------
   const ringLayer = L.layerGroup();
   for (const ring of RINGS) {
@@ -442,10 +487,11 @@ export async function renderSiteMap(container, onStatus) {
 
   // --- Subject parcel ------------------------------------------------------
   try {
-    const parcel = await queryLayer(PARCELS, {
+    const {data: parcel, source} = await queryLayer(PARCELS, {
       where: `PARCELID = '${SUBJECT_PARCEL_ID.replace(/'/g, "''")}'`,
       outFields: 'PARCELID,TOTALACRES,FULLOWNERNAMES,SITEADDRESS,ZONING',
     });
+    noteSource(source);
     const layer = L.geoJSON(parcel, {
       pane: 'parcel',
       style: {color: '#22d3ee', weight: 4, fillColor: '#22d3ee', fillOpacity: 0.25},
@@ -470,6 +516,7 @@ export async function renderSiteMap(container, onStatus) {
   const failures = [];
   try {
     const flow = await buildFlowLayer(L);
+    noteSource(flow.source);
     addOverlay(`Water flow direction (${flow.lines})`, flow.group, false);
   } catch {
     failures.push('water flow direction');
@@ -478,7 +525,8 @@ export async function renderSiteMap(container, onStatus) {
   // --- Everything around it ------------------------------------------------
   await Promise.all(LAYERS.map(async (job) => {
     try {
-      const data = job.overpass ? await overpassPoints(job.overpass) : await queryLayer(job.url, job.clip ? {envelope: AREA} : {});
+      const {data, source} = job.overpass ? await overpassPoints(job.overpass) : await queryLayer(job.url, job.clip ? {envelope: AREA} : {});
+      noteSource(source);
       if (job.filter) data.features = (data.features || []).filter((f) => job.filter(f.properties || {}));
       const layer = L.geoJSON(data, {
         pane: job.pane,
@@ -497,16 +545,27 @@ export async function renderSiteMap(container, onStatus) {
     }
   }));
 
-  // Say plainly whether this is a fresh read or a cached one, and how old.
-  const age = cacheAge();
-  const hours = Math.floor(age / 3_600_000);
-  const provenance = age === 0
-    ? 'fetched now from the Sumter County GIS service'
-    : `from a local copy taken ${hours < 1 ? 'under an hour' : `${hours} hour${hours === 1 ? '' : 's'}`} ago, refreshed daily`;
-  say(failures.length
-    ? `Layers ${provenance}. These did not respond: ${failures.join(', ')}.`
-    : `All layers ${provenance}.`);
-  pruneCache();
+  // Say plainly where each layer came from. Lumping these together was
+  // misleading during the county's outage: one cached layer made the map claim
+  // everything was an hour-old local copy while the rest had failed outright.
+  const describeAge = (ms) => {
+    const hours = Math.floor(ms / 3_600_000);
+    if (hours < 1) return 'under an hour old';
+    if (hours < 48) return `${hours} hour${hours === 1 ? '' : 's'} old`;
+    const days = Math.round(hours / 24);
+    return `${days} day${days === 1 ? '' : 's'} old`;
+  };
+  const parts = [];
+  if (sources.network) parts.push(`${sources.network} fetched now`);
+  if (sources.cache) parts.push(`${sources.cache} from today's local copy`);
+  if (sources.stale) parts.push(`${sources.stale} from an older local copy (${describeAge(oldestStale)}), because the server did not answer`);
+  say([
+    parts.length ? `Layers: ${parts.join('; ')}.` : '',
+    failures.length
+      ? `These did not respond and there is no local copy to fall back on: ${failures.join(', ')}.`
+      : 'Every layer loaded.',
+  ].filter(Boolean).join(' '));
+  pruneCache(sources.network > 0);
 
   // --- "Am I inside a ring?" -----------------------------------------------
   let youMarker = null;
