@@ -80,20 +80,38 @@ jobs:
           DB_USER: ${{ secrets.DATABASE_USER }}
           DB_PW: ${{ secrets.DATABASE_PW }}
           ADMINS: ${{ vars.BOARD_ADMINS }}
+          # Petition. PETITION_SECRET keys the HMACs used for deduplication and
+          # for the hashed network prefixes; rotating it orphans every existing
+          # dedup key, so set it once and leave it. Without it the sign route
+          # refuses to record anything rather than hashing under a known value.
+          PETITION_SECRET: ${{ secrets.PETITION_SECRET }}
+          TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          MAIL_FROM: ${{ vars.MAIL_FROM }}
+          MAIL_REPLY_TO: ${{ vars.MAIL_REPLY_TO }}
+          PUBLIC_ORIGIN: ${{ vars.PUBLIC_ORIGIN }}
+          API_ORIGIN: ${{ vars.API_ORIGIN }}
         run: |
           # Tolerate a value pasted with surrounding quotes, which is easy to do
           # in the GitHub variables UI and otherwise ends up inside the sub.
           ADMINS="${ADMINS%\"}"; ADMINS="${ADMINS#\"}"
           ADMINS="${ADMINS%\'}"; ADMINS="${ADMINS#\'}"
-          printf '%s\n' "$DB_HOST" "$DB_USER" "$DB_PW" "$ADMINS" | \
+          printf '%s\n' "$DB_HOST" "$DB_USER" "$DB_PW" "$ADMINS" "$PETITION_SECRET" \
+            "$TURNSTILE_SECRET" "$RESEND_API_KEY" "$MAIL_FROM" "$MAIL_REPLY_TO" "$PUBLIC_ORIGIN" "$API_ORIGIN" | \
             ssh "deploy@${{ secrets.VPS_HOST }}" '
               set -euo pipefail
               IFS= read -r HOST; IFS= read -r DB_USER; IFS= read -r DB_PW; IFS= read -r ADMINS
+              IFS= read -r PETITION_SECRET; IFS= read -r TURNSTILE_SECRET; IFS= read -r RESEND_API_KEY
+              IFS= read -r MAIL_FROM; IFS= read -r MAIL_REPLY_TO
+              IFS= read -r PUBLIC_ORIGIN; IFS= read -r API_ORIGIN
               PORT=5432
               if [[ "$HOST" == *:* ]]; then PORT="${HOST##*:}"; HOST="${HOST%%:*}"; fi
               umask 077
-              printf "PGHOST=%s\nPGPORT=%s\nPGUSER=%s\nPGPASSWORD=%s\nPGDATABASE=scc4t\nPGSSLMODE=require\nBOARD_ADMINS=%s\n" \
-                "$HOST" "$PORT" "$DB_USER" "$DB_PW" "$ADMINS" > /opt/sumter-field-desk/server.env'
+              # TRUST_PROXY: the service only ever answers through Caddy, so the
+              # client address comes from X-Forwarded-For rather than the socket.
+              printf "PGHOST=%s\nPGPORT=%s\nPGUSER=%s\nPGPASSWORD=%s\nPGDATABASE=scc4t\nPGSSLMODE=require\nBOARD_ADMINS=%s\nPETITION_SECRET=%s\nTURNSTILE_SECRET=%s\nRESEND_API_KEY=%s\nMAIL_FROM=%s\nMAIL_REPLY_TO=%s\nPUBLIC_ORIGIN=%s\nAPI_ORIGIN=%s\nTRUST_PROXY=1\n" \
+                "$HOST" "$PORT" "$DB_USER" "$DB_PW" "$ADMINS" "$PETITION_SECRET" "$TURNSTILE_SECRET" \
+                "$RESEND_API_KEY" "$MAIL_FROM" "$MAIL_REPLY_TO" "$PUBLIC_ORIGIN" "$API_ORIGIN" > /opt/sumter-field-desk/server.env'
 
       - name: Run database migrations
         # Runs psql on the VPS (the only IP the database trusts) using the

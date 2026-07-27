@@ -12,4 +12,10 @@ export const authConfig = {
   // Origins allowed to call the API cross-origin (server.mjs reads this list).
   // Add the GitHub Pages origin, e.g. 'https://<user>.github.io'.
   corsOrigins: ['http://localhost:4173', 'https://www.scc4t.com', 'https://scc4t.com'],
+  // Cloudflare Turnstile site key for the petition form (dash.cloudflare.com →
+  // Turnstile → Add site). Public by design; the matching secret lives only in
+  // TURNSTILE_SECRET on the server. Leave as-is to run the form without a
+  // challenge — signatures are still gated on email confirmation, and each row
+  // records that the check was skipped.
+  turnstileSiteKey: '0x4AAAAAAD-uyOsygTqldEvZ',
 };

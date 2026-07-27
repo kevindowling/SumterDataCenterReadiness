@@ -21,6 +21,7 @@ import {
   HOME_DESCRIPTION, HOME_TITLE, SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN, docPath, docUrl,
   documents, escapeHtml, isUnlisted, markdown, seoDescription, seoTitle, unlistedDocuments,
 } from './content.js';
+import {livePetition} from './petition.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = join(here, '..');
@@ -198,6 +199,39 @@ for (const doc of [...documents, ...unlistedDocuments]) {
   written.push(await emit(join('doc', doc.id, 'index.html'), page));
 }
 
+// The petition is the one interactive surface built to be found and shared, so
+// unlike the signed-in views it is indexable and ships its text in the HTML —
+// the scrapers behind Facebook and iMessage never run the app, and a link with
+// no visible ask is a link nobody clicks.
+const petition = livePetition();
+written.push(await emit(join('petition', 'index.html'), withHead(shell, {
+  title: `${petition.title} — Americus, Georgia`,
+  description: petition.summary,
+  url: `${SITE_ORIGIN}/petition/`,
+}, [{
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: petition.title,
+  description: petition.summary,
+  url: `${SITE_ORIGIN}/petition/`,
+  isPartOf: {'@type': 'WebSite', name: SITE_NAME, url: `${SITE_ORIGIN}/`},
+  publisher,
+}]).replace(
+  '<div id="app"><noscript>This research desk requires JavaScript.</noscript></div>',
+  `<div id="app" data-prerendered="petition"><main class="petition">
+      <header class="petition-head">
+        <p class="eyebrow"><span></span> ${escapeHtml(petition.eyebrow)}</p>
+        <h1>${escapeHtml(petition.title)}</h1>
+        <p class="lede">${escapeHtml(petition.ask)}</p>
+      </header>
+      <section class="petition-text">
+        ${petition.body.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}
+        <p><a href="${petition.document.href}">${escapeHtml(petition.document.label)}</a></p>
+        <p><a href="${docPath('petition')}">How signatures are verified and counted</a></p>
+      </section>
+    </main></div>`,
+)));
+
 // Views with no note behind them still need a real URL and a sane title.
 for (const [path, title, description] of [
   ['community', 'Community desk', 'Sign in to the Sumter Field Desk community area.'],
@@ -233,6 +267,7 @@ const newest = (dates) => dates.slice().sort().pop();
 const noteDates = documents.map((doc) => lastModified(`research/${doc.file}`));
 const urls = [
   {loc: `${SITE_ORIGIN}/`, lastmod: newest(noteDates)},
+  {loc: `${SITE_ORIGIN}/petition/`, lastmod: lastModified('website/petition.js')},
   ...documents.map((doc, index) => ({loc: docUrl(doc.id), lastmod: noteDates[index]})),
 ];
 written.push(await emit('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>

@@ -167,6 +167,114 @@ test('board preflight advertises DELETE for moderation', async () => {
   assert.match(preflight.headers.get('access-control-allow-methods'), /DELETE/);
 });
 
+// The petition is the one API surface that must answer a signed-out caller:
+// requiring an account to sign would lose more real residents than it stops
+// bots. These tests pin that door open — and pin shut the ones next to it.
+test('petition read and sign routes are reachable without a token', async () => {
+  const read = await fetch(`${base}/api/petition/moratorium`);
+  // 501 without a database configured; 200 once there is one. Never 401.
+  assert.ok([200, 501].includes(read.status), `unexpected status ${read.status}`);
+
+  const sign = await fetch(`${base}/api/petition/moratorium/sign`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name: 'Ann Lee', email: 'ann@example.com', city: 'Americus', state: 'GA', postalCode: '31709', consent: true}),
+  });
+  assert.ok([202, 501].includes(sign.status), `unexpected status ${sign.status}`);
+});
+
+// Shape is judged before anything else, so a malformed submission gets a usable
+// message whether or not the database and mail are configured yet.
+test('petition signing rejects malformed submissions', async () => {
+  const cases = [
+    [{name: 'A', email: 'ann@example.com', city: 'Americus', state: 'GA', postalCode: '31709', consent: true}, 'short name'],
+    [{name: 'Ann Lee', email: 'not-an-email', city: 'Americus', state: 'GA', postalCode: '31709', consent: true}, 'bad email'],
+    [{name: 'Ann Lee', email: 'ann@example.com', city: 'Americus', state: 'GA', postalCode: '317', consent: true}, 'short ZIP'],
+    [{name: 'Ann Lee', email: 'ann@example.com', city: 'Americus', state: 'Georgia', postalCode: '31709', consent: true}, 'long state'],
+    [{name: 'Ann Lee', email: 'ann@example.com', city: 'Americus', state: 'GA', postalCode: '31709'}, 'no consent'],
+  ];
+  for (const [body, label] of cases) {
+    const response = await fetch(`${base}/api/petition/moratorium/sign`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body),
+    });
+    assert.equal(response.status, 400, `${label} should be rejected`);
+  }
+});
+
+// The Turnstile gate, exercised against a server started with Cloudflare's
+// published always-fail test secret. Robust offline too: if siteverify cannot
+// be reached, verifyTurnstile fails closed and the answer is the same 403.
+test('a failed Turnstile check refuses the signature', async () => {
+  const gatePort = port + 1;
+  const gate = spawn(process.execPath, [fileURLToPath(new URL('server.mjs', import.meta.url))], {
+    // 2x...AA is Cloudflare's documented "always fails" test secret, not a real one.
+    env: {...process.env, PORT: String(gatePort), TURNSTILE_SECRET: '2x0000000000000000000000000000000AA'},
+  });
+  try {
+    await new Promise((resolve, reject) => {
+      gate.stdout.on('data', resolve);
+      gate.on('error', reject);
+      setTimeout(() => reject(new Error('gate server did not start within 5s')), 5000).unref();
+    });
+    const response = await fetch(`http://localhost:${gatePort}/api/petition/moratorium/sign`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name: 'Gate Case', email: 'gate@example.com', city: 'Americus', state: 'GA', postalCode: '31709', consent: true, turnstileToken: 'XXXX.DUMMY.TOKEN.XXXX'}),
+    });
+    // 403 before the database is ever consulted — never 501 (no database) or 202.
+    assert.equal(response.status, 403, 'a failed challenge must refuse the signature');
+    assert.match((await response.json()).error, /anti-bot check/);
+  } finally {
+    gate.kill();
+  }
+});
+
+test('organizer petition routes sit behind the auth gate', async () => {
+  const calls = [['POST', '/api/petition/moratorium/paper'], ['POST', '/api/petition/moratorium/snapshot'],
+    ['GET', '/api/petition/moratorium/export.csv']];
+  for (const [method, path] of calls) {
+    const response = await fetch(`${base}${path}`, {
+      method, ...(method === 'POST' ? {headers: {'Content-Type': 'application/json'}, body: '{}'} : {}),
+    });
+    // 501 until an Auth0 audience is configured, 401 (missing token) once it is.
+    assert.ok([401, 501].includes(response.status), `${method} ${path} unexpected status ${response.status}`);
+  }
+});
+
+test('unknown petitions and petition routes 404 rather than leaking', async () => {
+  for (const path of ['/api/petition/not-a-petition', '/api/petition/moratorium/nonsense', '/api/petition/moratorium/sign/extra']) {
+    const response = await fetch(`${base}${path}`);
+    assert.equal(response.status, 404, `${path} should 404`);
+  }
+});
+
+// The confirmation link is the whole basis of the count, so a missing, junk or
+// replayed token must never produce a counted signature.
+test('petition confirmation refuses a junk token', async () => {
+  const missing = await fetch(`${base}/api/petition/verify`);
+  assert.ok([400, 501].includes(missing.status), `unexpected status ${missing.status}`);
+  const junk = await fetch(`${base}/api/petition/verify?token=aaaaaaaaaaaa`);
+  assert.ok([200, 501].includes(junk.status), `unexpected status ${junk.status}`);
+  if (junk.status === 200) assert.match(await junk.text(), /Nothing to confirm/);
+});
+
+// Mail clients and security scanners follow links in email on their own, so
+// withdrawal has to take a POST — a GET shows a confirmation button instead.
+test('petition withdrawal does not act on a bare GET', async () => {
+  const response = await fetch(`${base}/api/petition/withdraw?token=aaaaaaaaaaaa`);
+  assert.ok([200, 501].includes(response.status), `unexpected status ${response.status}`);
+  if (response.status === 200) assert.match(await response.text(), /Remove your signature\?/);
+});
+
+test('serves the petition route and the draft resolution', async () => {
+  const page = await fetch(`${base}/petition/`);
+  assert.equal(page.status, 200);
+  assert.match(await page.text(), /Sumter Field Desk/);
+  const pdf = await fetch(`${base}/research/moratorium-resolution.pdf`);
+  assert.equal(pdf.status, 200);
+  assert.match(pdf.headers.get('content-type'), /application\/pdf/);
+});
+
 test('protected API refuses a forged token', async () => {
   const response = await fetch(`${base}/api/me`, {headers: {Authorization: 'Bearer aaa.bbb.ccc'}});
   assert.ok([401, 501].includes(response.status), `unexpected status ${response.status}`);

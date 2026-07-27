@@ -4,6 +4,8 @@ import {
   HOME_TITLE, allDocuments, docPath, documents, escapeHtml, findDocument, inline, isUnlisted,
   markdown, seoTitle, unlistedDocuments,
 } from './content.js';
+import {LIMITS, livePetition} from './petition.js';
+import {authConfig} from './auth-config.js';
 
 
 // Upcoming public meetings. `startUtc`/`endUtc` are explicit so the calendar
@@ -72,6 +74,7 @@ function pathFor(next) {
   return next.view === 'doc' ? docPath(next.id)
     : next.view === 'community' ? '/community/'
     : next.view === 'map' ? '/map/'
+    : next.view === 'petition' ? '/petition/'
     : next.view === 'board' ? (next.threadId ? `/board/${next.threadId}/` : '/board/')
     : '/';
 }
@@ -88,6 +91,7 @@ function routeFromPath(pathname) {
   const thread = pathname.match(/^\/board\/(\d+)\/?$/);
   return /^\/community\/?$/.test(pathname) ? {view: 'community'}
     : /^\/map\/?$/.test(pathname) ? {view: 'map'}
+    : /^\/petition\/?$/.test(pathname) ? {view: 'petition'}
     : thread ? {view: 'board', threadId: thread[1]}
     : /^\/board\/?$/.test(pathname) ? {view: 'board'}
     : doc ? {view: 'doc', id: doc[1]} : {view: 'home'};
@@ -104,6 +108,7 @@ function migrateLegacyHash() {
   const path = doc ? docPath(doc[1])
     : hash.startsWith('#/community') ? '/community/'
     : hash.startsWith('#/map') ? '/map/'
+    : hash.startsWith('#/petition') ? '/petition/'
     : thread ? `/board/${thread[1]}/`
     : hash.startsWith('#/board') ? '/board/'
     : '/';
@@ -214,7 +219,7 @@ function home() {
         <p class="eyebrow"><span></span> CITIZEN RESEARCH FOR SUMTER COUNTY</p>
         <h1>Bring facts.<br />Ask for <em>answers.</em></h1>
         <p class="lede">This is the community's research report on the proposed Sumter County data center. It separates verified local facts from planning scenarios and unresolved project details, so residents can press commissioners for precise answers, in public, before decisions are made.</p>
-        <div class="hero-actions"><button data-doc="start">Start with what is known <span>→</span></button><button class="quiet" data-doc="verify">See what still needs verification</button></div>
+        <div class="hero-actions"><button data-petition>Sign the moratorium petition <span>→</span></button><button class="quiet" data-doc="start">Start with what is known</button></div>
         <div class="evidence-legend"><span class="verified">Verified fact</span><span class="scenario">Scale scenario</span><span class="unknown">Project unknown</span><span class="recommendation">Recommendation</span></div>
       </div>
     </section>
@@ -426,9 +431,310 @@ function boardView() {
   </main>${searchPanel()}`;
 }
 
+// --- Petition ---------------------------------------------------------------
+// The only community feature that works signed out: a petition is worth
+// delivering only if the people it speaks for could actually sign it. Bot
+// resistance comes from the email confirmation step on the server, not from a
+// login wall here.
+
+const PETITION = livePetition();
+let petitionView = {
+  state: 'idle',          // idle | loading | ready | unavailable | error
+  counts: null, signatures: [], organizer: false, error: '',
+  submitting: false, done: '', formError: '',
+  paperError: '', paperDone: '',
+};
+let turnstileToken = '';
+let turnstileWidget = null;
+
+const siteKey = () => authConfig.turnstileSiteKey && !authConfig.turnstileSiteKey.startsWith('YOUR_')
+  ? authConfig.turnstileSiteKey : '';
+
+// Loaded only on this route, and only when a site key is configured — a reader
+// who never opens the petition never touches Cloudflare.
+function loadTurnstile() {
+  if (!siteKey() || window.turnstile) return Promise.resolve(Boolean(window.turnstile));
+  if (!window.__turnstilePromise) {
+    window.__turnstilePromise = new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);   // the form still submits; the server records 'fail'
+      document.head.append(script);
+    });
+  }
+  return window.__turnstilePromise;
+}
+
+// render() replaces the whole view, so the widget is rebuilt on every pass.
+// Cloudflare keeps its own state per widget id, so the previous one has to be
+// dropped or the ids accumulate against detached containers.
+async function mountTurnstile() {
+  const holder = document.querySelector('#turnstile');
+  if (!holder || !siteKey() || holder.childElementCount) return;
+  if (!(await loadTurnstile()) || !holder.isConnected) return;
+  if (turnstileWidget !== null) { try { window.turnstile.remove(turnstileWidget); } catch { /* already gone */ } }
+  turnstileToken = '';
+  turnstileWidget = window.turnstile.render(holder, {
+    sitekey: siteKey(),
+    // Mirrors data-action on the div. The widget is rendered explicitly (the
+    // API script is loaded with render=explicit), so the attribute alone would
+    // not reach Cloudflare — these render options are what the widget actually
+    // uses, and the attribute is what a reader of the markup sees.
+    action: 'turnstile-spin-v2',
+    callback: (token) => { turnstileToken = token; },
+    'expired-callback': () => { turnstileToken = ''; },
+    'error-callback': () => { turnstileToken = ''; },
+  });
+}
+
+async function loadPetition() {
+  petitionView = {...petitionView, state: 'loading', error: ''};
+  render();
+  try {
+    // Signed in, the same route also reports whether this account may key in
+    // paper signatures, so organizers get their tools without a second call.
+    const response = user
+      ? await apiFetch(`/api/petition/${PETITION.id}`)
+      : await fetch(`${apiOrigin()}/api/petition/${PETITION.id}`);
+    if (response.status === 501) { petitionView = {...petitionView, state: 'unavailable'}; render(); return; }
+    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+    const data = await response.json();
+    petitionView = {...petitionView, state: 'ready', counts: data.counts, signatures: data.signatures, organizer: Boolean(data.organizer)};
+  } catch (error) {
+    petitionView = {...petitionView, state: 'error', error: error.message};
+  }
+  render();
+}
+
+async function submitSignature(form) {
+  const data = new FormData(form);
+  petitionView = {...petitionView, submitting: true, formError: ''};
+  render();
+  try {
+    const response = await fetch(`${apiOrigin()}/api/petition/${PETITION.id}/sign`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        name: data.get('name'), email: data.get('email'), city: data.get('city'),
+        state: data.get('state'), postalCode: data.get('postalCode'), comment: data.get('comment'),
+        consent: data.get('consent') === 'on',
+        publicDisplay: data.get('publicDisplay') === 'on',
+        website: data.get('website'),          // honeypot: a real signer leaves it empty
+        turnstileToken,
+      }),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || `Server returned ${response.status}`);
+    petitionView = {...petitionView, submitting: false, done: body.message || 'Check your email to confirm.'};
+    render();
+  } catch (error) {
+    petitionView = {...petitionView, submitting: false, formError: error.message};
+    turnstileToken = '';
+    if (turnstileWidget !== null && window.turnstile) window.turnstile.reset(turnstileWidget);
+    render();
+  }
+}
+
+async function submitPaperSignature(form) {
+  const data = new FormData(form);
+  petitionView = {...petitionView, paperError: '', paperDone: ''};
+  try {
+    const response = await apiFetch(`/api/petition/${PETITION.id}/paper`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        name: data.get('name'), email: data.get('email'), city: data.get('city'),
+        state: data.get('state'), postalCode: data.get('postalCode'),
+        publicDisplay: data.get('publicDisplay') === 'on',
+      }),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || `Server returned ${response.status}`);
+    form.reset();
+    petitionView = {...petitionView, paperDone: 'Paper signature recorded.', counts: body.counts};
+    render();
+  } catch (error) {
+    petitionView = {...petitionView, paperError: error.message};
+    render();
+  }
+}
+
+async function recordSnapshot() {
+  petitionView = {...petitionView, paperError: '', paperDone: ''};
+  try {
+    const response = await apiFetch(`/api/petition/${PETITION.id}/snapshot`, {method: 'POST'});
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || `Server returned ${response.status}`);
+    petitionView = {...petitionView, paperDone: `Snapshot recorded — SHA-256 ${body.snapshot.sha256.slice(0, 16)}…`};
+  } catch (error) {
+    petitionView = {...petitionView, paperError: error.message};
+  }
+  render();
+}
+
+// Fetched with the auth header and handed to the browser as a download rather
+// than linked: the export is organizer-only, so it cannot be a plain <a href>.
+async function downloadSignatures() {
+  try {
+    const response = await apiFetch(`/api/petition/${PETITION.id}/export.csv`);
+    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+    const url = URL.createObjectURL(await response.blob());
+    const anchor = Object.assign(document.createElement('a'), {href: url, download: `${PETITION.id}-signatures.csv`});
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    petitionView = {...petitionView, paperError: error.message};
+    render();
+  }
+}
+
+// Separate lines, never one headline number. A council member's first question
+// about any petition is "how many of these are from here?", and a total that
+// cannot answer it gets discounted whole.
+function petitionTally() {
+  const counts = petitionView.counts;
+  if (!counts) return '<p class="petition-tally-loading">LOADING THE COUNT…</p>';
+  const line = (value, label, accent = false) =>
+    `<div class="${accent ? 'tally-lead' : ''}"><b>${value.toLocaleString()}</b><span>${escapeHtml(label)}</span></div>`;
+  return `<div class="petition-tally">
+    ${line(counts.sumter, 'Verified Sumter County residents', true)}
+    ${line(counts.georgia, 'Elsewhere in Georgia')}
+    ${line(counts.elsewhere, 'Outside Georgia')}
+    ${line(counts.paper, 'Signed on paper, in person')}
+  </div>
+  <p class="petition-tally-note">${counts.verified.toLocaleString()} confirmed signature${counts.verified === 1 ? '' : 's'} in total${counts.pending ? `, plus ${counts.pending.toLocaleString()} waiting on an email confirmation that has not been opened yet` : ''}. Only confirmed signatures are counted. <a href="/doc/petition/">How this is verified →</a></p>`;
+}
+
+// Above the form, because the residents closest to the site are the ones least
+// likely to sign anything online.
+function inPersonBlock() {
+  const {place, address, hours, note, contact} = PETITION.inPerson;
+  if (!address) {
+    return `<aside class="petition-inperson pending">
+      <p class="eyebrow"><span></span> SIGN ON PAPER</p>
+      <b>An in-person signing location is being arranged.</b>
+      <span>A paper copy will be available to sign at a published address and set hours, and paper signatures are counted exactly the same as online ones. Check back, or ask at the next public meeting.</span>
+    </aside>`;
+  }
+  return `<aside class="petition-inperson">
+    <p class="eyebrow"><span></span> SIGN ON PAPER, IN PERSON</p>
+    <div class="inperson-grid">
+      <div><small>WHERE</small><b>${escapeHtml(place)}</b><span>${escapeHtml(address)}</span></div>
+      <div><small>WHEN</small>${hours.map((line) => `<b>${escapeHtml(line)}</b>`).join('')}</div>
+      ${contact ? `<div><small>QUESTIONS</small><b>${escapeHtml(contact)}</b></div>` : ''}
+    </div>
+    ${note ? `<span class="inperson-note">${escapeHtml(note)}</span>` : ''}
+  </aside>`;
+}
+
+function petitionForm() {
+  if (petitionView.done) {
+    return `<section class="petition-form done">
+      <p class="eyebrow"><span></span> ONE MORE STEP</p>
+      <h2>Check your email.</h2>
+      <p>${escapeHtml(petitionView.done)}</p>
+      <p class="form-fineprint">The link expires in 24 hours. If it does not arrive within a few minutes, check the spam folder before signing again.</p>
+    </section>`;
+  }
+  const disabled = petitionView.submitting ? 'disabled' : '';
+  return `<form class="petition-form" data-sign>
+    <p class="eyebrow"><span></span> ADD YOUR NAME</p>
+    <div class="form-row">
+      <label>FULL NAME<input name="name" maxlength="${LIMITS.name}" autocomplete="name" required /></label>
+      <label>EMAIL<input name="email" type="email" maxlength="${LIMITS.email}" autocomplete="email" required /></label>
+    </div>
+    <div class="form-row three">
+      <label>CITY OR TOWN<input name="city" maxlength="${LIMITS.city}" autocomplete="address-level2" required /></label>
+      <label>STATE<input name="state" maxlength="2" value="GA" autocomplete="address-level1" required /></label>
+      <label>ZIP<input name="postalCode" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" autocomplete="postal-code" required /></label>
+    </div>
+    <label class="form-comment">COMMENT (OPTIONAL) — WHY THIS MATTERS TO YOU
+      <textarea name="comment" rows="3" maxlength="${LIMITS.comment}" placeholder="One or two sentences the council will read."></textarea>
+    </label>
+    <label class="form-check"><input type="checkbox" name="consent" required /> <span>I am a real person, I live at the address I gave, and I am signing this petition only once.</span></label>
+    <label class="form-check"><input type="checkbox" name="publicDisplay" /> <span>Show my name, town and comment on this page. Leave unticked to be counted without being listed — your signature counts either way.</span></label>
+    <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off" /></label></div>
+    ${siteKey() ? `<div id="turnstile" class="cf-turnstile turnstile" data-sitekey="${escapeHtml(siteKey())}" data-action="turnstile-spin-v2"></div>` : ''}
+    ${petitionView.formError ? `<p class="board-notice error">${escapeHtml(petitionView.formError)}</p>` : ''}
+    <button type="submit" ${disabled}>${petitionView.submitting ? 'Sending the confirmation…' : 'Sign the petition'}</button>
+    <p class="form-fineprint">Your signature is not counted until you open the confirmation link we email you. Your email address and ZIP are never published, and every signature can be withdrawn from a link in that same email. <a href="/doc/petition/">How signatures are verified and counted →</a></p>
+  </form>`;
+}
+
+function petitionSignatures() {
+  const list = petitionView.signatures;
+  if (!list.length) return '';
+  return `<section class="petition-signers">
+    <p class="eyebrow"><span></span> SIGNERS WHO ASKED TO BE LISTED</p>
+    <div class="signer-list">${list.map((signer) => `
+      <article class="signer">
+        <b>${escapeHtml(signer.name)}</b>
+        <span>${escapeHtml(signer.city)}, ${escapeHtml(signer.state)}${signer.source === 'paper' ? ' · signed on paper' : ''}</span>
+        ${signer.comment ? `<p>${escapeHtml(signer.comment)}</p>` : ''}
+      </article>`).join('')}</div>
+    <p class="form-fineprint">Signers who did not ask to be listed are counted but not shown.</p>
+  </section>`;
+}
+
+// Organizers only: keying in the paper sheets from the in-person table, and the
+// audit tools that make the totals checkable later.
+function organizerTools() {
+  if (!petitionView.organizer) return '';
+  return `<section class="petition-organizer">
+    <p class="eyebrow"><span></span> ORGANIZER · PAPER SHEET ENTRY</p>
+    <form class="petition-form compact" data-paper>
+      <div class="form-row three">
+        <label>FULL NAME<input name="name" maxlength="${LIMITS.name}" required /></label>
+        <label>CITY<input name="city" maxlength="${LIMITS.city}" required /></label>
+        <label>ZIP<input name="postalCode" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" required /></label>
+      </div>
+      <div class="form-row three">
+        <label>STATE<input name="state" maxlength="2" value="GA" required /></label>
+        <label>EMAIL (IF GIVEN)<input name="email" type="email" maxlength="${LIMITS.email}" /></label>
+        <label class="form-check"><input type="checkbox" name="publicDisplay" /> <span>Ticked "list my name" on the sheet</span></label>
+      </div>
+      ${petitionView.paperError ? `<p class="board-notice error">${escapeHtml(petitionView.paperError)}</p>` : ''}
+      ${petitionView.paperDone ? `<p class="board-notice">${escapeHtml(petitionView.paperDone)}</p>` : ''}
+      <button type="submit">Record paper signature</button>
+    </form>
+    <div class="organizer-actions">
+      <button class="quiet" data-snapshot>Record an audit snapshot</button>
+      <button class="quiet" data-export>Download the full CSV</button>
+    </div>
+    <p class="form-fineprint">A snapshot writes the current totals and the SHA-256 of the canonical export into the append-only audit log, so a later change to the signature table is detectable. The CSV contains email addresses — it is the copy that must never be posted anywhere public.</p>
+  </section>`;
+}
+
+function petitionPage() {
+  const notice = petitionView.state === 'unavailable'
+    ? '<p class="board-notice">The community server is online but its petition database is not configured yet, so signatures cannot be recorded.</p>'
+    : petitionView.state === 'error' ? `<p class="board-notice error">Could not reach the petition server: ${escapeHtml(petitionView.error)}. The petition is still open — try again in a moment.</p>` : '';
+
+  return `${topbar()}<main class="petition">
+    <header class="petition-head">
+      <p class="eyebrow"><span></span> ${escapeHtml(PETITION.eyebrow)}</p>
+      <h1>${escapeHtml(PETITION.title)}</h1>
+      <p class="lede">${escapeHtml(PETITION.ask)}</p>
+    </header>
+    ${notice}
+    ${inPersonBlock()}
+    ${petitionTally()}
+    <section class="petition-text">
+      ${PETITION.body.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}
+      <p><a href="${PETITION.document.href}" target="_blank" rel="noreferrer">${escapeHtml(PETITION.document.label)} ↗</a></p>
+    </section>
+    ${petitionForm()}
+    ${organizerTools()}
+    ${petitionSignatures()}
+  </main>${searchPanel()}`;
+}
+
 const communityFeatures = [
   {number: 'C2', title: 'Surveys', text: 'Structured community input on the draft ordinance and its conditions.'},
-  {number: 'C3', title: 'Petition', text: 'Sign and share petitions asking for answers before approval.'},
   {number: 'C4', title: 'Contact', text: 'Reach the organizers behind the field desk.'},
 ];
 
@@ -452,6 +758,7 @@ function community() {
       : `<button class="strip-link" data-survey-open>TAKE THE ONE-TAP SURVEY →</button>`}</p>
     <div class="community-grid">
       <button class="community-card live" data-map><i>C0</i><b>Site map</b><span>The proposed parcel, the ½ / 1 / 3 mile rings, and the homes, schools, churches, waterways and flood zones around it.</span><em>OPEN THE MAP →</em></button>
+      <button class="community-card live" data-petition><i>C3</i><b>Petition</b><span>Ask the Americus City Council to adopt the temporary data center moratorium. Open to everyone, signed in or not.</span><em>SIGN THE PETITION →</em></button>
       <button class="community-card live" data-board><i>C1</i><b>Message board</b><span>Neighbor-to-neighbor threads on the proposal, meetings, and what people are hearing.</span><em>OPEN THE BOARD →</em></button>
       ${communityFeatures.map((feature) => `<div class="community-card"><i>${feature.number}</i><b>${feature.title}</b><span>${feature.text}</span><em>COMING SOON</em></div>`).join('')}
     </div>
@@ -555,6 +862,7 @@ function updateHead() {
   // tab whether it was landed on directly or navigated to in-app.
   document.title = doc ? seoTitle(doc)
     : route.view === 'community' ? 'Community desk — Sumter Field Desk'
+    : route.view === 'petition' ? `${PETITION.title} — Sumter Field Desk`
     : route.view === 'map' ? 'Site map — Sumter Field Desk'
     : route.view === 'board' ? 'Message board — Sumter Field Desk'
     : HOME_TITLE;
@@ -575,6 +883,7 @@ async function render() {
     app.innerHTML = (route.view === 'doc' ? await article(route.id)
       : route.view === 'community' ? community()
       : route.view === 'map' ? siteMap()
+      : route.view === 'petition' ? petitionPage()
       : route.view === 'board' ? boardView()
       : home()) + surveyPanel();
   }
@@ -583,6 +892,10 @@ async function render() {
   if (route.view === 'community') probeServer();
   if (route.view === 'map' || route.view === 'home') mountSiteMap();
   if (route.view === 'board' && user && board.loadedFor !== (route.threadId || '')) loadBoard(route.threadId);
+  if (route.view === 'petition') {
+    if (petitionView.state === 'idle') loadPetition();
+    mountTurnstile();
+  }
   if (route.view !== 'home') scrollTo({top: 0, behavior: 'auto'});
   if (searchOpen) requestAnimationFrame(() => document.querySelector('#search-input')?.focus());
 }
@@ -595,7 +908,12 @@ function bind() {
   document.querySelectorAll('[data-community]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'community'}); }));
   document.querySelectorAll('[data-map]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'map'}); }));
   document.querySelectorAll('[data-board]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'board'}); }));
+  document.querySelectorAll('[data-petition]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'petition'}); }));
   document.querySelectorAll('[data-thread]').forEach((button) => button.addEventListener('click', () => setRoute({view: 'board', threadId: button.dataset.thread})));
+  document.querySelector('[data-sign]')?.addEventListener('submit', (event) => { event.preventDefault(); submitSignature(event.currentTarget); });
+  document.querySelector('[data-paper]')?.addEventListener('submit', (event) => { event.preventDefault(); submitPaperSignature(event.currentTarget); });
+  document.querySelector('[data-snapshot]')?.addEventListener('click', () => recordSnapshot());
+  document.querySelector('[data-export]')?.addEventListener('click', () => downloadSignatures());
   document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deletePost(button.dataset.delete)));
   document.querySelector('[data-new-thread]')?.addEventListener('submit', (event) => {
     event.preventDefault();

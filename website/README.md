@@ -109,6 +109,56 @@ The service worker caches the app shell and research notes (network-first, so co
 
 Routes, all behind `verifyToken()`: `GET /api/board`, `POST /api/board`, `GET /api/board/:id`, `POST /api/board/:id/reply`, `DELETE /api/board/:id`.
 
+## Petition
+
+`/petition/` — **public, no sign-in.** A petition is only worth delivering if the people it speaks for could actually sign it, so this is the one community feature without a login wall. The text, the in-person signing details and the Sumter County ZIP list all live in `website/petition.js`; the schema is `deploy/migrations/004-petition.sql`; the public methodology page is `research/13-petition-integrity.md`, which is a promise to readers — **if you change the behaviour, change that note in the same commit.**
+
+### How a signature is counted
+
+1. `POST /api/petition/:id/sign` records a **pending** row. No published number moves.
+2. Cloudflare Turnstile is validated **server-side** and **gates the request**: unless the parsed siteverify response has `success === true`, the submission is refused with 403 and nothing is stored. The one exception is an unset `TURNSTILE_SECRET` (local dev and CI), where the row records `skipped` so the gap is visible in review. **This means a Cloudflare outage stops online signing** — the paper copy is the fallback.
+3. A single-use confirmation link (stored as a SHA-256 hash, 24-hour expiry) is emailed.
+4. `GET /api/petition/verify?token=…` flips the row to **verified** in one atomic statement that also clears the token, so a replayed link does nothing.
+5. Public totals count verified rows only, reported **by locality** — never merged into one headline number.
+
+Withdrawal is a **POST** behind a confirmation button, not a bare link: mail clients and security scanners follow links in email on their own, and a GET that removed a signature would let a scanner quietly undo one.
+
+- **One mailbox, one signature** is enforced by a unique index on `(petition_id, email_key)`, not by an application check — concurrent submissions race past application checks (verified: 10 simultaneous identical submissions produce exactly one row). Addresses are compared after normalisation, so `ann.lee+x@gmail.com` and `annlee@gmail.com` are one signer.
+- **Risk flags are recorded, not enforced.** Disposable domains, repeated household names and single-word names go in `risk_flags` for a human to review. Only the hidden honeypot field auto-rejects, and it still returns the same response as everything else. The Turnstile gate is the exception: it refuses before the row is written.
+- **The response is identical** for a new address, a repeat, an already-confirmed address and a honeypot catch. Otherwise the form becomes a way to ask "has my neighbour signed?"
+- **Rate limits** are per hashed network prefix (8 per 10 min, 60 per day) and per mailbox (2 confirmation emails per hour), deliberately loose because libraries, workplaces and phone carriers put many real people behind one address.
+
+### Paper signatures
+
+Paper sheets signed in person are keyed in by an organizer via `POST /api/petition/:id/paper` (the form appears on the page for accounts in `BOARD_ADMINS`). They are stored with `source = 'paper'` and counted on their own line, because "an organizer watched this person sign" and "this person opened a link in their own mailbox" are different kinds of evidence.
+
+### Audit chain
+
+`POST /api/petition/:id/snapshot` (organizers) writes the current totals, the row count, and the SHA-256 of a canonical export into `petition_snapshots`, each linked to the hash before it. `GET /api/petition/:id/snapshots` is **public**, so anyone can check a total published last month against the chain. `GET /api/petition/:id/export.csv` (organizers) is the copy with email addresses in it — never post it anywhere.
+
+### Before launch
+
+1. **Fill in `inPerson` in `website/petition.js`** — place, address, hours, contact. While `address` is empty the page says a location is being arranged instead of naming one.
+2. **Verify `SUMTER_ZIPS`** against the USPS ZIP lookup. A wrong entry inflates the one number the council will actually weigh.
+3. **Cloudflare Turnstile** — dash.cloudflare.com → Turnstile → Add site. Put the site key in `turnstileSiteKey` in `auth-config.js` and the secret in the `TURNSTILE_SECRET` repository secret.
+4. **Mail** — a [Resend](https://resend.com) API key in `RESEND_API_KEY`. `MAIL_FROM` must be an address on a domain verified in Resend (`scc4t.com` is verified; the built-in default is `Sumter Field Desk <petition@scc4t.com>`, so the variable only needs setting to override that). Set `MAIL_REPLY_TO` to an inbox a human reads — someone whose name was signed without their consent will hit reply, and that is the path by which a forged signature gets reported. With no API key the server prints the confirmation link to its log instead of sending, which is how the flow is exercised locally.
+5. **`PETITION_SECRET`** — `openssl rand -hex 32`, stored as a repository secret. Set it once and leave it: rotating it orphans every existing deduplication key. **Without it the sign route refuses to record anything**, rather than hashing under a value an attacker could guess.
+
+Repository **secrets**: `PETITION_SECRET`, `TURNSTILE_SECRET`, `RESEND_API_KEY`. Repository **variables**: `MAIL_FROM`, `MAIL_REPLY_TO`, `PUBLIC_ORIGIN`, `API_ORIGIN`.
+
+If confirmation emails stop arriving, the server log names the cause: it prints Resend's own response body on a failed send (unverified domain, bad key, `from` address rejected), and the signer gets a 502 telling them to retry rather than a "check your email" for a message that never left.
+
+### Running the whole flow locally
+
+```bash
+docker run -d --rm --name petition-dev -e POSTGRES_PASSWORD=test -e POSTGRES_DB=scc4t -p 55432:5432 postgres:16-alpine
+docker exec -i petition-dev psql -U postgres -d scc4t < ../deploy/migrations/001-initial.sql
+docker exec -i petition-dev psql -U postgres -d scc4t < ../deploy/migrations/004-petition.sql
+DATABASE_URL='postgres://postgres:test@localhost:55432/scc4t' PETITION_SECRET=dev-only npm run dev
+```
+
+Sign at `http://localhost:4173/petition/`, then open the confirmation link the server logs to its console.
+
 ## Server CI/CD (VPS)
 
 `.github/workflows/deploy-server.yml` is the full server-side pipeline:
@@ -129,7 +179,8 @@ Routes, all behind `verifyToken()`: `GET /api/board`, `POST /api/board`, `GET /a
    - Secret `VPS_HOST` — the server's hostname or IP
    - Secret `VPS_SSH_KEY` — the contents of the private `deploy_key` file
    - Variable `DEPLOY_ENABLED` — set to `true` (the deploy job is skipped until this exists, so CI stays green before the VPS is ready)
-   - Variable `BOARD_ADMINS` (optional) — comma-separated Auth0 `sub` claims allowed to moderate the message board
+   - Variable `BOARD_ADMINS` (optional) — comma-separated Auth0 `sub` claims allowed to moderate the message board and key in paper petition signatures
+   - The petition secrets and variables listed under [Petition](#petition) above
 5. Push to `main`. Watch the **Server CI/CD** workflow deploy and health-check the service.
 
 Remember to add the production URL (e.g. `https://yourdomain.com`) to the Auth0 application's allowed callback/logout/origin lists.
