@@ -1,7 +1,8 @@
 import {apiFetch, apiOrigin, initAuth, isConfigured, login, logout} from './auth.js';
 import {initInstallPrompt} from './install.js';
 import {
-  allDocuments, docPath, documents, escapeHtml, findDocument, inline, isUnlisted, markdown, unlistedDocuments,
+  HOME_TITLE, allDocuments, docPath, documents, escapeHtml, findDocument, inline, isUnlisted,
+  markdown, seoTitle, unlistedDocuments,
 } from './content.js';
 
 
@@ -137,7 +138,7 @@ function interceptLinks() {
 const topbar = () => `
   <header class="topbar">
     <button class="brand" data-home aria-label="Return to research desk">
-      <span class="brand-seal">SC</span><span><b>SUMTER FIELD DESK</b><small>COMMUNITY RESEARCH DESK</small></span>
+      <img class="brand-seal" src="/icons/seal.svg" width="38" height="38" alt="Sumter County Citizens for Transparency" /><span><b>SUMTER FIELD DESK</b><small>COMMUNITY RESEARCH DESK</small></span>
     </button>
     <div class="top-actions">
       <span class="edition">COMMUNITY RESEARCH EDITION</span>
@@ -550,12 +551,13 @@ function searchResults(query) {
 // router takes over.
 function updateHead() {
   const doc = route.view === 'doc' ? findDocument(route.id) : null;
-  const label = doc ? doc.title
-    : route.view === 'community' ? 'Community desk'
-    : route.view === 'map' ? 'Site map'
-    : route.view === 'board' ? 'Message board'
-    : null;
-  document.title = label ? `${label} — Sumter Field Desk` : 'Sumter Field Desk - Data Center Research';
+  // Matches the prerendered <title> exactly, so a note reads the same in the
+  // tab whether it was landed on directly or navigated to in-app.
+  document.title = doc ? seoTitle(doc)
+    : route.view === 'community' ? 'Community desk — Sumter Field Desk'
+    : route.view === 'map' ? 'Site map — Sumter Field Desk'
+    : route.view === 'board' ? 'Message board — Sumter Field Desk'
+    : HOME_TITLE;
   const canonical = document.querySelector('link[rel="canonical"]');
   if (canonical) canonical.href = new URL(pathFor(route), location.origin).href;
 }

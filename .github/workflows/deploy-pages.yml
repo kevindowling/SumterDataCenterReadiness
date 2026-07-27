@@ -20,6 +20,10 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          # Full history: prerender.mjs stamps each sitemap URL with its note's
+          # last commit date, which a shallow clone flattens to one date.
+          fetch-depth: 0
 
       - name: Validate research desk
         run: node website/check.mjs
