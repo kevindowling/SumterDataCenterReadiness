@@ -455,15 +455,23 @@ const siteKey = () => authConfig.turnstileSiteKey && !authConfig.turnstileSiteKe
 
 // Loaded only on this route, and only when a site key is configured — a reader
 // who never opens the petition never touches Cloudflare.
+//
+// Readiness is the script's own onload callback, not the load event and not the
+// presence of window.turnstile. Cloudflare publishes the global as soon as the
+// script parses and attaches the explicit-render API afterwards, so both of the
+// obvious signals can be true while turnstile.render is still undefined.
+const TURNSTILE_READY_CALLBACK = '__turnstileReady';
+
 function loadTurnstile() {
-  if (!siteKey() || window.turnstile) return Promise.resolve(Boolean(window.turnstile));
+  if (!siteKey()) return Promise.resolve(false);
+  if (typeof window.turnstile?.render === 'function') return Promise.resolve(true);
   if (!window.__turnstilePromise) {
     window.__turnstilePromise = new Promise((resolve) => {
+      window[TURNSTILE_READY_CALLBACK] = () => resolve(true);
       const script = document.createElement('script');
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=${TURNSTILE_READY_CALLBACK}`;
       script.async = true;
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);   // the form still submits; the server records 'fail'
+      script.onerror = () => resolve(false);   // blocked or offline: the form says so rather than submitting
       document.head.append(script);
     });
   }
@@ -484,20 +492,31 @@ function loadTurnstile() {
 async function mountTurnstile() {
   const holder = document.querySelector('#turnstile');
   if (!holder || !siteKey() || holder.childElementCount) return;
-  if (!(await loadTurnstile())) { turnstileBlocked = true; return; }
+  if (!(await loadTurnstile()) || typeof window.turnstile?.render !== 'function') {
+    turnstileBlocked = true;   // never throw out of here: an unhandled rejection would leave the form silently unguarded
+    return;
+  }
   if (!holder.isConnected) return;
   if (turnstileWidget !== null) { try { window.turnstile.remove(turnstileWidget); } catch { /* already gone */ } }
-  turnstileWidget = window.turnstile.render(holder, {
-    sitekey: siteKey(),
-    // Mirrors data-action on the div. The widget is rendered explicitly (the
-    // API script is loaded with render=explicit), so the attribute alone would
-    // not reach Cloudflare — these render options are what the widget actually
-    // uses, and the attribute is what a reader of the markup sees.
-    action: 'turnstile-spin-v2',
-    callback: (token) => { turnstileToken = token; },
-    'expired-callback': () => { turnstileToken = ''; },
-    'error-callback': () => { turnstileToken = ''; },
-  });
+  try {
+    turnstileWidget = window.turnstile.render(holder, {
+      sitekey: siteKey(),
+      // Mirrors data-action on the div. The widget is rendered explicitly (the
+      // API script is loaded with render=explicit), so the attribute alone would
+      // not reach Cloudflare — these render options are what the widget actually
+      // uses, and the attribute is what a reader of the markup sees.
+      action: 'turnstile-spin-v2',
+      callback: (token) => { turnstileToken = token; },
+      'expired-callback': () => { turnstileToken = ''; },
+      'error-callback': () => { turnstileToken = ''; },
+    });
+    turnstileBlocked = false;
+  } catch {
+    // A bad site key throws from render(). Nothing here can recover it, so the
+    // form tells the signer the check is unavailable instead of letting them
+    // submit into a certain refusal.
+    turnstileBlocked = true;
+  }
 }
 
 async function loadPetition() {
