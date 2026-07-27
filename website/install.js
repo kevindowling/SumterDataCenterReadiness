@@ -67,9 +67,13 @@ function panel({title, body, actions}) {
 export function initInstallPrompt() {
   if (isStandalone()) return;
 
-  // Registering the worker is what makes the app installable at all.
+  // Registering the worker is what makes the app installable at all. The path
+  // has to be rooted: './sw.js' resolves against the current page, so a reader
+  // who lands on /petition/ asked for /petition/sw.js and got a 404 — no worker,
+  // no install prompt, no offline shell for anyone arriving on a shared link.
+  // The explicit scope keeps one worker covering the whole site either way.
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    addEventListener('load', () => navigator.serviceWorker.register('/sw.js', {scope: '/'}).catch(() => {}));
   }
 
   const visits = countVisit();
