@@ -4,7 +4,7 @@
 // app shell are worth having offline; live data is not. Anything the desk
 // reports must be current, so GIS queries, Auth0, and every /api/* call go to
 // the network and are never stored.
-const VERSION = 'field-desk-v5';
+const VERSION = 'field-desk-v6';
 const SHELL = [
   './',
   './index.html',
@@ -16,6 +16,7 @@ const SHELL = [
   './styles.css',
   './manifest.webmanifest',
   './favicon.svg',
+  './icons/seal.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './vendor/leaflet/leaflet.js',

@@ -42,19 +42,16 @@ LOGO = 'sumter-county-transparency-logo.svg'
 
 
 def logo_body(icons: Path) -> str:
-    """The seal's artwork, minus its arced wordmark.
+    """The seal's artwork, ring wordmark included.
 
-    Two reasons the ring text is dropped rather than kept. It is set on a
-    <textPath>, which librsvg does not render at all (2.62.1 draws plain <text>
-    and silently skips text on a path), so it would be missing from the PNG
-    either way. And at the size the seal appears here it would be about 15px
-    on a curve - unreadable, and competing with the card's own type.
+    tools/build-seal.py has already converted that wordmark from a <textPath>,
+    which librsvg does not render, into real outlines - so it survives
+    rasterization here. Run build-seal.py first if the seal has changed.
     """
     source = icons / LOGO
     if not source.exists():
         return ''
-    inner = re.sub(r'^.*?<svg[^>]*>|</svg>\s*$', '', source.read_text(), flags=re.S)
-    return re.sub(r'<text\b.*?</text>', '', inner, flags=re.S)
+    return re.sub(r'^.*?<svg[^>]*>|</svg>\s*$', '', source.read_text(), flags=re.S)
 
 
 def svg_document(logo: str) -> str:

@@ -138,7 +138,7 @@ function interceptLinks() {
 const topbar = () => `
   <header class="topbar">
     <button class="brand" data-home aria-label="Return to research desk">
-      <span class="brand-seal">SC</span><span><b>SUMTER FIELD DESK</b><small>COMMUNITY RESEARCH DESK</small></span>
+      <img class="brand-seal" src="/icons/seal.svg" width="38" height="38" alt="Sumter County Citizens for Transparency" /><span><b>SUMTER FIELD DESK</b><small>COMMUNITY RESEARCH DESK</small></span>
     </button>
     <div class="top-actions">
       <span class="edition">COMMUNITY RESEARCH EDITION</span>
