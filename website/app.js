@@ -13,6 +13,17 @@ const documents = [
   {id: 'sources', file: '08-source-desk.md', number: '08', short: 'Sources', title: 'The evidence desk', question: 'Where do the numbers come from?', tone: 'source', time: '5 min'},
 ];
 
+// Notes that render at their own route but are deliberately kept off every
+// discovery surface: no rail entry, no search result, no prev/next link, and
+// nothing on the home page. Reachable only by someone who already has the URL.
+// To publish one, move its entry into `documents` above.
+const unlistedDocuments = [
+  {id: 'liberty', file: '10-liberty-data-centers.md', number: '10', short: 'Liberty', title: 'Liberty Data Centers', question: 'Who is the company behind the proposal?', tone: 'source', time: '8 min'},
+];
+const allDocuments = [...documents, ...unlistedDocuments];
+const findDocument = (id) => allDocuments.find((item) => item.id === id) || documents[0];
+const isUnlisted = (doc) => unlistedDocuments.includes(doc);
+
 // Upcoming public meetings. `startUtc`/`endUtc` are explicit so the calendar
 // file never depends on the reader's timezone; `date` drives the "is it still
 // upcoming?" test, so a past event drops off the site on its own.
@@ -64,7 +75,7 @@ const stanceOptions = [
 const escapeHtml = (value = '') => value.replace(/[&<>"]/g, (char) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[char]));
 const localDocumentRoute = (href) => {
   const file = href.split('#')[0].replace(/^\.\//, '');
-  const target = documents.find((doc) => doc.file === file);
+  const target = allDocuments.find((doc) => doc.file === file);
   return target ? `#/doc/${target.id}` : href;
 };
 const inline = (text) => {
@@ -542,7 +553,7 @@ function tocFrom(raw) {
 }
 
 async function article(id) {
-  const doc = documents.find((item) => item.id === id) || documents[0];
+  const doc = findDocument(id);
   const raw = await loadDocument(doc);
   document.title = `${doc.title} - Sumter Field Desk`;
   const toc = tocFrom(raw);
@@ -551,7 +562,7 @@ async function article(id) {
     <article class="paper tone-page-${doc.tone}">
       <header class="paper-cover"><div class="folio"><span>FIELD NOTE / ${doc.number}</span><span>${doc.time.toUpperCase()} READ</span></div><p>${doc.short.toUpperCase()} DESK</p><h1>${doc.title}</h1><div class="cover-question">${doc.question}</div><div class="cover-rule"></div></header>
       <div class="paper-grid"><div class="markdown">${markdown(raw)}</div><aside class="page-toc"><p>ON THIS PAGE</p>${toc.map((item) => `<button class="level-${item.level}" data-anchor="${item.id}">${item.label}</button>`).join('')}<div class="toc-note"><b>READING RULE</b><span>Scenarios show scale. They do not predict this project.</span></div></aside></div>
-      <nav class="next-note">${nextDocument(doc, -1)}${nextDocument(doc, 1)}</nav>
+      ${isUnlisted(doc) ? '' : `<nav class="next-note">${nextDocument(doc, -1)}${nextDocument(doc, 1)}</nav>`}
     </article>
   </main>${searchPanel()}`;
 }

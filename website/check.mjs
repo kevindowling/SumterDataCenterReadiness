@@ -6,6 +6,7 @@ const docs = [
   'README.md', '01-project-and-unknowns.md', '02-water.md', '03-sound.md',
   '04-air-and-generators.md', '05-electricity-and-resilience.md',
   '06-decision-checklist.md', '07-verification-notes.md', '08-source-desk.md',
+  '10-liberty-data-centers.md',
 ];
 const required = [
   'website/index.html', 'website/app.js', 'website/styles.css', 'website/auth.js', 'website/auth-config.js',
