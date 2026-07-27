@@ -95,7 +95,8 @@ function articleLd(doc, {title, description, modified}) {
     image: PREVIEW_IMAGE,
     isPartOf: {'@type': 'Report', name: 'Sumter County Data Center Community Research Report', url: `${SITE_ORIGIN}/`},
     publisher,
-    author: publisher,
+    // A guest note is credited to its writer; the desk remains the publisher.
+    author: doc.author ? {'@type': 'Person', name: doc.author} : publisher,
   };
 }
 
@@ -159,6 +160,7 @@ function staticBody(doc, body) {
         <p>SUMTER FIELD DESK</p>
         <h1>${escapeHtml(doc.title)}</h1>
         <p class="cover-question">${escapeHtml(doc.question)}</p>
+        ${doc.author ? `<p class="cover-byline">BY ${escapeHtml(doc.author.toUpperCase())}</p>` : ''}
       </header>
       <div class="paper-grid"><div class="markdown">${withoutLeadingHeading(body)}</div></div>
     </article>
