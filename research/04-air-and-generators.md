@@ -52,6 +52,8 @@ The [car comparison](https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-
 - Require public hour-meter, fuel, and emissions records.
 - Do not allow occupancy before firm grid service without separate approval as a power plant.
 
+The equipment schedule and any air-permit application are records held by the county and Georgia EPD. See [how to obtain the records and reach the officials](11-open-government.md).
+
 ## Relevant precedent
 
 An [official Irish filing](https://epawebapp.epa.ie/licences/lic_eDMS/090151b2808f5072.pdf) illustrates why residents should ask whether generation is truly for emergencies. It describes temporary gas engines followed by nine permanent dual-fuel engines, with seven serving normal load, selective catalytic reduction, and continuous emissions monitoring. This is an example from **South Dublin Routing 4 No. 2 Limited**, not evidence about the Sumter County proposal.

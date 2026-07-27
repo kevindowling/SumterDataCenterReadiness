@@ -1,29 +1,9 @@
 import {apiFetch, apiOrigin, initAuth, isConfigured, login, logout} from './auth.js';
 import {initInstallPrompt} from './install.js';
+import {
+  allDocuments, docPath, documents, escapeHtml, findDocument, inline, isUnlisted, markdown, unlistedDocuments,
+} from './content.js';
 
-const documents = [
-  {id: 'start', file: 'README.md', number: '00', short: 'Orientation', title: 'Start with what is known', question: 'What do we actually know?', tone: 'verified', time: '3 min'},
-  {id: 'project', file: '01-project-and-unknowns.md', number: '01', short: 'Project', title: 'The missing application', question: 'What is actually proposed?', tone: 'unknown', time: '4 min'},
-  {id: 'water', file: '02-water.md', number: '02', short: 'Water', title: 'Wells, limits & cooling', question: 'Could it strain the water system?', tone: 'water', time: '6 min'},
-  {id: 'sound', file: '03-sound.md', number: '03', short: 'Sound', title: 'Hum, tones & distance', question: 'Could residents hear it?', tone: 'sound', time: '5 min'},
-  {id: 'air', file: '04-air-and-generators.md', number: '04', short: 'Air', title: 'Backup or power plant?', question: 'What if it generates power on site?', tone: 'air', time: '5 min'},
-  {id: 'grid', file: '05-electricity-and-resilience.md', number: '05', short: 'Grid', title: 'Load, reliability & cost', question: 'How large could the grid impact be?', tone: 'grid', time: '6 min'},
-  {id: 'checklist', file: '06-decision-checklist.md', number: '06', short: 'Action', title: 'The pre-vote checklist', question: 'What should officials require?', tone: 'action', time: '4 min'},
-  {id: 'verify', file: '07-verification-notes.md', number: '07', short: 'Verify', title: 'What still needs verification', question: 'What do we still need to confirm?', tone: 'unknown', time: '4 min'},
-  {id: 'sources', file: '08-source-desk.md', number: '08', short: 'Sources', title: 'The evidence desk', question: 'Where do the numbers come from?', tone: 'source', time: '5 min'},
-  {id: 'records', file: '11-open-government.md', number: '11', short: 'Records', title: 'Records & officials', question: 'How do you obtain the records and reach the officials?', tone: 'action', time: '9 min'},
-];
-
-// Notes that render at their own route but are deliberately kept off every
-// discovery surface: no rail entry, no search result, no prev/next link, and
-// nothing on the home page. Reachable only by someone who already has the URL.
-// To publish one, move its entry into `documents` above.
-const unlistedDocuments = [
-  {id: 'liberty', file: '10-liberty-data-centers.md', number: '10', short: 'Liberty', title: 'Liberty Data Centers', question: 'Who is the company behind the proposal?', tone: 'source', time: '8 min'},
-];
-const allDocuments = [...documents, ...unlistedDocuments];
-const findDocument = (id) => allDocuments.find((item) => item.id === id) || documents[0];
-const isUnlisted = (doc) => unlistedDocuments.includes(doc);
 
 // Upcoming public meetings. `startUtc`/`endUtc` are explicit so the calendar
 // file never depends on the reader's timezone; `date` drives the "is it still
@@ -73,104 +53,85 @@ const stanceOptions = [
   {key: 'expedite', title: 'Frustrated by delays', text: 'Approvals like this take far too long today.'},
 ];
 
-const escapeHtml = (value = '') => value.replace(/[&<>"]/g, (char) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[char]));
-const localDocumentRoute = (href) => {
-  const file = href.split('#')[0].replace(/^\.\//, '');
-  const target = allDocuments.find((doc) => doc.file === file);
-  return target ? `#/doc/${target.id}` : href;
-};
-const inline = (text) => {
-  let result = escapeHtml(text);
-  result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => `<a href="${escapeHtml(localDocumentRoute(href))}" ${/^https?:/.test(href) ? 'target="_blank" rel="noreferrer"' : ''}>${label}</a>`);
-  result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
-  return result;
-};
-
-// Research notes are repo-authored files served from /research/, so they carry
-// the same trust as app.js itself and may pass raw HTML through a ```html fence
-// (used for the inline SVG charts). Nothing reader-supplied reaches this
-// function - message-board posts go through postBody(), which never unescapes.
-function markdown(raw) {
-  const lines = raw.split('\n');
-  const output = [];
-  let paragraph = [];
-  let list = null;
-  let table = null;
-  let quote = [];
-  let html = null;
-  const flushParagraph = () => { if (paragraph.length) output.push(`<p>${inline(paragraph.join(' '))}</p>`); paragraph = []; };
-  const flushList = () => { if (list) output.push(`<${list.type}>${list.items.join('')}</${list.type}>`); list = null; };
-  const flushQuote = () => { if (quote.length) output.push(`<blockquote>${inline(quote.join(' '))}</blockquote>`); quote = []; };
-  const flushTable = () => {
-    if (!table) return;
-    const [head, ...body] = table;
-    output.push(`<div class="table-wrap"><table><thead><tr>${head.map((cell) => `<th>${inline(cell)}</th>`).join('')}</tr></thead><tbody>${body.map((row) => `<tr>${row.map((cell) => `<td>${inline(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`);
-    table = null;
-  };
-  const flush = () => { flushParagraph(); flushList(); flushQuote(); flushTable(); };
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index].trimEnd();
-    if (html) {
-      if (line.trim() === '```') { output.push(html.join('\n')); html = null; continue; }
-      html.push(lines[index]); continue;
-    }
-    if (line.trim() === '```html') { flush(); html = []; continue; }
-    if (/^\|.+\|$/.test(line)) {
-      flushParagraph(); flushList(); flushQuote();
-      const cells = line.slice(1, -1).split('|').map((cell) => cell.trim());
-      const next = lines[index + 1] || '';
-      if (/^\|?[\s:|-]+\|?$/.test(next) && next.includes('---')) { table = [cells]; index += 1; continue; }
-      if (table) { table.push(cells); continue; }
-    } else flushTable();
-    const heading = line.match(/^(#{1,3})\s+(.+)$/);
-    if (heading) { flush(); const level = heading[1].length; const label = heading[2]; const id = label.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim().replace(/\s+/g, '-'); output.push(`<h${level} id="${id}">${inline(label)}</h${level}>`); continue; }
-    const bullet = line.match(/^[-*]\s+(?:\[([ xX])\]\s+)?(.+)$/);
-    const numbered = line.match(/^\d+\.\s+(.+)$/);
-    if (bullet || numbered) {
-      flushParagraph(); flushQuote();
-      const type = numbered ? 'ol' : 'ul';
-      if (list && list.type !== type) flushList();
-      if (!list) list = {type, items: []};
-      const checked = bullet?.[1]; const text = numbered ? numbered[1] : bullet[2];
-      list.items.push(`<li${checked ? ' class="task"' : ''}>${checked ? `<span class="box">${checked.trim() ? '✓' : ''}</span>` : ''}${inline(text)}</li>`); continue;
-    } else flushList();
-    if (line.startsWith('> ')) { flushParagraph(); quote.push(line.slice(2)); continue; } else flushQuote();
-    if (!line.trim()) { flushParagraph(); continue; }
-    paragraph.push(line.trim());
-  }
-  if (html) output.push(html.join('\n')); // unterminated fence: emit rather than swallow the block
-  flush();
-  return output.join('');
-}
-
 async function loadDocument(doc) {
   if (!cache.has(doc.id)) {
-    const response = await fetch(`./research/${doc.file}`);
+    // Absolute: a note served from /doc/records/ must not resolve this
+    // against its own directory.
+    const response = await fetch(`/research/${doc.file}`);
     if (!response.ok) throw new Error(`Unable to load ${doc.file}`);
     cache.set(doc.id, await response.text());
   }
   return cache.get(doc.id);
 }
 
+// Every view has a real path, so each note is its own indexable URL with its
+// own title, description, and link preview. The build prerenders one HTML file
+// per path; this router takes over once the module loads.
+function pathFor(next) {
+  return next.view === 'doc' ? docPath(next.id)
+    : next.view === 'community' ? '/community/'
+    : next.view === 'map' ? '/map/'
+    : next.view === 'board' ? (next.threadId ? `/board/${next.threadId}/` : '/board/')
+    : '/';
+}
+
 function setRoute(next) {
   route = next;
-  const hash = next.view === 'doc' ? `#/doc/${next.id}`
-    : next.view === 'community' ? '#/community'
-    : next.view === 'map' ? '#/map'
-    : next.view === 'board' ? (next.threadId ? `#/board/${next.threadId}` : '#/board')
-    : '#/';
-  if (location.hash !== hash) history.pushState(null, '', hash);
+  const path = pathFor(next);
+  if (location.pathname !== path) history.pushState(null, '', path);
   render();
 }
 
-function readRoute() {
-  const doc = location.hash.match(/^#\/doc\/([a-z-]+)/);
-  const thread = location.hash.match(/^#\/board\/(\d+)/);
-  route = location.hash.startsWith('#/community') ? {view: 'community'}
-    : location.hash.startsWith('#/map') ? {view: 'map'}
-    : location.hash.startsWith('#/board') ? {view: 'board', threadId: thread?.[1]}
+function routeFromPath(pathname) {
+  const doc = pathname.match(/^\/doc\/([a-z0-9-]+)\/?$/);
+  const thread = pathname.match(/^\/board\/(\d+)\/?$/);
+  return /^\/community\/?$/.test(pathname) ? {view: 'community'}
+    : /^\/map\/?$/.test(pathname) ? {view: 'map'}
+    : thread ? {view: 'board', threadId: thread[1]}
+    : /^\/board\/?$/.test(pathname) ? {view: 'board'}
     : doc ? {view: 'doc', id: doc[1]} : {view: 'home'};
+}
+
+// Links shared before the move to real paths still arrive as "#/doc/records".
+// Rewrite them in place so an old Facebook post or text message keeps working
+// and the reader never sees the legacy form in the address bar.
+function migrateLegacyHash() {
+  const hash = location.hash;
+  if (!hash.startsWith('#/')) return false;
+  const doc = hash.match(/^#\/doc\/([a-z0-9-]+)/);
+  const thread = hash.match(/^#\/board\/(\d+)/);
+  const path = doc ? docPath(doc[1])
+    : hash.startsWith('#/community') ? '/community/'
+    : hash.startsWith('#/map') ? '/map/'
+    : thread ? `/board/${thread[1]}/`
+    : hash.startsWith('#/board') ? '/board/'
+    : '/';
+  history.replaceState(null, '', path);
+  return true;
+}
+
+function readRoute() {
+  migrateLegacyHash();
+  route = routeFromPath(location.pathname);
   render();
+}
+
+// In-app anchors (the ones markdown links produce) must route rather than
+// reload. Everything else — external links, new-tab clicks, downloads — is
+// left to the browser.
+function interceptLinks() {
+  addEventListener('click', (event) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const anchor = event.target.closest?.('a[href]');
+    if (!anchor || anchor.target === '_blank' || anchor.hasAttribute('download')) return;
+    const url = new URL(anchor.href, location.href);
+    if (url.origin !== location.origin) return;
+    const next = routeFromPath(url.pathname);
+    if (next.view === 'home' && url.pathname !== '/') return; // a real file, e.g. /research/*.md
+    event.preventDefault();
+    setRoute(next);
+    if (url.hash) document.getElementById(url.hash.slice(1))?.scrollIntoView({behavior: 'smooth', block: 'start'});
+  });
 }
 
 const topbar = () => `
@@ -584,9 +545,30 @@ function searchResults(query) {
   return results.map((doc) => `<button data-doc="${doc.id}"><span>${doc.number}</span><p><small>${doc.short} · ${doc.time}</small><b>${doc.title}</b></p><em>↗</em></button>`).join('');
 }
 
+// Keeps the tab title and canonical link in step with client-side navigation.
+// The prerendered page ships the correct values; this maintains them after the
+// router takes over.
+function updateHead() {
+  const doc = route.view === 'doc' ? findDocument(route.id) : null;
+  const label = doc ? doc.title
+    : route.view === 'community' ? 'Community desk'
+    : route.view === 'map' ? 'Site map'
+    : route.view === 'board' ? 'Message board'
+    : null;
+  document.title = label ? `${label} — Sumter Field Desk` : 'Sumter Field Desk - Data Center Research';
+  const canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical) canonical.href = new URL(pathFor(route), location.origin).href;
+}
+
+// A prerendered note is already legible on screen, so the first render paints
+// over it rather than replacing it with a loading message.
+let showLoading = app.dataset.prerendered === undefined;
+
 async function render() {
   unmountSiteMap();
-  app.innerHTML = '<div class="loading">Opening the field desk…</div>';
+  updateHead();
+  if (showLoading) app.innerHTML = '<div class="loading">Opening the field desk…</div>';
+  showLoading = true;
   try {
     app.innerHTML = (route.view === 'doc' ? await article(route.id)
       : route.view === 'community' ? community()
@@ -641,7 +623,8 @@ function bind() {
 
 function bindSearchResults() { document.querySelectorAll('#search-results [data-doc]').forEach((button) => button.addEventListener('click', () => {searchOpen = false; setRoute({view: 'doc', id: button.dataset.doc});})); }
 
-addEventListener('hashchange', readRoute);
+addEventListener('popstate', () => { route = routeFromPath(location.pathname); render(); });
+interceptLinks();
 addEventListener('keydown', async (event) => {
   if (event.key === 'Escape' && searchOpen) { searchOpen = false; render(); }
   if (event.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) { event.preventDefault(); await Promise.all(documents.map((doc) => loadDocument(doc).catch(() => ''))); searchOpen = true; render(); }

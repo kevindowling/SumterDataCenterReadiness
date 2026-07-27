@@ -27,13 +27,16 @@ jobs:
       - name: Assemble static site
         run: |
           mkdir -p _site/research
-          cp website/index.html website/app.js website/styles.css website/auth.js website/auth-config.js website/map.js _site/
+          cp website/index.html website/app.js website/styles.css website/auth.js website/auth-config.js website/content.js website/map.js _site/
           cp website/install.js website/sw.js website/manifest.webmanifest website/favicon.svg _site/
           cp -r website/vendor _site/vendor
           cp -r website/icons _site/icons
           cp research/*.md _site/research/
           touch _site/.nojekyll
           test ! -e _site/data-center-environmental-research-report.md
+
+      - name: Prerender routes, sitemap, and link previews
+        run: node website/prerender.mjs _site
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

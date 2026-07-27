@@ -183,3 +183,6 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .event-calendar:hover{background:transparent;color:var(--ink)}
 @media(max-width:1050px){.event-banner{grid-template-columns:1fr;padding-block:55px 65px}}
 @media(max-width:720px){.event-banner{padding:48px 20px 56px}.event-copy h2{font-size:clamp(36px,11vw,52px)}.event-summary{font-size:17px}}
+/* Prerendered fallback nav: present in the static HTML a crawler or a reader
+   without JavaScript is served, and replaced the moment the app renders. */
+.prerender-nav{max-width:1500px;margin:auto;padding:48px clamp(20px,5vw,80px)}.prerender-nav h2{margin:0 0 16px;font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.prerender-nav ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}.prerender-nav a{color:var(--ink);text-underline-offset:3px}
