@@ -491,7 +491,15 @@ function loadTurnstile() {
       const script = document.createElement('script');
       script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=${TURNSTILE_READY_CALLBACK}`;
       script.async = true;
-      script.onerror = () => resolve(false);   // blocked or offline: the form says so rather than submitting
+      script.onerror = () => {
+        // An extension blocking the request and a connection dropping look
+        // identical from here. Clear the cached failure so the next mount tries
+        // again — pressing the button once more is a fair thing to ask, but
+        // reloading the page to recover from a dead moment of wifi is not.
+        window.__turnstilePromise = null;
+        script.remove();
+        resolve(false);
+      };
       document.head.append(script);
     });
   }
@@ -578,7 +586,7 @@ async function submitSignature(form) {
     const expired = Boolean(turnstileToken);   // solved once, but too long ago to be accepted now
     resetTurnstile();                          // ask for a fresh one before the signer tries again
     petitionView = {...petitionView, draft, formError:
-      turnstileFault === 'blocked' ? 'The anti-bot check could not load — an ad blocker or privacy extension usually causes this. Allow challenges.cloudflare.com and reload the page, or sign the paper copy in person.'
+      turnstileFault === 'blocked' ? 'The anti-bot check could not load. Press the button once more — it will try again. If it keeps failing, an ad blocker or strict privacy setting is blocking challenges.cloudflare.com; allow it and reload, or sign the paper copy in person.'
       : turnstileFault === 'error' ? 'The anti-bot check would not run in this browser. Reload the page and try again — if it keeps happening, sign the paper copy in person and let an organizer know.'
       : expired ? 'The anti-bot check expired while the form was open. It is running again — press the button once more.'
       : 'The anti-bot check has not finished yet. Give it a moment and press the button again.'};
