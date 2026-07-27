@@ -21,6 +21,9 @@ export const HOME_DESCRIPTION = 'Independent, sourced research on the data cente
 // for the words people actually type. Same split for the description: the
 // first paragraph of a note rarely stands alone in a result, and several open
 // by answering a question the searcher cannot see.
+// Most notes are the desk's own work and carry no byline. A note written by
+// someone outside the desk sets `author`, which puts a byline on the cover and
+// names that person - not the site - as the author in structured data.
 export const seoTitle = (doc) => doc.seoTitle || doc.title;
 export const seoDescription = (doc, raw) => doc.seoDescription || summarize(raw);
 
@@ -35,6 +38,7 @@ export const documents = [
   {id: 'verify', file: '07-verification-notes.md', number: '07', short: 'Verify', title: 'What still needs verification', question: 'What do we still need to confirm?', tone: 'unknown', time: '4 min', seoTitle: 'What Is Still Unverified About the Americus Data Center', seoDescription: 'What the public record does not yet show about the proposed Sumter County data center, and which documents would settle each open question.'},
   {id: 'sources', file: '08-source-desk.md', number: '08', short: 'Sources', title: 'The evidence desk', question: 'Where do the numbers come from?', tone: 'source', time: '5 min', seoTitle: 'Sources Behind the Americus Data Center Report', seoDescription: 'Every figure traced to its source - EPD permits, USGS water data, the Georgia PSC, and federal technical references - with each source\'s limits noted.'},
   {id: 'records', file: '11-open-government.md', number: '11', short: 'Records', title: 'Records & officials', question: 'How do you obtain the records and reach the officials?', tone: 'action', time: '9 min', seoTitle: 'How to File a Georgia Open Records Request', seoDescription: 'Obtaining the Americus data center records under Georgia\'s Open Records Act - the three-day deadline, fees, exemptions, a request template, and who to contact.'},
+  {id: 'velocity', file: '12-velocity-trap.md', number: '12', short: 'Velocity', title: 'The velocity trap', question: 'Why does the pace of the buildout itself cause harm?', tone: 'grid', time: '10 min', author: 'Jeff Ranew', seoTitle: 'Why Hyperscale AI Buildout Speed Harms Local Communities', seoDescription: 'A guest analysis by Jeff Ranew: how compressed AI data center timelines push developers onto evaporative cooling and on-site fossil generation, and what to require instead.'},
 ];
 
 // Notes that render at their own route but are deliberately kept off every

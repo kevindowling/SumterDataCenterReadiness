@@ -41,6 +41,7 @@ This report is intended to help residents bring focused questions about water, s
 7. [What still needs to be verified?](07-verification-notes.md)
 8. [Where do the key numbers come from?](08-source-desk.md)
 9. [How do you obtain the records and reach the officials?](11-open-government.md)
+10. [Why does the pace of the buildout itself cause harm?](12-velocity-trap.md) - a guest analysis by Jeff Ranew
 
 ## How to read the labels
 
