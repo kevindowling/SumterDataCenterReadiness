@@ -132,6 +132,26 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .post.removed .post-body{color:var(--muted)}
 @media(max-width:720px){.board{padding:26px 18px 60px}.board h1{font-size:clamp(40px,12vw,58px)}.landing-map{padding:18px 12px 34px}}
 
+/* Charts in research notes (inline SVG from a ```html fence).
+   Every chart restates its data in an adjacent table, so the figure is
+   supplementary and never the only route to a number. */
+.markdown figure.chart{margin:30px 0 38px;padding:20px 22px 18px;border:1px solid var(--ink);background:var(--light)}
+.markdown figure.chart .chart-scroll{overflow-x:auto}
+.markdown figure.chart svg{display:block;width:100%;min-width:600px;height:auto}
+.markdown figure.chart figcaption{margin-top:14px;padding-top:12px;border-top:1px solid #171a1833;color:var(--muted);font:400 12px/1.45 var(--mono)}
+.chart-head{fill:var(--ink);font:500 13px/1 var(--mono);letter-spacing:.02em}
+.chart-label{fill:var(--ink);font:400 11px/1 var(--mono)}
+.chart-value{fill:var(--ink);font:500 11px/1 var(--mono)}
+.chart-value-in{fill:var(--light);font:500 11px/1 var(--mono)}
+.chart-axis{fill:var(--muted);font:400 10px/1 var(--mono);letter-spacing:.06em}
+.chart-note{fill:var(--muted);font:400 10px/1 var(--mono)}
+.chart-mark{fill:var(--ink)}
+.chart-rule{stroke:var(--ink);stroke-width:1}
+.chart-grid{stroke:#171a1826;stroke-width:1}
+.chart-lead{stroke:#171a1859;stroke-width:1}
+.chart-accent{stroke:var(--orange);stroke-width:2}
+.chart-accent-text{fill:var(--orange);font:500 10px/1 var(--mono);letter-spacing:.06em}
+
 /* Add-to-home-screen prompt */
 .install-prompt{position:fixed;left:50%;bottom:16px;z-index:200;width:min(560px,calc(100vw - 24px));padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;border:1px solid var(--ink);background:var(--light);box-shadow:0 14px 40px #171a1840;transform:translate(-50%,140%);opacity:0;transition:transform .22s ease,opacity .22s ease}
 .install-prompt.open{transform:translate(-50%,0);opacity:1}

@@ -74,6 +74,10 @@ const inline = (text) => {
   return result;
 };
 
+// Research notes are repo-authored files served from /research/, so they carry
+// the same trust as app.js itself and may pass raw HTML through a ```html fence
+// (used for the inline SVG charts). Nothing reader-supplied reaches this
+// function - message-board posts go through postBody(), which never unescapes.
 function markdown(raw) {
   const lines = raw.split('\n');
   const output = [];
@@ -81,6 +85,7 @@ function markdown(raw) {
   let list = null;
   let table = null;
   let quote = [];
+  let html = null;
   const flushParagraph = () => { if (paragraph.length) output.push(`<p>${inline(paragraph.join(' '))}</p>`); paragraph = []; };
   const flushList = () => { if (list) output.push(`<${list.type}>${list.items.join('')}</${list.type}>`); list = null; };
   const flushQuote = () => { if (quote.length) output.push(`<blockquote>${inline(quote.join(' '))}</blockquote>`); quote = []; };
@@ -93,6 +98,11 @@ function markdown(raw) {
   const flush = () => { flushParagraph(); flushList(); flushQuote(); flushTable(); };
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index].trimEnd();
+    if (html) {
+      if (line.trim() === '```') { output.push(html.join('\n')); html = null; continue; }
+      html.push(lines[index]); continue;
+    }
+    if (line.trim() === '```html') { flush(); html = []; continue; }
     if (/^\|.+\|$/.test(line)) {
       flushParagraph(); flushList(); flushQuote();
       const cells = line.slice(1, -1).split('|').map((cell) => cell.trim());
@@ -116,6 +126,7 @@ function markdown(raw) {
     if (!line.trim()) { flushParagraph(); continue; }
     paragraph.push(line.trim());
   }
+  if (html) output.push(html.join('\n')); // unterminated fence: emit rather than swallow the block
   flush();
   return output.join('');
 }
