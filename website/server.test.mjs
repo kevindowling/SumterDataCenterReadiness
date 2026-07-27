@@ -308,3 +308,49 @@ test('protected API refuses a forged token', async () => {
   const response = await fetch(`${base}/api/me`, {headers: {Authorization: 'Bearer aaa.bbb.ccc'}});
   assert.ok([401, 501].includes(response.status), `unexpected status ${response.status}`);
 });
+
+// --- /api/gis --------------------------------------------------------------
+// The route is public, so the allowlist is the whole security boundary: it
+// takes a short id and builds the upstream URL itself. These tests exist to
+// make sure no future edit lets a caller name their own destination.
+test('the GIS cache only serves layers named in the catalogue', async () => {
+  const {GIS_SOURCES} = await import('./gis-sources.js');
+  for (const id of Object.keys(GIS_SOURCES)) {
+    const response = await fetch(`${base}/api/gis?layer=${id}`);
+    // 503 without a database configured, 200 with one. Never 404.
+    assert.ok([200, 503].includes(response.status), `${id} returned ${response.status}`);
+  }
+});
+
+test('the GIS cache refuses anything not in the catalogue', async () => {
+  const attempts = [
+    '', 'nope', 'flood2', 'FLOOD',
+    // An id that is a URL is the open-proxy case this route must never allow.
+    encodeURIComponent('https://169.254.169.254/latest/meta-data/'),
+    encodeURIComponent('http://localhost:4173/api/health'),
+    encodeURIComponent('file:///etc/passwd'),
+    // Inherited object properties are not layers.
+    'constructor', 'toString', '__proto__', 'hasOwnProperty',
+  ];
+  for (const layer of attempts) {
+    const response = await fetch(`${base}/api/gis?layer=${layer}`);
+    assert.equal(response.status, 404, `layer=${layer} should be rejected, got ${response.status}`);
+    assert.match((await response.json()).error, /Unknown layer/);
+  }
+});
+
+test('the GIS cache is read-only', async () => {
+  for (const method of ['POST', 'DELETE', 'PUT']) {
+    const response = await fetch(`${base}/api/gis?layer=flood`, {method});
+    assert.equal(response.status, 405, `${method} should not be allowed`);
+  }
+});
+
+// The map is served from a different origin than the API in production, so
+// without this header it cannot read how old the copy it was handed is.
+test('the GIS cache exposes its age headers cross-origin', async () => {
+  const response = await fetch(`${base}/api/gis?layer=flood`, {headers: {Origin: 'http://localhost:4173'}});
+  const exposed = response.headers.get('access-control-expose-headers') || '';
+  assert.match(exposed, /X-Gis-Age-Ms/);
+  assert.match(exposed, /X-Gis-Fetched-At/);
+});

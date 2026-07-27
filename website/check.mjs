@@ -13,7 +13,7 @@ const required = [
   'website/index.html', 'website/app.js', 'website/styles.css', 'website/auth.js', 'website/auth-config.js',
   'website/content.js', 'website/petition.js', 'website/prerender.mjs',
   'research/moratorium-resolution.pdf',
-  'website/map.js', 'website/vendor/leaflet/leaflet.js', 'website/vendor/leaflet/leaflet.css',
+  'website/map.js', 'website/gis-sources.js', 'website/vendor/leaflet/leaflet.js', 'website/vendor/leaflet/leaflet.css',
   'website/install.js', 'website/sw.js', 'website/manifest.webmanifest', 'website/favicon.svg',
   'website/icons/icon-192.png', 'website/icons/icon-512.png', 'website/icons/preview.png', 'website/icons/seal.svg',
   'website/icons/icon-192-maskable.png', 'website/icons/icon-512-maskable.png', 'website/icons/icon-180.png',

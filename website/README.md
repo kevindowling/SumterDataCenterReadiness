@@ -77,9 +77,34 @@ The county service is `https://ga31portal.kcsgis.com/ga31server/rest/services/Pu
 
 Each layer fails independently: if one service is down the rest still draw, and the status line under the map names what did not load.
 
-`map.js` keeps its own day-long copy of every GIS and Overpass response in Cache Storage, separate from the service worker. When a request fails it retries three times with a widening pause — Overpass returns a 504 under load often enough to lose a layer otherwise — and then falls back to an expired copy rather than dropping the layer. Expired copies are kept for 90 days and are only pruned once the upstream has answered something on that page load, because during an outage the expired copy is the only copy there is. The county has taken the whole `Public` folder offline before (`Error: Service Public/Public/MapServer not started`, HTTP 500 on every layer), so this is the difference between an older map and a blank one. The status line distinguishes the three cases: fetched now, today's local copy, or an older local copy with its age.
+### Where a layer actually comes from
 
-A reader who has never opened the map before an outage has nothing to fall back on and will see the layers listed as unavailable.
+Every request the map makes is listed in `website/gis-sources.js`, shared by the browser and the API server so both ask the county the same questions. Each layer resolves through four steps, first answer wins:
+
+1. **This browser's copy**, if less than a day old (Cache Storage, `field-desk-gis-v2`).
+2. **`GET {apiBase}/api/gis?layer=<id>`** — one copy in Postgres, shared by every reader.
+3. **The county's ArcGIS service** (or Overpass) directly.
+4. **This browser's expired copy**, however old, rather than a blank map.
+
+Step 2 is what keeps the county's server from paying for a fresh set of queries per visitor, and it is the only step that helps a **first-time** reader during an outage — steps 1 and 4 need a copy the device already has. Step 3 stays so the Pages site never goes down with the API server.
+
+The status line under the map names which of the four answered, with the age of anything that wasn't fetched fresh.
+
+### `/api/gis` (public)
+
+Public like the petition routes, because the layers are public record. The security boundary is that **the route never accepts a URL** — it takes a short id from `GIS_SOURCES` and builds the upstream request itself, so it cannot be used as an open proxy. Anything not in the table is a 404. Rate limited to 120 requests/minute per `/24`, since one map load asks for thirteen layers.
+
+Storage is `gis_cache` (migration `deploy/migrations/005-gis-cache.sql`), one row per layer holding the gzipped upstream response. Requests that accept gzip get those bytes untouched.
+
+Refresh is **stale-while-revalidate**: a copy under 24h is returned as-is; an older one is returned *immediately* and a refresh runs behind the response, deduplicated so thirteen layers don't stampede. A failed refresh leaves the good copy in place and records `last_error`/`error_count` beside it. Only a layer with no stored copy at all makes a reader wait, and if upstream is down that single layer 503s and the browser falls through to step 3.
+
+Age is reported in `X-Gis-Fetched-At`, `X-Gis-Age-Ms` and `X-Gis-State`, listed in `Access-Control-Expose-Headers` so the map can read them cross-origin.
+
+### Outages and poisoned copies
+
+The county has taken the whole `Public` folder offline before — `Error: Service Public/Public/MapServer not started`, HTTP 500 on every layer, for longer than a day. Failed requests retry three times with a widening pause (5xx and 429 only; a 404 won't fix itself), and expired copies are kept 90 days, pruned only once something has answered on that page load.
+
+**ArcGIS reports a failed query as HTTP 200 with an error in the body**, so status alone is not enough to decide a response is worth keeping. Both the browser and the server parse and validate before storing (`gisPayloadError`). The client cache name was bumped `v1` → `v2` to evict entries written before that check existed.
 
 **The map is gated, the data is not.** Hiding the route keeps the map off the public front door, but on GitHub Pages `map.js` is still fetchable and every service it calls is public. Treat this as presentation, not access control.
 
