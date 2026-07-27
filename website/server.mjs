@@ -3,8 +3,13 @@ import {createReadStream, statSync} from 'node:fs';
 import {createServer} from 'node:http';
 import {extname, join, normalize, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {promisify} from 'node:util';
+import {gunzip as gunzipCb, gzip as gzipCb} from 'node:zlib';
 import {authConfig} from './auth-config.js';
 import {escapeHtml} from './content.js';
+import {
+  GIS_SOURCES, OVERPASS, arcgisUrl, gisPayloadError, overpassQuery,
+} from './gis-sources.js';
 import {
   DISPOSABLE_DOMAINS, TIERS, findPetition, normalizeEmail, normalizeIdentity, validateSignature,
 } from './petition.js';
@@ -841,10 +846,162 @@ async function handlePetition(pathname, request, response, url) {
   sendJson(response, 404, {error: 'Unknown petition route'});
 }
 
+// --- Server-side copy of the county GIS layers -----------------------------
+// One stored copy serves every reader, so the county's ArcGIS service sees a
+// handful of queries a day instead of a fresh set per visitor — and a reader
+// arriving during an outage gets a map instead of a blank one, which a
+// browser-only cache could never do for a first-time visitor.
+//
+// Public on purpose (see the note above handlePetition): the layers are public
+// record, and the map is the reason anyone signs in at all. What keeps a public
+// cache from being an open proxy is that the route accepts a short id from
+// GIS_SOURCES and builds the upstream URL itself — no caller-supplied URL ever
+// reaches fetch().
+const gzip = promisify(gzipCb);
+const gunzip = promisify(gunzipCb);
+
+const GIS_TTL_MS = 24 * 60 * 60 * 1000;
+const GIS_TIMEOUT_MS = 45_000;
+
+async function fetchGisUpstream(id) {
+  const source = GIS_SOURCES[id];
+  const [target, init] = source.overpass
+    ? [OVERPASS, {method: 'POST', body: new URLSearchParams({data: overpassQuery(source.overpass)})}]
+    : [arcgisUrl(source), {}];
+
+  const response = await fetch(target, {...init, signal: AbortSignal.timeout(GIS_TIMEOUT_MS)});
+  if (!response.ok) throw new Error(`upstream returned HTTP ${response.status}`);
+  const text = await response.text();
+
+  let body;
+  try { body = JSON.parse(text); } catch { throw new Error('upstream did not return JSON'); }
+  // ArcGIS reports a failed query as HTTP 200 with an error in the body, so
+  // status alone is not enough to decide this is worth storing.
+  const problem = gisPayloadError(source, body);
+  if (problem) throw new Error(problem);
+
+  return {text, count: (body.features || body.elements || []).length};
+}
+
+// Only ever called after gisPayloadError() passed, so a stored row is always a
+// real answer. A failed refresh leaves the previous good copy in place and is
+// recorded beside it.
+async function storeGisLayer(database, id, {text, count}) {
+  const payload = await gzip(Buffer.from(text));
+  const {rows} = await database.query(
+    `INSERT INTO gis_cache (layer_id, payload, byte_size, feature_count)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (layer_id) DO UPDATE SET
+       payload = EXCLUDED.payload, byte_size = EXCLUDED.byte_size,
+       feature_count = EXCLUDED.feature_count, fetched_at = now(),
+       last_error = NULL, last_error_at = NULL, error_count = 0
+     RETURNING fetched_at, feature_count`,
+    [id, payload, Buffer.byteLength(text), count]);
+  return {payload, fetchedAt: rows[0].fetched_at, count: rows[0].feature_count};
+}
+
+// Deliberately an UPDATE, not an upsert: a layer that has never been fetched
+// gets no row at all, so an outage can never leave an empty payload sitting
+// where a good copy is expected.
+const noteGisFailure = (database, id, message) => database.query(
+  `UPDATE gis_cache SET last_error = $2, last_error_at = now(), error_count = error_count + 1
+   WHERE layer_id = $1`, [id, String(message).slice(0, 500)]).catch(() => {});
+
+// Thirteen layers refreshing at once, times every reader who arrives after the
+// day is up, would be exactly the stampede this table exists to prevent.
+const gisRefreshing = new Map();
+function refreshGisLayer(database, id) {
+  const running = gisRefreshing.get(id);
+  if (running) return running;
+  const task = (async () => {
+    try {
+      return await storeGisLayer(database, id, await fetchGisUpstream(id));
+    } catch (error) {
+      await noteGisFailure(database, id, error.message);
+      throw error;
+    } finally {
+      gisRefreshing.delete(id);
+    }
+  })();
+  gisRefreshing.set(id, task);
+  return task;
+}
+
+// Stored gzipped, so a browser that accepts gzip gets the bytes untouched.
+async function sendGisPayload(request, response, {payload, fetchedAt, count, state}) {
+  const acceptsGzip = /\bgzip\b/.test(request.headers['accept-encoding'] || '');
+  const body = acceptsGzip ? payload : await gunzip(payload);
+  const age = Date.now() - new Date(fetchedAt).getTime();
+  response.writeHead(200, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Length': body.length,
+    ...(acceptsGzip ? {'Content-Encoding': 'gzip'} : {}),
+    // A shared copy that changes at most daily; the age headers let the map
+    // tell the reader how old what they are looking at actually is.
+    'Cache-Control': 'public, max-age=1800',
+    'X-Gis-Fetched-At': new Date(fetchedAt).toISOString(),
+    'X-Gis-Age-Ms': String(Math.max(0, age)),
+    'X-Gis-State': state,
+    ...(count == null ? {} : {'X-Gis-Feature-Count': String(count)}),
+  });
+  response.end(body);
+}
+
+async function handleGis(request, response, url) {
+  if (request.method !== 'GET') { sendJson(response, 405, {error: 'Method not allowed'}); return; }
+
+  const id = url.searchParams.get('layer') || '';
+  // hasOwn, not `in`: "constructor" and friends are not layers.
+  if (!Object.hasOwn(GIS_SOURCES, id)) { sendJson(response, 404, {error: 'Unknown layer'}); return; }
+
+  // A map load asks for thirteen layers, and a household or library shares one
+  // prefix, so this is set well above normal use — it is here to stop a script
+  // hammering the route, not to ration readers.
+  if (throttled(`gis:${ipPrefix(clientIp(request))}`, 120, 60_000)) {
+    sendJson(response, 429, {error: 'Too many requests'});
+    return;
+  }
+
+  const database = await getPool();
+  // No database configured (a dev box, or a fresh VPS before migrations). The
+  // client falls back to calling the county service directly, so say so plainly
+  // rather than pretending the layer does not exist.
+  if (!database) { sendJson(response, 503, {error: 'GIS cache not configured'}); return; }
+
+  const {rows} = await database.query(
+    `SELECT payload, feature_count, fetched_at FROM gis_cache
+     WHERE layer_id = $1 AND byte_size > 0`, [id]);
+  const row = rows[0];
+
+  if (row) {
+    const age = Date.now() - new Date(row.fetched_at).getTime();
+    const fresh = age < GIS_TTL_MS;
+    // Stale: answer from the stored copy immediately and refresh behind the
+    // response. Nobody waits on the county's server, and if it is down the
+    // refresh simply fails and the copy stays.
+    if (!fresh) refreshGisLayer(database, id).catch(() => {});
+    await sendGisPayload(request, response, {
+      payload: row.payload, fetchedAt: row.fetched_at, count: row.feature_count,
+      state: fresh ? 'fresh' : 'stale-refreshing',
+    });
+    return;
+  }
+
+  // Nothing stored yet: this reader pays for the first fetch.
+  try {
+    const stored = await refreshGisLayer(database, id);
+    await sendGisPayload(request, response, {...stored, state: 'fetched'});
+  } catch (error) {
+    sendJson(response, 503, {error: `Upstream unavailable: ${error.message}`, layer: id});
+  }
+}
+
 async function handleApi(pathname, request, response, url) {
   if (pathname === '/api/health') { sendJson(response, 200, {ok: true}); return; }
   // Public on purpose: see the note above handlePetition.
   if (pathname.startsWith('/api/petition/')) { await handlePetition(pathname, request, response, url); return; }
+  // Public on purpose: see the note above handleGis.
+  if (pathname === '/api/gis') { await handleGis(request, response, url); return; }
   if (!authConfig.audience) { sendJson(response, 501, {error: 'Set authConfig.audience (an Auth0 API identifier) to enable API routes.'}); return; }
   let claims;
   try { claims = await verifyToken(request); }
@@ -903,6 +1060,9 @@ createServer((request, response) => {
       response.setHeader('Vary', 'Origin');
       response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
       response.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+      // Without this the map, served from another origin, cannot read the age
+      // of the copy it was handed and so cannot tell the reader.
+      response.setHeader('Access-Control-Expose-Headers', 'X-Gis-Fetched-At, X-Gis-Age-Ms, X-Gis-State, X-Gis-Feature-Count');
     }
     if (request.method === 'OPTIONS') { response.writeHead(204); response.end(); return; }
     handleApi(pathname, request, response, url).catch((error) => sendJson(response, 500, {error: error.message}));
