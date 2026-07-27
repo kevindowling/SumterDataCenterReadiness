@@ -441,11 +441,14 @@ const PETITION = livePetition();
 let petitionView = {
   state: 'idle',          // idle | loading | ready | unavailable | error
   counts: null, signatures: [], organizer: false, error: '',
-  submitting: false, done: '', formError: '',
+  // render() rebuilds the form from the template, so what the signer typed only
+  // survives an error if it is held here and written back in.
+  submitting: false, done: '', formError: '', draft: {},
   paperError: '', paperDone: '',
 };
 let turnstileToken = '';
 let turnstileWidget = null;
+let turnstileBlocked = false;   // the challenge script never loaded — usually a blocker extension
 
 const siteKey = () => authConfig.turnstileSiteKey && !authConfig.turnstileSiteKey.startsWith('YOUR_')
   ? authConfig.turnstileSiteKey : '';
@@ -470,12 +473,20 @@ function loadTurnstile() {
 // render() replaces the whole view, so the widget is rebuilt on every pass.
 // Cloudflare keeps its own state per widget id, so the previous one has to be
 // dropped or the ids accumulate against detached containers.
+//
+// A token already in hand deliberately survives the rebuild. It is a bare
+// string the server checks against Cloudflare — it is not tied to the widget
+// that issued it or to the DOM, and it stays valid for five minutes. Clearing
+// it here used to throw away a solved challenge every time anything re-rendered
+// the page (the petition load settling, Auth0 resolving, the survey panel
+// opening), which left the form submittable with an empty token — a guaranteed
+// server-side 'fail' that read as a failed anti-bot check.
 async function mountTurnstile() {
   const holder = document.querySelector('#turnstile');
   if (!holder || !siteKey() || holder.childElementCount) return;
-  if (!(await loadTurnstile()) || !holder.isConnected) return;
+  if (!(await loadTurnstile())) { turnstileBlocked = true; return; }
+  if (!holder.isConnected) return;
   if (turnstileWidget !== null) { try { window.turnstile.remove(turnstileWidget); } catch { /* already gone */ } }
-  turnstileToken = '';
   turnstileWidget = window.turnstile.render(holder, {
     sitekey: siteKey(),
     // Mirrors data-action on the div. The widget is rendered explicitly (the
@@ -495,8 +506,10 @@ async function loadPetition() {
   try {
     // Signed in, the same route also reports whether this account may key in
     // paper signatures, so organizers get their tools without a second call.
+    // The petition is public, so a session Auth0 will not renew costs the
+    // organizer tools, not the page: optionalAuth drops to the anonymous read.
     const response = user
-      ? await apiFetch(`/api/petition/${PETITION.id}`)
+      ? await apiFetch(`/api/petition/${PETITION.id}`, {optionalAuth: true})
       : await fetch(`${apiOrigin()}/api/petition/${PETITION.id}`);
     if (response.status === 501) { petitionView = {...petitionView, state: 'unavailable'}; render(); return; }
     if (!response.ok) throw new Error(`Server returned ${response.status}`);
@@ -510,7 +523,23 @@ async function loadPetition() {
 
 async function submitSignature(form) {
   const data = new FormData(form);
-  petitionView = {...petitionView, submitting: true, formError: ''};
+  const draft = {
+    name: data.get('name'), email: data.get('email'), city: data.get('city'),
+    state: data.get('state'), postalCode: data.get('postalCode'), comment: data.get('comment'),
+    consent: data.get('consent') === 'on', publicDisplay: data.get('publicDisplay') === 'on',
+  };
+  // Sending an empty token is a certain server-side refusal, and the refusal
+  // reads as "you look like a bot" when the truth is either that the challenge
+  // has not finished or that it never loaded. Say which, and hold the draft so
+  // pressing the button again is all it takes.
+  if (siteKey() && !turnstileToken) {
+    petitionView = {...petitionView, draft, formError: turnstileBlocked
+      ? 'The anti-bot check could not load — an ad blocker or privacy extension usually causes this. Allow challenges.cloudflare.com and reload, or sign the paper copy in person.'
+      : 'The anti-bot check has not finished yet. Give it a moment and press the button again.'};
+    render();
+    return;
+  }
+  petitionView = {...petitionView, draft, submitting: true, formError: ''};
   render();
   try {
     const response = await fetch(`${apiOrigin()}/api/petition/${PETITION.id}/sign`, {
@@ -527,7 +556,7 @@ async function submitSignature(form) {
     });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.error || `Server returned ${response.status}`);
-    petitionView = {...petitionView, submitting: false, done: body.message || 'Check your email to confirm.'};
+    petitionView = {...petitionView, submitting: false, draft: {}, done: body.message || 'Check your email to confirm.'};
     render();
   } catch (error) {
     petitionView = {...petitionView, submitting: false, formError: error.message};
@@ -641,22 +670,25 @@ function petitionForm() {
     </section>`;
   }
   const disabled = petitionView.submitting ? 'disabled' : '';
+  const d = petitionView.draft;
+  const value = (field, fallback = '') => ` value="${escapeHtml(d[field] ?? fallback)}"`;
+  const ticked = (field) => (d[field] ? ' checked' : '');
   return `<form class="petition-form" data-sign>
     <p class="eyebrow"><span></span> ADD YOUR NAME</p>
     <div class="form-row">
-      <label>FULL NAME<input name="name" maxlength="${LIMITS.name}" autocomplete="name" required /></label>
-      <label>EMAIL<input name="email" type="email" maxlength="${LIMITS.email}" autocomplete="email" required /></label>
+      <label>FULL NAME<input name="name" maxlength="${LIMITS.name}" autocomplete="name" required${value('name')} /></label>
+      <label>EMAIL<input name="email" type="email" maxlength="${LIMITS.email}" autocomplete="email" required${value('email')} /></label>
     </div>
     <div class="form-row three">
-      <label>CITY OR TOWN<input name="city" maxlength="${LIMITS.city}" autocomplete="address-level2" required /></label>
-      <label>STATE<input name="state" maxlength="2" value="GA" autocomplete="address-level1" required /></label>
-      <label>ZIP<input name="postalCode" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" autocomplete="postal-code" required /></label>
+      <label>CITY OR TOWN<input name="city" maxlength="${LIMITS.city}" autocomplete="address-level2" required${value('city')} /></label>
+      <label>STATE<input name="state" maxlength="2" autocomplete="address-level1" required${value('state', 'GA')} /></label>
+      <label>ZIP<input name="postalCode" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" autocomplete="postal-code" required${value('postalCode')} /></label>
     </div>
     <label class="form-comment">COMMENT (OPTIONAL) — WHY THIS MATTERS TO YOU
-      <textarea name="comment" rows="3" maxlength="${LIMITS.comment}" placeholder="One or two sentences the council will read."></textarea>
+      <textarea name="comment" rows="3" maxlength="${LIMITS.comment}" placeholder="One or two sentences the council will read.">${escapeHtml(d.comment || '')}</textarea>
     </label>
-    <label class="form-check"><input type="checkbox" name="consent" required /> <span>I am a real person, I live at the address I gave, and I am signing this petition only once.</span></label>
-    <label class="form-check"><input type="checkbox" name="publicDisplay" /> <span>Show my name, town and comment on this page. Leave unticked to be counted without being listed — your signature counts either way.</span></label>
+    <label class="form-check"><input type="checkbox" name="consent" required${ticked('consent')} /> <span>I am a real person, I live at the address I gave, and I am signing this petition only once.</span></label>
+    <label class="form-check"><input type="checkbox" name="publicDisplay"${ticked('publicDisplay')} /> <span>Show my name, town and comment on this page. Leave unticked to be counted without being listed — your signature counts either way.</span></label>
     <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off" /></label></div>
     ${siteKey() ? `<div id="turnstile" class="cf-turnstile turnstile" data-sitekey="${escapeHtml(siteKey())}" data-action="turnstile-spin-v2"></div>` : ''}
     ${petitionView.formError ? `<p class="board-notice error">${escapeHtml(petitionView.formError)}</p>` : ''}
