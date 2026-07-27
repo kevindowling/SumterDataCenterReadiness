@@ -353,9 +353,12 @@ function ipPrefix(ip) {
 // one fails here even though it looked fine when the widget issued it.
 //
 // Returns 'pass' only when the parsed siteverify response has success === true.
-// Anything else — a wrong secret, a replayed or absent token, a non-JSON reply,
-// or Cloudflare being unreachable — is 'fail', and the caller refuses the
-// submission. The single exception is an unset TURNSTILE_SECRET, which means
+// Anything else — a wrong secret, an absent token, a non-JSON reply, or
+// Cloudflare being unreachable — is 'fail', and the caller refuses the
+// submission. A token that expired or was already spent comes back as 'expired'
+// instead: still refused, but it is worth telling a signer to press the button
+// again rather than implying they failed a test. The single exception is an
+// unset TURNSTILE_SECRET, which means
 // the check is not configured on this deployment (local dev and CI): the row
 // then records 'skipped' so its absence is visible in review rather than
 // silently looking like a pass.
@@ -372,11 +375,15 @@ async function verifyTurnstile(token, ip) {
     });
     const outcome = await result.json();
     if (outcome.success === true) return 'pass';
+    const codes = outcome['error-codes'] || [];
     // 'invalid-input-secret' here means TURNSTILE_SECRET does not match the
     // widget; that is a deployment fault, not a bot, and it would otherwise
     // look identical to a site full of failed challenges.
-    console.error(`Turnstile rejected a submission: ${(outcome['error-codes'] || []).join(', ') || 'no error codes'}`);
-    return 'fail';
+    console.error(`Turnstile rejected a submission: ${codes.join(', ') || 'no error codes'}`);
+    // A token that expired on an open form, or that a double-submit spent
+    // twice. Neither is a bot, and both are fixed by trying again — so they are
+    // worth telling apart from a challenge that was actually failed.
+    return codes.includes('timeout-or-duplicate') ? 'expired' : 'fail';
   } catch (error) {
     console.error(`Turnstile siteverify unreachable: ${error.message}`);
     return 'fail';
@@ -516,6 +523,10 @@ async function handlePetitionSign(request, response, petition) {
   // stored unless siteverify came back with success === true. The only way past
   // it is an unconfigured secret, which is local dev and CI, never production.
   const turnstile = await verifyTurnstile(input.turnstileToken, ip);
+  if (turnstile === 'expired') {
+    sendJson(response, 403, {error: 'The anti-bot check expired before this reached us. Press the button once more — the check has already restarted.'});
+    return;
+  }
   if (turnstile === 'fail') {
     sendJson(response, 403, {error: 'The anti-bot check did not pass. Reload the page and try again, or sign the paper copy in person.'});
     return;
