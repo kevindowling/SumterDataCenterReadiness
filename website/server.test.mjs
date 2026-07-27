@@ -229,6 +229,35 @@ test('a failed Turnstile check refuses the signature', async () => {
   }
 });
 
+// A token that sat too long on an open form, or that a double-click spent
+// twice, is not a failed challenge — and telling a real signer they look like a
+// bot is how the petition loses them. Refused either way, worded differently.
+test('an expired Turnstile token is refused as expired, not as a failure', async () => {
+  const gatePort = port + 2;
+  const gate = spawn(process.execPath, [fileURLToPath(new URL('server.mjs', import.meta.url))], {
+    // 3x...AA is Cloudflare's documented "token already spent" test secret.
+    env: {...process.env, PORT: String(gatePort), TURNSTILE_SECRET: '3x0000000000000000000000000000000AA'},
+  });
+  try {
+    await new Promise((resolve, reject) => {
+      gate.stdout.on('data', resolve);
+      gate.on('error', reject);
+      setTimeout(() => reject(new Error('gate server did not start within 5s')), 5000).unref();
+    });
+    const response = await fetch(`http://localhost:${gatePort}/api/petition/moratorium/sign`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name: 'Spent Token', email: 'spent@example.com', city: 'Americus', state: 'GA', postalCode: '31709', consent: true, turnstileToken: 'XXXX.DUMMY.TOKEN.XXXX'}),
+    });
+    assert.equal(response.status, 403, 'a spent token must still refuse the signature');
+    const {error} = await response.json();
+    assert.match(error, /expired/, 'the signer should be told to try again, not that they failed');
+    assert.doesNotMatch(error, /did not pass/);
+  } finally {
+    gate.kill();
+  }
+});
+
 test('organizer petition routes sit behind the auth gate', async () => {
   const calls = [['POST', '/api/petition/moratorium/paper'], ['POST', '/api/petition/moratorium/snapshot'],
     ['GET', '/api/petition/moratorium/export.csv']];

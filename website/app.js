@@ -447,23 +447,51 @@ let petitionView = {
   paperError: '', paperDone: '',
 };
 let turnstileToken = '';
+let turnstileIssuedAt = 0;
 let turnstileWidget = null;
-let turnstileBlocked = false;   // the challenge script never loaded — usually a blocker extension
+// '' while the check is working. 'blocked': the script never loaded, which is
+// what a blocker extension looks like. 'error': the widget loaded and then
+// refused to run, which is a site key not matching this domain far more often
+// than it is a real bot.
+let turnstileFault = '';
+
+// Cloudflare expires a token five minutes after it is issued and refuses it as
+// 'timeout-or-duplicate'. Stop short of that: a token accepted here still has a
+// form submission and a round trip ahead of it, and the refusal it would earn
+// reads as an accusation.
+const TOKEN_MAX_AGE_MS = 4 * 60 * 1000;
+const turnstilePassed = () => Boolean(turnstileToken) && Date.now() - turnstileIssuedAt < TOKEN_MAX_AGE_MS;
+
+// Puts the widget back to an unsolved state and asks it for a fresh token.
+function resetTurnstile() {
+  turnstileToken = '';
+  turnstileIssuedAt = 0;
+  if (turnstileWidget === null || !window.turnstile) return;
+  try { window.turnstile.reset(turnstileWidget); } catch { /* the widget went with the last render */ }
+}
 
 const siteKey = () => authConfig.turnstileSiteKey && !authConfig.turnstileSiteKey.startsWith('YOUR_')
   ? authConfig.turnstileSiteKey : '';
 
 // Loaded only on this route, and only when a site key is configured — a reader
 // who never opens the petition never touches Cloudflare.
+//
+// Readiness is the script's own onload callback, not the load event and not the
+// presence of window.turnstile. Cloudflare publishes the global as soon as the
+// script parses and attaches the explicit-render API afterwards, so both of the
+// obvious signals can be true while turnstile.render is still undefined.
+const TURNSTILE_READY_CALLBACK = '__turnstileReady';
+
 function loadTurnstile() {
-  if (!siteKey() || window.turnstile) return Promise.resolve(Boolean(window.turnstile));
+  if (!siteKey()) return Promise.resolve(false);
+  if (typeof window.turnstile?.render === 'function') return Promise.resolve(true);
   if (!window.__turnstilePromise) {
     window.__turnstilePromise = new Promise((resolve) => {
+      window[TURNSTILE_READY_CALLBACK] = () => resolve(true);
       const script = document.createElement('script');
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.src = `https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=${TURNSTILE_READY_CALLBACK}`;
       script.async = true;
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);   // the form still submits; the server records 'fail'
+      script.onerror = () => resolve(false);   // blocked or offline: the form says so rather than submitting
       document.head.append(script);
     });
   }
@@ -484,20 +512,34 @@ function loadTurnstile() {
 async function mountTurnstile() {
   const holder = document.querySelector('#turnstile');
   if (!holder || !siteKey() || holder.childElementCount) return;
-  if (!(await loadTurnstile())) { turnstileBlocked = true; return; }
+  if (!(await loadTurnstile()) || typeof window.turnstile?.render !== 'function') {
+    turnstileFault = 'blocked';   // never throw out of here: an unhandled rejection would leave the form silently unguarded
+    return;
+  }
   if (!holder.isConnected) return;
   if (turnstileWidget !== null) { try { window.turnstile.remove(turnstileWidget); } catch { /* already gone */ } }
-  turnstileWidget = window.turnstile.render(holder, {
-    sitekey: siteKey(),
-    // Mirrors data-action on the div. The widget is rendered explicitly (the
-    // API script is loaded with render=explicit), so the attribute alone would
-    // not reach Cloudflare — these render options are what the widget actually
-    // uses, and the attribute is what a reader of the markup sees.
-    action: 'turnstile-spin-v2',
-    callback: (token) => { turnstileToken = token; },
-    'expired-callback': () => { turnstileToken = ''; },
-    'error-callback': () => { turnstileToken = ''; },
-  });
+  try {
+    turnstileWidget = window.turnstile.render(holder, {
+      sitekey: siteKey(),
+      // Mirrors data-action on the div. The widget is rendered explicitly (the
+      // API script is loaded with render=explicit), so the attribute alone would
+      // not reach Cloudflare — these render options are what the widget actually
+      // uses, and the attribute is what a reader of the markup sees.
+      action: 'turnstile-spin-v2',
+      callback: (token) => { turnstileToken = token; turnstileIssuedAt = Date.now(); turnstileFault = ''; },
+      'expired-callback': () => { turnstileToken = ''; turnstileIssuedAt = 0; },
+      // The widget ran and refused. Worth distinguishing: the reader can do
+      // something about a blocker extension and nothing at all about a site key
+      // that does not match this domain, and the two need different advice.
+      'error-callback': () => { turnstileToken = ''; turnstileIssuedAt = 0; turnstileFault = 'error'; },
+    });
+    turnstileFault = '';
+  } catch {
+    // A malformed site key throws from render(). Nothing here can recover it,
+    // so the form tells the signer the check is unavailable instead of letting
+    // them submit into a certain refusal.
+    turnstileFault = 'error';
+  }
 }
 
 async function loadPetition() {
@@ -528,13 +570,17 @@ async function submitSignature(form) {
     state: data.get('state'), postalCode: data.get('postalCode'), comment: data.get('comment'),
     consent: data.get('consent') === 'on', publicDisplay: data.get('publicDisplay') === 'on',
   };
-  // Sending an empty token is a certain server-side refusal, and the refusal
-  // reads as "you look like a bot" when the truth is either that the challenge
-  // has not finished or that it never loaded. Say which, and hold the draft so
-  // pressing the button again is all it takes.
-  if (siteKey() && !turnstileToken) {
-    petitionView = {...petitionView, draft, formError: turnstileBlocked
-      ? 'The anti-bot check could not load — an ad blocker or privacy extension usually causes this. Allow challenges.cloudflare.com and reload, or sign the paper copy in person.'
+  // Sending a missing or expired token is a certain server-side refusal, and
+  // that refusal reads as "you look like a bot" when the truth is that the
+  // challenge never loaded, never finished, or sat too long on an open form.
+  // Say which, and hold the draft so pressing the button again is all it takes.
+  if (siteKey() && !turnstilePassed()) {
+    const expired = Boolean(turnstileToken);   // solved once, but too long ago to be accepted now
+    resetTurnstile();                          // ask for a fresh one before the signer tries again
+    petitionView = {...petitionView, draft, formError:
+      turnstileFault === 'blocked' ? 'The anti-bot check could not load — an ad blocker or privacy extension usually causes this. Allow challenges.cloudflare.com and reload the page, or sign the paper copy in person.'
+      : turnstileFault === 'error' ? 'The anti-bot check would not run in this browser. Reload the page and try again — if it keeps happening, sign the paper copy in person and let an organizer know.'
+      : expired ? 'The anti-bot check expired while the form was open. It is running again — press the button once more.'
       : 'The anti-bot check has not finished yet. Give it a moment and press the button again.'};
     render();
     return;
@@ -560,8 +606,9 @@ async function submitSignature(form) {
     render();
   } catch (error) {
     petitionView = {...petitionView, submitting: false, formError: error.message};
-    turnstileToken = '';
-    if (turnstileWidget !== null && window.turnstile) window.turnstile.reset(turnstileWidget);
+    // The token was spent on the attempt that just failed — Cloudflare refuses
+    // a second use of it — so the retry needs a new one.
+    resetTurnstile();
     render();
   }
 }
