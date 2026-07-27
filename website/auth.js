@@ -44,6 +44,10 @@ async function getClient() {
       clientId: authConfig.clientId,
       cacheLocation: 'localstorage',
       useRefreshTokens: true,
+      // When the stored session has no usable refresh token, fall back to a
+      // silent iframe renewal before giving up. It needs third-party cookies so
+      // it will not always work, but it costs nothing when it does.
+      useRefreshTokensFallback: true,
       authorizationParams: {
         // Always the site root, never the current path. Auth0 matches callback
         // URLs exactly against the registered list, so now that notes live at
@@ -87,9 +91,30 @@ export async function logout() {
   await (await getClient()).logout({logoutParams: {returnTo: `${location.origin}/`}}); // registered logout URL, same reason as above
 }
 
+// A session Auth0 will not renew: no refresh token was stored (the account
+// signed in before refresh tokens were switched on, or the API has offline
+// access disabled), or the session itself has lapsed. The raw SDK message names
+// audiences and scopes, which tells a reader nothing they can act on.
+const SESSION_LOST = /missing refresh token|login required|consent required/i;
+
+// Resolves the bearer token for /api/* calls. `optional` is for routes that
+// also serve signed-out readers: rather than failing the page, they fall back
+// to the anonymous response the same route gives everyone else.
+async function bearerToken({optional = false} = {}) {
+  try {
+    return await (await getClient()).getTokenSilently();
+  } catch (error) {
+    if (optional) return null;
+    if (SESSION_LOST.test(error.message || '')) {
+      throw new Error('your sign-in could not be renewed — sign out and sign in again');
+    }
+    throw error;
+  }
+}
+
 // For calling protected /api/* routes: fetch(url, {headers: await authHeader()})
 export async function authHeader() {
-  return {Authorization: `Bearer ${await (await getClient()).getTokenSilently()}`};
+  return {Authorization: `Bearer ${await bearerToken()}`};
 }
 
 // Where /api/* lives: the VPS in production, but always the local server when
@@ -100,7 +125,11 @@ const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
 export const apiOrigin = () => (isLocal ? '' : authConfig.apiBase || '');
 
 // Calls the API server (same origin locally, the VPS from GitHub Pages) with auth.
+// Pass {optionalAuth: true} for a route that answers signed-out readers too —
+// the call then goes out unauthenticated when no token can be had.
 export async function apiFetch(path, options = {}) {
-  const headers = {...(options.headers || {}), ...(await authHeader())};
-  return fetch(`${apiOrigin()}${path}`, {...options, headers});
+  const {optionalAuth = false, ...init} = options;
+  const token = await bearerToken({optional: optionalAuth});
+  const headers = {...(init.headers || {}), ...(token ? {Authorization: `Bearer ${token}`} : {})};
+  return fetch(`${apiOrigin()}${path}`, {...init, headers});
 }
