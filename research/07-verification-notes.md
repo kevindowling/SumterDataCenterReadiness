@@ -57,4 +57,6 @@ Do not let an unanswered question be reframed as proof that there is no risk. As
 3. Will commissioners delay action until residents can review it?
 4. Which approval condition will make the answer enforceable?
 
+Each record listed above sits with an identifiable custodian and can be requested in writing under the Georgia Open Records Act, which sets a three-business-day response deadline. See [how to obtain the records and reach the officials](11-open-government.md).
+
 The honest conclusion today is not that every harm will occur. It is that the public record is not complete enough to know, and approval should not outrun the evidence.
