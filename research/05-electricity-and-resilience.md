@@ -57,3 +57,5 @@ The program is also a local jobs program. Auditing, weatherizing, rewiring, roof
 - Curtailment before firm residential load during declared emergencies
 - Published interconnection, stability, harmonics, and contingency studies
 - Annual demand, outage, transfer, and curtailment reporting
+
+The will-serve letter, load schedule, and any development agreement are records held by the utility department, the county, and the Development Authority. See [how to obtain the records and reach the officials](11-open-government.md).

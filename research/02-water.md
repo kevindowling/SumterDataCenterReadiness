@@ -57,6 +57,8 @@ These figures assume full load around the clock. Weather, utilization, economize
 5. Where will blowdown go, and what chemicals will it contain?
 6. What does independent pumping and drawdown analysis predict for nearby wells?
 
+The cooling schematic, water balance, and city capacity certification are records held by the city and the Development Authority. See [how to obtain the records and reach the officials](11-open-government.md).
+
 ## Important historical context
 
 An [older USGS study](https://pubs.usgs.gov/of/1996/ofr96-483/pdf/ofr96-483.pdf) identified a small Providence-aquifer cone of depression around Americus. The same study also concluded that groundwater resources in its broader study area were not significantly impaired by 1990 use. That decades-old evidence supports obtaining a current study; it does not prove present harm or present safety.

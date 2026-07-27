@@ -286,8 +286,14 @@ async function handleApi(pathname, request, response) {
 // Public document roots. Everything else under the project directory —
 // server.env, deploy/, ignore/, .git — must stay unreachable.
 const publicRoots = ['/website/', '/research/'];
-const rootAliases = ['/app.js', '/styles.css', '/auth.js', '/auth-config.js', '/map.js',
+const rootAliases = ['/app.js', '/styles.css', '/auth.js', '/auth-config.js', '/content.js', '/map.js',
   '/install.js', '/sw.js', '/manifest.webmanifest', '/favicon.svg'];
+
+// Client-side routes. In production the build writes a real HTML file at each
+// of these paths; in dev the shell is served and the router resolves the path.
+// Deliberately an explicit pattern rather than a catch-all, so an unknown path
+// still 403s instead of leaking the shell for anything not on this list.
+const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|board(\/\d+)?)\/?$/;
 
 // Resolves a request path to a file inside a public root, or null.
 //
@@ -301,7 +307,7 @@ function resolvePublicFile(rawPath) {
   try { decoded = decodeURIComponent(rawPath); } catch { return null; } // malformed %-escape
   if (decoded.includes('\0') || decoded.includes('\\')) return null;
 
-  let requested = normalize(decoded === '/' ? '/website/index.html' : decoded);
+  let requested = normalize(decoded === '/' || spaRoute.test(decoded) ? '/website/index.html' : decoded);
   if (rootAliases.includes(requested) || requested.startsWith('/vendor/') || requested.startsWith('/icons/')) {
     requested = normalize(`/website${requested}`);
   }

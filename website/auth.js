@@ -13,7 +13,12 @@ function getClient() {
       cacheLocation: 'localstorage',
       useRefreshTokens: true,
       authorizationParams: {
-        redirect_uri: location.origin + location.pathname,
+        // Always the site root, never the current path. Auth0 matches callback
+        // URLs exactly against the registered list, so now that notes live at
+        // their own paths, signing in from /doc/records/ would be rejected as a
+        // callback mismatch. app.js sends a fresh login on to the community
+        // desk from here.
+        redirect_uri: `${location.origin}/`,
         // `profile` and `email` are what let the server resolve a poster's name
         // from Auth0 /userinfo — an access token for a custom API audience does
         // not carry them itself.
@@ -44,7 +49,7 @@ export async function initAuth() {
 export async function login() { await (await getClient()).loginWithRedirect(); }
 
 export async function logout() {
-  await (await getClient()).logout({logoutParams: {returnTo: location.origin + location.pathname}});
+  await (await getClient()).logout({logoutParams: {returnTo: `${location.origin}/`}}); // registered logout URL, same reason as above
 }
 
 // For calling protected /api/* routes: fetch(url, {headers: await authHeader()})
