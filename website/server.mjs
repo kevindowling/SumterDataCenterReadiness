@@ -357,20 +357,24 @@ function ipPrefix(ip) {
 // The widget token is single-use and expires after five minutes, so a replayed
 // one fails here even though it looked fine when the widget issued it.
 //
-// Returns 'pass' only when the parsed siteverify response has success === true.
-// Anything else — a wrong secret, an absent token, a non-JSON reply, or
-// Cloudflare being unreachable — is 'fail', and the caller refuses the
-// submission. A token that expired or was already spent comes back as 'expired'
-// instead: still refused, but it is worth telling a signer to press the button
-// again rather than implying they failed a test. The single exception is an
-// unset TURNSTILE_SECRET, which means
-// the check is not configured on this deployment (local dev and CI): the row
-// then records 'skipped' so its absence is visible in review rather than
-// silently looking like a pass.
+// Four answers, and the difference between them is the difference between
+// refusing a bot and refusing a neighbour:
+//
+//   'pass'        siteverify returned success === true.
+//   'fail'        a token was presented and Cloudflare rejected it. Refused.
+//   'expired'     the token timed out or was spent twice. Refused, but the
+//                 signer is told to press the button again, not that they
+//                 failed a test.
+//   'unavailable' no token arrived, or siteverify could not be reached. Nobody
+//                 can tell a blocked widget from an omitted field here, so this
+//                 is recorded rather than refused — see the gate below.
+//   'skipped'     no TURNSTILE_SECRET, so the check is not configured on this
+//                 deployment (local dev and CI). Recorded, so its absence is
+//                 visible in review rather than looking like a pass.
 async function verifyTurnstile(token, ip) {
   const secret = process.env.TURNSTILE_SECRET || '';
   if (!secret) return 'skipped';
-  if (!token) return 'fail';
+  if (!token) return 'unavailable';
   try {
     const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
@@ -390,8 +394,10 @@ async function verifyTurnstile(token, ip) {
     // worth telling apart from a challenge that was actually failed.
     return codes.includes('timeout-or-duplicate') ? 'expired' : 'fail';
   } catch (error) {
+    // Our own network, not the signer's doing. Refusing here would turn a
+    // Cloudflare outage into a petition that quietly stops accepting anyone.
     console.error(`Turnstile siteverify unreachable: ${error.message}`);
-    return 'fail';
+    return 'unavailable';
   }
 }
 
@@ -524,9 +530,8 @@ async function handlePetitionSign(request, response, petition) {
     return;
   }
 
-  // The gate, ahead of the database and the pool it would open: nothing is
-  // stored unless siteverify came back with success === true. The only way past
-  // it is an unconfigured secret, which is local dev and CI, never production.
+  // The gate, ahead of the database and the pool it would open. A token that
+  // Cloudflare actively rejected is refused here and never stored.
   const turnstile = await verifyTurnstile(input.turnstileToken, ip);
   if (turnstile === 'expired') {
     sendJson(response, 403, {error: 'The anti-bot check expired before this reached us. Press the button once more — the check has already restarted.'});
@@ -535,6 +540,31 @@ async function handlePetitionSign(request, response, petition) {
   if (turnstile === 'fail') {
     sendJson(response, 403, {error: 'The anti-bot check did not pass. Reload the page and try again, or sign the paper copy in person.'});
     return;
+  }
+
+  // No token at all is the one case that is not a verdict. It is a browser that
+  // blocks challenges.cloudflare.com, a network that dropped the script, a
+  // Cloudflare outage — or a bot that simply left the field out. Refusing it
+  // meant a resident whose browser is stricter than most could not sign at all,
+  // on a petition where every name is the point.
+  //
+  // So these are taken and flagged rather than refused. What still stands
+  // behind them: the signature counts for nothing until the emailed link is
+  // opened, the honeypot and duplicate checks run either way, and a reviewer
+  // sees 'turnstile-unavailable' on the row. TURNSTILE_REQUIRED=1 restores the
+  // hard refusal if this is ever abused.
+  if (turnstile === 'unavailable') {
+    if (process.env.TURNSTILE_REQUIRED === '1') {
+      sendJson(response, 403, {error: 'The anti-bot check did not pass. Reload the page and try again, or sign the paper copy in person.'});
+      return;
+    }
+    // Much tighter than the ordinary bucket, because this path has no proof of
+    // a human behind it. A blocked browser signing once is normal; the same
+    // connection doing it repeatedly is not.
+    if (throttled(`petition-unverified:${prefix}`, 3, 60 * 60_000)) {
+      sendJson(response, 429, {error: 'The anti-bot check could not run, and several signatures have already come from this connection. Please try again later, or sign the paper copy in person.'});
+      return;
+    }
   }
 
   if (!petitionSecret()) { sendJson(response, 501, {error: 'Petition signing is not configured on this server.'}); return; }
@@ -547,6 +577,7 @@ async function handlePetitionSign(request, response, petition) {
   // dropped for tripping one.
   const flags = [];
   if (turnstile === 'skipped') flags.push('turnstile-skipped');
+  if (turnstile === 'unavailable') flags.push('turnstile-unavailable');
   if (DISPOSABLE_DOMAINS.has(signature.email.split('@')[1])) flags.push('disposable-domain');
   if (!signature.name.includes(' ')) flags.push('single-word-name');
   // A hidden field no human can see. A bot that fills every input trips it.

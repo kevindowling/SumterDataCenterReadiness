@@ -444,6 +444,7 @@ let petitionView = {
   // render() rebuilds the form from the template, so what the signer typed only
   // survives an error if it is held here and written back in.
   submitting: false, done: '', formError: '', draft: {},
+  unverified: false,      // signed without the anti-bot check, flagged for an organizer
   paperError: '', paperDone: '',
 };
 let turnstileToken = '';
@@ -454,6 +455,7 @@ let turnstileWidget = null;
 // refused to run, which is a site key not matching this domain far more often
 // than it is a real bot.
 let turnstileFault = '';
+let turnstileRetries = 0;   // one retry of a failed check before signing without it
 
 // Cloudflare expires a token five minutes after it is issued and refuses it as
 // 'timeout-or-duplicate'. Stop short of that: a token accepted here still has a
@@ -578,22 +580,30 @@ async function submitSignature(form) {
     state: data.get('state'), postalCode: data.get('postalCode'), comment: data.get('comment'),
     consent: data.get('consent') === 'on', publicDisplay: data.get('publicDisplay') === 'on',
   };
-  // Sending a missing or expired token is a certain server-side refusal, and
-  // that refusal reads as "you look like a bot" when the truth is that the
-  // challenge never loaded, never finished, or sat too long on an open form.
-  // Say which, and hold the draft so pressing the button again is all it takes.
-  if (siteKey() && !turnstilePassed()) {
+  // A token that is missing or stale would be refused by the server, and that
+  // refusal reads as "you look like a bot" when the truth is that the challenge
+  // never loaded, never finished, or sat too long on an open form. Each of
+  // those is worth a retry, so say which and hold the draft.
+  //
+  // But a check that has already failed once will not start working because the
+  // signer presses harder, and a browser strict enough to block Cloudflare is
+  // not a reason to turn a resident away from a petition. After one retry the
+  // signature goes through without a token; the server records that and an
+  // organizer confirms it by hand.
+  const unavailable = turnstileFault === 'blocked' || turnstileFault === 'error';
+  if (siteKey() && !turnstilePassed() && !(unavailable && turnstileRetries >= 1)) {
     const expired = Boolean(turnstileToken);   // solved once, but too long ago to be accepted now
     resetTurnstile();                          // ask for a fresh one before the signer tries again
+    if (unavailable) turnstileRetries += 1;
     petitionView = {...petitionView, draft, formError:
-      turnstileFault === 'blocked' ? 'The anti-bot check could not load. Press the button once more — it will try again. If it keeps failing, an ad blocker or strict privacy setting is blocking challenges.cloudflare.com; allow it and reload, or sign the paper copy in person.'
-      : turnstileFault === 'error' ? 'The anti-bot check would not run in this browser. Reload the page and try again — if it keeps happening, sign the paper copy in person and let an organizer know.'
+      turnstileFault === 'blocked' ? 'The anti-bot check could not load. Press the button once more — it will try again, and your signature will go through either way.'
+      : turnstileFault === 'error' ? 'The anti-bot check would not run in this browser. Press the button once more — your signature will go through either way.'
       : expired ? 'The anti-bot check expired while the form was open. It is running again — press the button once more.'
       : 'The anti-bot check has not finished yet. Give it a moment and press the button again.'};
     render();
     return;
   }
-  petitionView = {...petitionView, draft, submitting: true, formError: ''};
+  petitionView = {...petitionView, draft, submitting: true, formError: '', unverified: siteKey() && !turnstilePassed()};
   render();
   try {
     const response = await fetch(`${apiOrigin()}/api/petition/${PETITION.id}/sign`, {
@@ -721,6 +731,7 @@ function petitionForm() {
       <p class="eyebrow"><span></span> ONE MORE STEP</p>
       <h2>Check your email.</h2>
       <p>${escapeHtml(petitionView.done)}</p>
+      ${petitionView.unverified ? '<p class="form-fineprint">The anti-bot check could not run in this browser, so this signature is marked for an organizer to confirm by hand. It still counts once you open the emailed link.</p>' : ''}
       <p class="form-fineprint">The link expires in 24 hours. If it does not arrive within a few minutes, check the spam folder before signing again.</p>
     </section>`;
   }
@@ -746,6 +757,7 @@ function petitionForm() {
     <label class="form-check"><input type="checkbox" name="publicDisplay"${ticked('publicDisplay')} /> <span>Show my name, town and comment on this page. Leave unticked to be counted without being listed — your signature counts either way.</span></label>
     <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off" /></label></div>
     ${siteKey() ? `<div id="turnstile" class="cf-turnstile turnstile" data-sitekey="${escapeHtml(siteKey())}" data-action="turnstile-spin-v2"></div>` : ''}
+    ${siteKey() && turnstileFault ? '<p class="form-fineprint">The anti-bot check will not run in this browser. You can still sign — an organizer will confirm this one by hand.</p>' : ''}
     ${petitionView.formError ? `<p class="board-notice error">${escapeHtml(petitionView.formError)}</p>` : ''}
     <button type="submit" ${disabled}>${petitionView.submitting ? 'Sending the confirmation…' : 'Sign the petition'}</button>
     <p class="form-fineprint">Your signature is not counted until you open the confirmation link we email you. Your email address and ZIP are never published, and every signature can be withdrawn from a link in that same email. <a href="/doc/petition/">How signatures are verified and counted →</a></p>

@@ -258,6 +258,59 @@ test('an expired Turnstile token is refused as expired, not as a failure', async
   }
 });
 
+// A browser that blocks challenges.cloudflare.com sends no token at all. That
+// is not a verdict on the signer, so it must not be refused the way a rejected
+// token is — the row is flagged and an organizer confirms it instead.
+test('a missing Turnstile token is accepted and flagged, not refused', async () => {
+  const gatePort = port + 3;
+  const gate = spawn(process.execPath, [fileURLToPath(new URL('server.mjs', import.meta.url))], {
+    env: {...process.env, PORT: String(gatePort), TURNSTILE_SECRET: '2x0000000000000000000000000000000AA'},
+  });
+  try {
+    await new Promise((resolve, reject) => {
+      gate.stdout.on('data', resolve);
+      gate.on('error', reject);
+      setTimeout(() => reject(new Error('gate server did not start within 5s')), 5000).unref();
+    });
+    const response = await fetch(`http://localhost:${gatePort}/api/petition/moratorium/sign`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      // No turnstileToken at all — the same shape a blocked browser sends.
+      body: JSON.stringify({name: 'No Token', email: 'notoken@example.com', city: 'Americus', state: 'GA', postalCode: '31709', consent: true}),
+    });
+    // Past the anti-bot gate: it gets as far as the database, which this test
+    // server has none of. 403 would mean a blocked browser cannot sign.
+    assert.notEqual(response.status, 403, 'a missing token must not be refused as a failed challenge');
+    assert.equal(response.status, 501, 'it should reach the storage step and stop there');
+  } finally {
+    gate.kill();
+  }
+});
+
+// The escape hatch: an organizer who sees this abused can put the hard gate
+// back without a deploy.
+test('TURNSTILE_REQUIRED=1 restores the hard refusal', async () => {
+  const gatePort = port + 4;
+  const gate = spawn(process.execPath, [fileURLToPath(new URL('server.mjs', import.meta.url))], {
+    env: {...process.env, PORT: String(gatePort), TURNSTILE_SECRET: '2x0000000000000000000000000000000AA', TURNSTILE_REQUIRED: '1'},
+  });
+  try {
+    await new Promise((resolve, reject) => {
+      gate.stdout.on('data', resolve);
+      gate.on('error', reject);
+      setTimeout(() => reject(new Error('gate server did not start within 5s')), 5000).unref();
+    });
+    const response = await fetch(`http://localhost:${gatePort}/api/petition/moratorium/sign`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name: 'No Token', email: 'notoken@example.com', city: 'Americus', state: 'GA', postalCode: '31709', consent: true}),
+    });
+    assert.equal(response.status, 403, 'with the flag set, a missing token is refused again');
+  } finally {
+    gate.kill();
+  }
+});
+
 test('organizer petition routes sit behind the auth gate', async () => {
   const calls = [['POST', '/api/petition/moratorium/paper'], ['POST', '/api/petition/moratorium/snapshot'],
     ['GET', '/api/petition/moratorium/export.csv']];
