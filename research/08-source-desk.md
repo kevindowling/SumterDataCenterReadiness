@@ -11,6 +11,8 @@
 | Agendas | [County Agenda Center](https://www.sumtercountyga.us/agendacenter) | Newer agenda interface; separate from legacy archive |
 | Georgia data-center power context | [Georgia PSC Data Center Fact Sheet](https://psc.ga.gov/site/downloads/datacenterfactsheet.pdf) | State load projections, approvals, and ratepayer protections |
 | Residential solar tariff | [Georgia Power FAQ](https://www.georgiapower.com/residential/solutions/solar/rooftop-installations/faqs.html) | 2026 export compensation and 10 kW AC limit |
+| Open records and open meetings | [Georgia's Sunshine Laws, Office of the Attorney General](https://law.georgia.gov/key-issues/open-government) | Request procedure, deadlines, fees, exemptions, and meeting-notice rules; see [records and officials](11-open-government.md) |
+| County records procedure | [Sumter County Open Records Request Form](https://www.sumtercountyga.us/DocumentCenter/View/1189/Open-Records-Request-Form) | Address, fax, and options the county publishes for requests |
 
 ## Federal and technical sources
 
