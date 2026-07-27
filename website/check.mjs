@@ -10,6 +10,7 @@ const docs = [
 ];
 const required = [
   'website/index.html', 'website/app.js', 'website/styles.css', 'website/auth.js', 'website/auth-config.js',
+  'website/content.js', 'website/prerender.mjs',
   'website/map.js', 'website/vendor/leaflet/leaflet.js', 'website/vendor/leaflet/leaflet.css',
   'website/install.js', 'website/sw.js', 'website/manifest.webmanifest', 'website/favicon.svg',
   'website/icons/icon-192.png', 'website/icons/icon-512.png',

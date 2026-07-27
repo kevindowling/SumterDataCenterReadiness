@@ -27,9 +27,29 @@ test('serves the home page', async () => {
 });
 
 test('serves site assets and research notes', async () => {
-  for (const path of ['/app.js', '/auth.js', '/auth-config.js', '/styles.css', '/research/02-water.md']) {
+  for (const path of ['/app.js', '/auth.js', '/auth-config.js', '/content.js', '/styles.css', '/research/02-water.md']) {
     const response = await fetch(`${base}${path}`);
     assert.equal(response.status, 200, `${path} should be served`);
+  }
+});
+
+// Each note has a real URL now, so the dev server has to hand the shell to a
+// deep link the same way the built site does. In production these are separate
+// prerendered files; here one shell answers for all of them.
+test('serves the shell at every client-side route', async () => {
+  for (const path of ['/doc/records/', '/doc/records', '/doc/water/', '/community/', '/map/', '/board/', '/board/12']) {
+    const response = await fetch(`${base}${path}`);
+    assert.equal(response.status, 200, `${path} should serve the shell`);
+    assert.match(await response.text(), /Sumter Field Desk/, `${path} should return the app shell`);
+  }
+});
+
+// The route fallback must not become a way to read anything not on the
+// allowlist: it matches an explicit pattern, so everything else still 403s.
+test('the route fallback does not widen the allowlist', async () => {
+  for (const path of ['/doc/', '/doc/records/extra', '/board/abc', '/server.mjs', '/doc/../server.mjs']) {
+    const response = await fetch(`${base}${path}`);
+    assert.notEqual(response.status, 200, `${path} must not be served`);
   }
 });
 
