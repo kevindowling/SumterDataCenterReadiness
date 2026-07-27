@@ -1,17 +1,14 @@
 // Interactive site map for the proposed data center at 301 Brady Road.
 //
-// Every layer below is pulled live from the City of Americus & Sumter County
-// public ArcGIS service — the same service behind the county's own public
-// viewer — so the map shows the county's current record rather than a snapshot
-// traced from a PDF exhibit. Nothing here is hand-drawn.
-
-const GIS = 'https://ga31portal.kcsgis.com/ga31server/rest/services/Public';
-const PUBLIC_LAYERS = `${GIS}/Public/MapServer`;
-const PARCELS = `${GIS}/Sumter_Parcels/MapServer/1`;
-
-// Parcel 64-17: 301 Brady Rd, 125.1 acres, zoned I (Industrial).
-const SUBJECT_PARCEL_ID = ' 64     17';
-const SITE = [32.04854, -84.20729]; // centroid of the parcel geometry
+// Every layer below comes from the City of Americus & Sumter County public
+// ArcGIS service — the same service behind the county's own public viewer — so
+// the map shows the county's current record rather than a snapshot traced from
+// a PDF exhibit. Nothing here is hand-drawn.
+//
+// The requests themselves live in gis-sources.js, shared with the API server so
+// both ask the county the same questions.
+import {apiOrigin} from './auth.js';
+import {GIS_SOURCES, OVERPASS, SITE, arcgisUrl, gisPayloadError, overpassQuery} from './gis-sources.js';
 
 const RINGS = [
   {meters: 804.672, label: '½ mile', color: '#f2c018', homes: 420, people: 1008},
@@ -58,15 +55,29 @@ function loadLeaflet() {
   return leafletReady;
 }
 
-// --- Daily cache -----------------------------------------------------------
-// Parcels, districts, flood zones and hydrology change when a property sells or
-// a boundary is redrawn — not hourly. Holding each response for a day keeps the
-// county's server from answering the same eleven questions on every page load,
-// and makes a revisit instant.
+// --- Where a layer comes from ----------------------------------------------
+// Four places are tried in order, and the first that answers wins:
+//
+//   1. this browser's own copy, if less than a day old
+//   2. /api/gis on the field desk server, which holds one copy for everyone
+//   3. the county's ArcGIS service (or Overpass) directly
+//   4. this browser's expired copy, however old, rather than an empty map
+//
+// Step 2 is what stops the county's server paying for a fresh set of queries
+// per visitor, and it is the only step that can help a reader who has never
+// opened the map before — steps 1 and 4 need a copy this device already has.
+// Step 3 stays because the research desk is on GitHub Pages and must not go
+// down with the API server.
 //
 // Kept in Cache Storage rather than localStorage: these payloads run to
 // hundreds of kilobytes, past what localStorage will hold.
-const GIS_CACHE = 'field-desk-gis-v1';
+//
+// v2: v1 could hold a poisoned entry. ArcGIS answers a failed query with HTTP
+// 200 and an error in the body, and the old code cached anything with an ok
+// status — so a bad moment upstream could be stored and then served for as long
+// as the entry was kept. The name change evicts those without the reader
+// needing to clear anything by hand.
+const GIS_CACHE = 'field-desk-gis-v2';
 const GIS_TTL = 24 * 60 * 60 * 1000;
 // How long an expired copy is still worth keeping. The county has taken its
 // whole ArcGIS service offline before, for longer than a day, and a boundary
@@ -81,15 +92,6 @@ const cacheStore = async () => {
 };
 
 const freshness = (response) => Date.now() - Number(response?.headers.get(CACHED_AT) || 0);
-
-// Where a response came from, so the reader can be told plainly. Only a stored
-// copy carries the stamp, so its absence means this came off the wire.
-const sourceOf = (response) => {
-  const stamp = Number(response.headers.get(CACHED_AT) || 0);
-  if (!stamp) return {from: 'network', age: 0};
-  const age = Date.now() - stamp;
-  return {from: age < GIS_TTL ? 'cache' : 'stale', age};
-};
 
 // Both upstreams fail transiently — Overpass returns a 504 under load often
 // enough to lose a layer on any given page load, and the county's ArcGIS box
@@ -112,29 +114,91 @@ async function fetchWithRetry(url, init, attempts = 3) {
   throw failure;
 }
 
-// `key` lets POST requests (Overpass) be cached, since Cache Storage will only
-// key on a GET.
-async function cachedFetch(url, {key = url, ...init} = {}) {
+// Keyed on the layer id, not the upstream URL, so a copy fetched through the
+// field desk server and one fetched straight from the county occupy the same
+// slot — and an Overpass POST, which Cache Storage will not key on at all, gets
+// a slot like everything else.
+const cacheKey = (id) => `https://field-desk.invalid/gis/${id}`;
+
+async function readCache(id) {
   const store = await cacheStore();
-  const request = new Request(key);
-  const hit = store ? await store.match(request) : null;
+  if (!store) return null;
+  return (await store.match(new Request(cacheKey(id)))) || null;
+}
 
-  if (hit && freshness(hit) < GIS_TTL) return hit;
+async function writeCache(id, text) {
+  const store = await cacheStore();
+  if (!store) return;
+  await store.put(new Request(cacheKey(id)), new Response(text, {
+    status: 200,
+    headers: {'Content-Type': 'application/json; charset=utf-8', [CACHED_AT]: String(Date.now())},
+  }));
+}
 
-  try {
-    const response = await fetchWithRetry(url, init);
-    if (store) {
-      const headers = new Headers(response.headers);
-      headers.set(CACHED_AT, String(Date.now()));
-      await store.put(request, new Response(await response.clone().arrayBuffer(), {status: 200, headers}));
-    }
-    return response;
-  } catch (error) {
-    // A stale copy beats an empty map when the county server or the network is
-    // unreachable, so fall back to it rather than failing the layer.
-    if (hit) return hit;
-    throw error;
+// Nothing is stored until it has parsed and passed gisPayloadError, so an
+// error body can never take the place of a layer. This is the check v1 lacked.
+function parsePayload(source, text) {
+  let body;
+  try { body = JSON.parse(text); } catch { throw new Error('response was not JSON'); }
+  const problem = gisPayloadError(source, body);
+  if (problem) throw new Error(problem);
+  if (!source.overpass) return body;
+  // Overpass speaks its own JSON; everything downstream expects GeoJSON.
+  return {
+    type: 'FeatureCollection',
+    features: (body.elements || []).map((element) => {
+      const lat = element.lat ?? element.center?.lat;
+      const lon = element.lon ?? element.center?.lon;
+      return lat == null ? null : {
+        type: 'Feature',
+        geometry: {type: 'Point', coordinates: [lon, lat]},
+        properties: element.tags || {},
+      };
+    }).filter(Boolean),
+  };
+}
+
+// One layer, from the best source that answers. See the note above GIS_CACHE
+// for the order and why each step is there.
+async function loadSource(id) {
+  const source = GIS_SOURCES[id];
+  const hit = await readCache(id);
+  if (hit && freshness(hit) < GIS_TTL) {
+    return {data: parsePayload(source, await hit.text()), source: {from: 'cache', age: freshness(hit)}};
   }
+
+  const routes = [
+    // One attempt only: a field desk server that is down or has no database
+    // should cost a moment, not three rounds of backoff, because the county's
+    // own service is right behind it.
+    {from: 'proxy', attempts: 1, run: () => fetchWithRetry(`${apiOrigin()}/api/gis?layer=${encodeURIComponent(id)}`, {}, 1)},
+    {from: 'network', run: () => (source.overpass
+      ? fetchWithRetry(OVERPASS, {method: 'POST', body: new URLSearchParams({data: overpassQuery(source.overpass)})})
+      : fetchWithRetry(arcgisUrl(source)))},
+  ];
+
+  let failure;
+  for (const route of routes) {
+    try {
+      const response = await route.run();
+      const text = await response.text();
+      const data = parsePayload(source, text); // throws before anything is stored
+      await writeCache(id, text);
+      // The server reports how old its own copy is; a direct fetch is new.
+      const age = route.from === 'proxy' ? Number(response.headers.get('x-gis-age-ms') || 0) : 0;
+      return {data, source: {from: route.from, age}};
+    } catch (error) {
+      failure = error;
+    }
+  }
+
+  // Every route failed. An expired copy beats an empty map.
+  if (hit) {
+    try {
+      return {data: parsePayload(source, await hit.text()), source: {from: 'stale', age: freshness(hit)}};
+    } catch { /* the stored copy is unusable too; report the network failure */ }
+  }
+  throw failure || new Error(`${id} could not be loaded`);
 }
 
 // Drops entries well past their keep window so the cache cannot grow without
@@ -149,29 +213,6 @@ async function pruneCache(upstreamAnswered) {
     if (entry && freshness(entry) > GIS_KEEP) await store.delete(request);
   }
 }
-
-// One ArcGIS query, returned as GeoJSON in WGS84.
-async function queryLayer(url, {where = '1=1', outFields = '*', envelope} = {}) {
-  const params = new URLSearchParams({where, outFields, outSR: '4326', f: 'geojson', returnGeometry: 'true'});
-  if (envelope) {
-    params.set('geometry', envelope);
-    params.set('geometryType', 'esriGeometryEnvelope');
-    params.set('inSR', '4326');
-    params.set('spatialRel', 'esriSpatialRelIntersects');
-  }
-  const response = await cachedFetch(`${url}/query?${params}`);
-  const body = await response.json();
-  if (body.error) throw new Error(body.error.message || 'GIS query failed');
-  return {data: body, source: sourceOf(response)};
-}
-
-// Bounding box roughly covering the 3-mile ring, so point and line layers come
-// back small and fast instead of pulling the whole county.
-const AREA = (() => {
-  const dLat = 4828.032 / 111_320;
-  const dLon = dLat / Math.cos((SITE[0] * Math.PI) / 180);
-  return `${SITE[1] - dLon},${SITE[0] - dLat},${SITE[1] + dLon},${SITE[0] + dLat}`;
-})();
 
 // Layer 27 has DISTRICTID ("1"); layer 28 only has NAME ("District 3").
 const districtNumber = (p) => {
@@ -203,35 +244,8 @@ const RECREATION = ['Park', 'Community / Recreation Center', 'Sports Complex', '
 
 // The county POI layer carries exactly one "House of Worship" countywide and
 // almost no care homes, so those two categories come from OpenStreetMap — the
-// same source the county's own May 2025 exhibit credits for them.
-const OVERPASS = 'https://overpass-api.de/api/interpreter';
-async function overpassPoints(filters) {
-  const around = `around:4828,${SITE[0]},${SITE[1]}`;
-  const query = `[out:json][timeout:45];(${filters.map((f) => `nwr${f}(${around});`).join('')});out center tags;`;
-  // Overpass needs a POST, which Cache Storage will not key on, so the query
-  // doubles as a synthetic GET key.
-  const response = await cachedFetch(OVERPASS, {
-    method: 'POST',
-    body: new URLSearchParams({data: query}),
-    key: `${OVERPASS}?cache=${encodeURIComponent(query)}`,
-  });
-  const body = await response.json();
-  return {
-    source: sourceOf(response),
-    data: {
-      type: 'FeatureCollection',
-      features: (body.elements || []).map((element) => {
-        const lat = element.lat ?? element.center?.lat;
-        const lon = element.lon ?? element.center?.lon;
-        return lat == null ? null : {
-          type: 'Feature',
-          geometry: {type: 'Point', coordinates: [lon, lat]},
-          properties: element.tags || {},
-        };
-      }).filter(Boolean),
-    },
-  };
-}
+// same source the county's own May 2025 exhibit credits for them. Both are
+// listed in gis-sources.js like everything else.
 
 // Layers load in parallel, so without explicit panes a big filled polygon can
 // land on top of the pins and swallow their clicks. Panes fix the stacking
@@ -248,7 +262,6 @@ const PANES = {
 // there reports flowdir = 1, "with digitized direction", which means the
 // geometry's vertex order *is* downstream — so the arrows below follow the
 // vertices rather than guessing from terrain.
-const NHD_FLOWLINES = 'https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer/3';
 
 // Web Mercator is conformal, so a bearing measured in projected space holds at
 // every zoom — the arrows can be rotated once and never recomputed.
@@ -287,9 +300,7 @@ function arrowsAlong(L, coords, spacing = 520) {
 }
 
 async function buildFlowLayer(L) {
-  const {data, source} = await queryLayer(NHD_FLOWLINES, {
-    envelope: AREA, outFields: 'gnis_name,streamorde,flowdir,lengthkm',
-  });
+  const {data, source} = await loadSource('flow');
   const group = L.layerGroup();
   let arrows = 0;
 
@@ -336,7 +347,7 @@ async function buildFlowLayer(L) {
 // the parcel the map exists to show.
 const LAYERS = [
   {
-    name: 'FEMA flood zones', url: `${PUBLIC_LAYERS}/42`, clip: true, pane: 'flood',
+    name: 'FEMA flood zones', source: 'flood', pane: 'flood',
     style: {color: '#1f6feb', weight: 1, fillColor: '#1f6feb', fillOpacity: 0.25},
     popup: (p) => `<b>Flood zone ${esc(clean(p.FLOODZONE))}</b>${popupTable([
       ['Special flood hazard area', p.SFHA === 'T' ? 'Yes' : 'No'],
@@ -344,7 +355,7 @@ const LAYERS = [
     ])}<small>${esc(clean(p.LEGEND))}</small>`,
   },
   {
-    name: 'Lakes, ponds & wetlands', url: `${PUBLIC_LAYERS}/19`, clip: true, pane: 'water',
+    name: 'Lakes, ponds & wetlands', source: 'water', pane: 'water',
     style: {color: '#0e7490', weight: 1, fillColor: '#22d3ee', fillOpacity: 0.45},
     popup: (p) => `<b>${esc(clean(p.NAME) || clean(p.FEATURE) || 'Water body')}</b>${popupTable([
       ['Type', p.TYPE], ['Area (acres)', p.WATERAREA?.toFixed?.(1)],
@@ -354,52 +365,51 @@ const LAYERS = [
     // Off by default: 1,883 mostly unnamed lines that duplicate the NHD layer
     // above without carrying flow direction. Kept because it is the county's
     // own mapping.
-    name: 'Creeks & streams (county)', url: `${PUBLIC_LAYERS}/18`, clip: true, pane: 'lines',
+    name: 'Creeks & streams (county)', source: 'creeks', pane: 'lines',
     style: {color: '#7aa7d9', weight: 2},
     popup: (p) => `<b>${esc(clean(p.NAME) || 'Stream or creek')}</b><small>County hydrology layer; no flow direction recorded.</small>`,
   },
   {
-    name: 'Industrial areas', url: `${PUBLIC_LAYERS}/22`, clip: true, pane: 'industrial',
+    name: 'Industrial areas', source: 'industrial', pane: 'industrial',
     style: {color: '#b45309', weight: 2, fillColor: '#f59e0b', fillOpacity: 0.2},
     popup: (p) => `<b>${esc(clean(p.NAME) || 'Industrial area')}</b>${popupTable([
       ['Land use', p.LANDUSECODE], ['Square miles', p.SQUAREMILES?.toFixed?.(2)],
     ])}`,
   },
   {
-    name: 'Schools', url: `${PUBLIC_LAYERS}/3`, clip: true, pane: 'points', marker: '#b9362c',
+    name: 'Schools', source: 'schools', pane: 'points', marker: '#b9362c',
     popup: (p) => `<b>${esc(clean(p.Name) || clean(p.Schools) || 'School')}</b>${popupTable([
       ['Grades', p.Grades], ['Type', p.Education], ['Address', p.Address], ['Phone', p.Phone],
     ])}`,
   },
   {
-    name: 'Hospitals & medical', url: `${PUBLIC_LAYERS}/2`, clip: true, pane: 'points', marker: '#0e7490',
+    name: 'Hospitals & medical', source: 'medical', pane: 'points', marker: '#0e7490',
     popup: (p) => `<b>${esc(clean(p.Name) || 'Medical facility')}</b>${popupTable([
       ['Address', p.Address], ['Community', p.Community], ['Open', p.OPERDAYS], ['Hours', p.OPERHOURS],
     ])}`,
   },
   {
-    name: 'Churches (OSM)', overpass: ['["amenity"="place_of_worship"]'], pane: 'points', marker: '#8d6824',
+    name: 'Churches (OSM)', source: 'churches', pane: 'points', marker: '#8d6824',
     popup: (p) => `<b>${esc(clean(p.name) || 'Place of worship')}</b>${popupTable([
       ['Denomination', p.denomination], ['Address', [clean(p['addr:housenumber']), clean(p['addr:street'])].filter(Boolean).join(' ')],
     ])}<small>OpenStreetMap. The county POI layer does not map churches.</small>`,
   },
   {
-    name: 'Care homes (OSM)', pane: 'points', marker: '#b45309',
-    overpass: ['["amenity"="social_facility"]', '["amenity"="nursing_home"]', '["healthcare"~"nursing|hospice"]'],
+    name: 'Care homes (OSM)', source: 'careHomes', pane: 'points', marker: '#b45309',
     popup: (p) => `<b>${esc(clean(p.name) || 'Care facility')}</b>${popupTable([
       ['Type', p.social_facility || p.amenity || p.healthcare],
       ['Address', [clean(p['addr:housenumber']), clean(p['addr:street'])].filter(Boolean).join(' ')],
     ])}<small>OpenStreetMap coverage of care homes here is incomplete.</small>`,
   },
   {
-    name: 'Parks & recreation', url: `${PUBLIC_LAYERS}/1`, clip: true, pane: 'points', marker: '#527553',
+    name: 'Parks & recreation', source: 'poi', pane: 'points', marker: '#527553',
     filter: (p) => RECREATION.includes(clean(p.TYPE)),
     popup: (p) => `<b>${esc(clean(p.DESCRIP) || 'Park or recreation')}</b>${popupTable([
       ['Type', p.TYPE], ['Address', [clean(p.NUMBER_), clean(p.ADDRESS)].filter(Boolean).join(' ')],
     ])}`,
   },
   {
-    name: 'Other landmarks', url: `${PUBLIC_LAYERS}/1`, clip: true, pane: 'points', marker: '#67695f',
+    name: 'Other landmarks', source: 'poi', pane: 'points', marker: '#67695f',
     filter: (p) => !RECREATION.includes(clean(p.TYPE)),
     popup: (p) => `<b>${esc(clean(p.DESCRIP) || 'Point of interest')}</b>${popupTable([
       ['Type', p.TYPE], ['Address', [clean(p.NUMBER_), clean(p.ADDRESS)].filter(Boolean).join(' ')],
@@ -407,8 +417,8 @@ const LAYERS = [
   },
   // Districts are county-wide and few, so they are never clipped to the ring
   // area — a resident may live outside it and still need to find theirs.
-  {name: 'Americus council districts', url: `${PUBLIC_LAYERS}/27`, pane: 'districts', district: COUNCIL, popup: districtPopup(COUNCIL)},
-  {name: 'County commission districts', url: `${PUBLIC_LAYERS}/28`, pane: 'districts', district: COMMISSION, popup: districtPopup(COMMISSION)},
+  {name: 'Americus council districts', source: 'councilDistricts', pane: 'districts', district: COUNCIL, popup: districtPopup(COUNCIL)},
+  {name: 'County commission districts', source: 'commissionDistricts', pane: 'districts', district: COMMISSION, popup: districtPopup(COMMISSION)},
 ];
 
 export async function renderSiteMap(container, onStatus) {
@@ -466,11 +476,13 @@ export async function renderSiteMap(container, onStatus) {
   // Counted per layer, not per request, so the note under the map can say
   // exactly how much of what the reader is looking at is today's record and
   // how much is an older copy standing in for a server that did not answer.
-  const sources = {network: 0, cache: 0, stale: 0};
+  const sources = {network: 0, proxy: 0, cache: 0, stale: 0};
   let oldestStale = 0;
+  let oldestProxy = 0;
   const noteSource = ({from, age}) => {
     sources[from] += 1;
     if (from === 'stale') oldestStale = Math.max(oldestStale, age);
+    if (from === 'proxy') oldestProxy = Math.max(oldestProxy, age);
   };
 
   // --- Distance rings: true geodesic circles in metres, not traced ----------
@@ -487,10 +499,7 @@ export async function renderSiteMap(container, onStatus) {
 
   // --- Subject parcel ------------------------------------------------------
   try {
-    const {data: parcel, source} = await queryLayer(PARCELS, {
-      where: `PARCELID = '${SUBJECT_PARCEL_ID.replace(/'/g, "''")}'`,
-      outFields: 'PARCELID,TOTALACRES,FULLOWNERNAMES,SITEADDRESS,ZONING',
-    });
+    const {data: parcel, source} = await loadSource('parcel');
     noteSource(source);
     const layer = L.geoJSON(parcel, {
       pane: 'parcel',
@@ -525,7 +534,7 @@ export async function renderSiteMap(container, onStatus) {
   // --- Everything around it ------------------------------------------------
   await Promise.all(LAYERS.map(async (job) => {
     try {
-      const {data, source} = job.overpass ? await overpassPoints(job.overpass) : await queryLayer(job.url, job.clip ? {envelope: AREA} : {});
+      const {data, source} = await loadSource(job.source);
       noteSource(source);
       if (job.filter) data.features = (data.features || []).filter((f) => job.filter(f.properties || {}));
       const layer = L.geoJSON(data, {
@@ -556,16 +565,17 @@ export async function renderSiteMap(container, onStatus) {
     return `${days} day${days === 1 ? '' : 's'} old`;
   };
   const parts = [];
-  if (sources.network) parts.push(`${sources.network} fetched now`);
-  if (sources.cache) parts.push(`${sources.cache} from today's local copy`);
-  if (sources.stale) parts.push(`${sources.stale} from an older local copy (${describeAge(oldestStale)}), because the server did not answer`);
+  if (sources.network) parts.push(`${sources.network} fetched now from the county service`);
+  if (sources.proxy) parts.push(`${sources.proxy} from the field desk's shared copy (${describeAge(oldestProxy)})`);
+  if (sources.cache) parts.push(`${sources.cache} from today's copy on this device`);
+  if (sources.stale) parts.push(`${sources.stale} from an older copy on this device (${describeAge(oldestStale)}), because nothing else answered`);
   say([
     parts.length ? `Layers: ${parts.join('; ')}.` : '',
     failures.length
       ? `These did not respond and there is no local copy to fall back on: ${failures.join(', ')}.`
       : 'Every layer loaded.',
   ].filter(Boolean).join(' '));
-  pruneCache(sources.network > 0);
+  pruneCache(sources.network + sources.proxy > 0);
 
   // --- "Am I inside a ring?" -----------------------------------------------
   let youMarker = null;
