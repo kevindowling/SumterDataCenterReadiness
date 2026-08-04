@@ -210,29 +210,12 @@ Sign at `http://localhost:4173/petition/`, then open the confirmation link the s
 
 ## Server CI/CD (VPS)
 
-`.github/workflows/deploy-server.yml` is the full server-side pipeline:
+`.github/workflows/deploy-server.yml` is the server-side pipeline:
 
 - **Every push and PR**: validates the report files, syntax-checks all scripts, and runs the server test suite (`npm test` in `website/` — static serving, path allowlist, health endpoint, auth rejection).
-- **Push to `main`** (once enabled): rsyncs `website/` and `research/` to the VPS, restarts the systemd service, and fails the deploy if `/api/health` doesn't come back up.
+- **Push to `main`** (once enabled): checks the installed systemd unit still matches `deploy/sumter-field-desk.service`, rsyncs `website/` and `research/` to the VPS, restarts the service, and fails the deploy if `/api/health` doesn't come back up.
 
-### One-time VPS setup
-
-1. Create the VPS (Ubuntu 22.04/24.04 works). Point your domain's DNS A record at it.
-2. Generate a deploy key on your machine: `ssh-keygen -t ed25519 -f deploy_key -N '' -C github-actions`
-3. Copy `deploy/` to the VPS and run, as root:
-   ```bash
-   sudo bash deploy/setup-vps.sh yourdomain.com "$(cat deploy_key.pub)"
-   ```
-   This creates a locked-down `deploy` user (it can rsync files and restart the one service, nothing else), installs Node 22, the systemd unit (`deploy/sumter-field-desk.service`), and Caddy for automatic HTTPS.
-4. In the GitHub repo, **Settings → Secrets and variables → Actions**:
-   - Secret `VPS_HOST` — the server's hostname or IP
-   - Secret `VPS_SSH_KEY` — the contents of the private `deploy_key` file
-   - Variable `DEPLOY_ENABLED` — set to `true` (the deploy job is skipped until this exists, so CI stays green before the VPS is ready)
-   - Variable `BOARD_ADMINS` (optional) — comma-separated Auth0 `sub` claims allowed to moderate the message board and key in paper petition signatures
-   - The petition secrets and variables listed under [Petition](#petition) above
-5. Push to `main`. Watch the **Server CI/CD** workflow deploy and health-check the service.
-
-Remember to add the production URL (e.g. `https://yourdomain.com`) to the Auth0 application's allowed callback/logout/origin lists.
+Provisioning the server, the deploy secrets, and what to do when the unit file changes are all in `ignore/SETUP.md`, which is kept out of the public repo.
 
 ## GitHub Pages
 
