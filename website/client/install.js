@@ -48,7 +48,7 @@ function panel({title, body, actions}) {
   wrap.setAttribute('role', 'dialog');
   wrap.setAttribute('aria-label', 'Install the field desk');
   wrap.innerHTML = `
-    <img src="./icons/icon-192.png" alt="" width="44" height="44" />
+    <img src="/assets/icons/icon-192.png" alt="" width="44" height="44" />
     <div class="install-copy"><b>${title}</b><span>${body}</span></div>
     <div class="install-actions">${actions}</div>
     <button class="install-close" aria-label="Dismiss">×</button>`;

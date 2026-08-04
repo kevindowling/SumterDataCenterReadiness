@@ -144,10 +144,12 @@ Sumter County publishes an [Open Records Request Form](https://www.sumtercountyg
 | District | Member | Published e-mail |
 |---|---|---|
 | 1 | Clay Jones | cjones@sumtercountyga.us |
-| 2 | Mark Waddell | via county directory |
-| 3 | Jim Reid | via county directory |
-| 4 | David Baldwin, Chairman | via county directory |
+| 2 | Mark Waddell | mwaddell@sumtercountyga.us |
+| 3 | Jim Reid | jreid@sumtercountyga.us |
+| 4 | David Baldwin, Chairman | dbaldwin@sumtercountyga.us |
 | 5 | Jessie Smith | jsmith@sumtercountyga.us |
+
+Addresses for Districts 2, 3 and 4 come from the county's own "Elected Officials & Contact Information" sheet, marked current as of May 2025; general inquiries are directed to Sumter County Administration.
 
 Work session: second Tuesday monthly, 6:00 p.m. Regular board meeting: third Tuesday monthly, 6:00 p.m. Both at 500 West Lamar Street; the county states all meetings are open to the public and offers Zoom attendance. Source: [Board of Commissioners Members & Meetings](https://www.sumtercountyga.us/79/Board-of-Commissioners-Members-Meetings). Agendas: [County Agenda Center](https://www.sumtercountyga.us/agendacenter). Calendar: [county calendar](https://www.sumtercountyga.us/calendar.aspx).
 
@@ -155,17 +157,21 @@ Work session: second Tuesday monthly, 6:00 p.m. Regular board meeting: third Tue
 
 City Hall, 101 West Lamar Street, Americus, GA 31709 · (229) 924-4411 · [americusga.gov](https://www.americusga.gov/) · office hours Monday–Friday, 8:00 a.m.–5:00 p.m.
 
-| Office | Holder |
-|---|---|
-| Mayor | Travis M. Rush |
-| Council District 1 | Dr. Terence J. Clemons |
-| Council District 2 | Nelson Brown |
-| Council District 3 | Kris Bowden |
-| Council District 4 | Frank Ceresoli |
-| Council District 5 | Kelvin Pless |
-| Council District 6 | Daryl R. Dowdell I |
+| Office | Holder | Published e-mail |
+|---|---|---|
+| Mayor | Travis M. Rush | trush@americusga.gov |
+| Council District 1 | Dr. Terence J. Clemons | tclemons@americusga.gov |
+| Council District 2 | Nelson Brown | nbrown@americusga.gov |
+| Council District 3 | Kristopher "Kris" Bowden | kbowden@americusga.gov |
+| Council District 4 | Frank Ceresoli | FCeresoli@americusga.gov |
+| Council District 5 | Kelvin Pless | kpless@americusga.gov |
+| Council District 6 | Daryl R. Dowdell I | ddowdell@americusga.gov |
 
-Source: [Mayor & City Council](https://www.americusga.gov/government/mayor___city_council_.php). Individual e-mail addresses and direct phone numbers are not published on that page; the city clerk's office at City Hall is the route for council correspondence, agendas, minutes, and records requests. Council meetings have been held at the Russell Thomas Jr. Public Safety Building, Lee Street.
+Roster source: [Mayor & City Council](https://www.americusga.gov/government/mayor___city_council_.php); that page publishes no individual e-mail addresses or direct phone numbers. The addresses above come from the city's "Mayor & City Council Contacts" sheet, marked current as of May 2025, which also gives City Hall as (229) 924-3650 and directs general inquiries to the City of Americus Administration. The city clerk's office at City Hall remains the route for agendas, minutes, and records requests. Council meetings have been held at the Russell Thomas Jr. Public Safety Building, Lee Street.
+
+### Speaking during public comment at a City Council meeting
+
+The city publishes the following rules for its regular monthly meeting: a speaker may address the mayor and council on a matter of public concern for **no more than five minutes**; the total number of speakers is limited to **five**; sign up by calling City Clerk Sierra Harvey at (229) 924-4411 ext. 244 on the day of the meeting or in person at the Council Chambers beforehand; the **sign-up sheet opens 30 minutes** before the meeting; time may not be yielded to another speaker and the five minutes may not be exceeded. How the county handles public comment at its work session and regular meeting was not confirmed; ask the county at (229) 928-4500 before planning to speak.
 
 ### Sumter County Development Authority
 
@@ -194,11 +200,12 @@ Rees Park Economic Development Center, 409 Elm Avenue, Americus, GA 31709 · P.O
 
 | Item | Status |
 |---|---|
-| Source booklet | *Georgia's Sunshine Laws: A Citizen's Guide to Open Government*, Office of the Attorney General with the Georgia First Amendment Foundation and Georgia Press Association, **fifth edition, January 2014**. It reflects the HB 397 rewrite effective April 17, 2012. |
+| Source booklet | *Georgia's Sunshine Laws: A Citizen's Guide to Open Government*, Office of the Attorney General with the Georgia First Amendment Foundation and Georgia Press Association. The **sixth edition** is now mirrored on this site at [`/research/georgia-sunshine-laws-6th-edition.pdf`](/research/georgia-sunshine-laws-6th-edition.pdf). The statute citations on this page were originally taken from the fifth edition (January 2014), which reflects the HB 397 rewrite effective April 17, 2012; they have not yet been re-checked line by line against the sixth. |
 | Currency | The Attorney General's office [hosts a current edition](https://law.georgia.gov/key-issues/open-government); statutory text, fee caps, and deadlines cited here should be confirmed against current O.C.G.A. before being quoted to an agency. |
 | Custodian designations | Whether Sumter County, the City of Americus, and the Development Authority have each designated a records custodian under § 50-18-71(b)(2), and who, was not confirmed. |
-| Council contacts | No individual council e-mail addresses or phone numbers are published on the city's Mayor & City Council page. |
-| Commissioner contacts | E-mail addresses for Districts 2, 3, and 4 were not published on the Board page; the county directory is the stated route. |
+| Council contacts | Individual e-mail addresses now taken from the city's own contact sheet (current as of May 2025), not from the Mayor & City Council page, which still publishes none. Not independently tested by sending mail to them. |
+| Commissioner contacts | E-mail addresses for Districts 2, 3, and 4 now taken from the county's own contact sheet (current as of May 2025); they were not on the Board page. Not independently tested. |
+| Public comment rules | Taken from the city's published public comment notice. Whether the five-speaker cap and five-minute limit are also in the council's adopted rules of procedure was not confirmed. |
 | Legislative districts | The Georgia House and Senate districts covering Sumter County were not confirmed from an official source for 2026; use the General Assembly's Find My Legislator lookup. |
 | County request form | Revision date 11/06/2019; confirm it is current before relying on the stated procedure. |
 | Officials in office | Rosters retrieved from official county and city pages in July 2026; verify before a mailing. |

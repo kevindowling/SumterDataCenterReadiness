@@ -26,11 +26,11 @@ jobs:
         run: npm ci
 
       - name: Validate public-report files
-        run: node website/check.mjs
+        run: node website/build/check.mjs
 
       - name: Syntax-check all scripts
         run: |
-          for file in website/*.mjs website/*.js; do node --check "$file"; done
+          for file in website/*.js website/client/*.js website/server/*.mjs website/build/*.mjs; do node --check "$file"; done
 
       - name: Run server tests
         working-directory: website

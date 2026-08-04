@@ -5,6 +5,7 @@ import {
   markdown, seoTitle, unlistedDocuments,
 } from './content.js';
 import {LIMITS, livePetition} from './petition.js';
+import {contactSections} from './contacts.js';
 import {authConfig} from './auth-config.js';
 
 
@@ -75,6 +76,7 @@ function pathFor(next) {
     : next.view === 'community' ? '/community/'
     : next.view === 'map' ? '/map/'
     : next.view === 'petition' ? '/petition/'
+    : next.view === 'contact' ? '/contact/'
     : next.view === 'board' ? (next.threadId ? `/board/${next.threadId}/` : '/board/')
     : '/';
 }
@@ -92,6 +94,7 @@ function routeFromPath(pathname) {
   return /^\/community\/?$/.test(pathname) ? {view: 'community'}
     : /^\/map\/?$/.test(pathname) ? {view: 'map'}
     : /^\/petition\/?$/.test(pathname) ? {view: 'petition'}
+    : /^\/contact\/?$/.test(pathname) ? {view: 'contact'}
     : thread ? {view: 'board', threadId: thread[1]}
     : /^\/board\/?$/.test(pathname) ? {view: 'board'}
     : doc ? {view: 'doc', id: doc[1]} : {view: 'home'};
@@ -109,6 +112,7 @@ function migrateLegacyHash() {
     : hash.startsWith('#/community') ? '/community/'
     : hash.startsWith('#/map') ? '/map/'
     : hash.startsWith('#/petition') ? '/petition/'
+    : hash.startsWith('#/contact') ? '/contact/'
     : thread ? `/board/${thread[1]}/`
     : hash.startsWith('#/board') ? '/board/'
     : '/';
@@ -143,12 +147,13 @@ function interceptLinks() {
 const topbar = () => `
   <header class="topbar">
     <button class="brand" data-home aria-label="Return to research desk">
-      <img class="brand-seal" src="/icons/seal.svg" width="38" height="38" alt="Sumter County Citizens for Transparency" /><span><b>SUMTER CITIZENS FOR TRANSPARENCY</b><small>COMMUNITY RESEARCH DESK</small></span>
+      <img class="brand-seal" src="/assets/icons/seal.svg" width="38" height="38" alt="Sumter County Citizens for Transparency" /><span><b>SUMTER CITIZENS FOR TRANSPARENCY</b><small>COMMUNITY RESEARCH DESK</small></span>
     </button>
     <div class="top-actions">
       <span class="edition">COMMUNITY RESEARCH EDITION</span>
       <button class="search-button" data-search><kbd>/</kbd> Search the desk</button>
       <button class="source-link" data-doc="start">Research notes ↗</button>
+      <button class="source-link" data-contact>Contact officials ↗</button>
       ${accountControls()}
     </div>
   </header>`;
@@ -319,6 +324,13 @@ const relativeTime = (value) => {
 // so a neighbour cannot inject links or markup into a public thread.
 const postBody = (text) => escapeHtml(text || '').replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br />');
 
+// A 401 has already survived apiFetch's forced token renewal by the time it
+// gets here, so the session really is spent. "Server returned 401" tells a
+// neighbour nothing they can act on; the sign-out is what actually fixes it.
+const serverError = (status) => (status === 401
+  ? 'your sign-in has expired — sign out and sign in again'
+  : `Server returned ${status}`);
+
 async function loadBoard(threadId) {
   // `loadedFor` marks what render() has already asked for, so re-rendering the
   // board does not kick off a fresh fetch every time.
@@ -327,7 +339,7 @@ async function loadBoard(threadId) {
   try {
     const response = await apiFetch(threadId ? `/api/board/${threadId}` : '/api/board');
     if (response.status === 501) { board = {...board, state: 'unavailable'}; render(); return; }
-    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+    if (!response.ok) throw new Error(serverError(response.status));
     const data = await response.json();
     board = threadId
       ? {...board, state: 'ready', thread: data.thread, replies: data.replies, admin: data.admin}
@@ -345,6 +357,7 @@ async function submitPost(path, payload, onDone) {
     const response = await apiFetch(path, {
       method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload),
     });
+    if (response.status === 401) throw new Error(serverError(401));
     if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || `Server returned ${response.status}`);
     board = {...board, posting: false};
     await onDone(await response.json());
@@ -358,7 +371,7 @@ async function deletePost(id) {
   if (!confirm('Remove this post? Replies to it stay in the thread.')) return;
   try {
     const response = await apiFetch(`/api/board/${id}`, {method: 'DELETE'});
-    if (!response.ok) throw new Error(`Server returned ${response.status}`);
+    if (!response.ok) throw new Error(serverError(response.status));
   } catch (error) {
     board = {...board, error: error.message};
   }
@@ -703,6 +716,19 @@ function petitionTally() {
   <p class="petition-tally-note">${counts.verified.toLocaleString()} confirmed signature${counts.verified === 1 ? '' : 's'} in total${counts.pending ? `, plus ${counts.pending.toLocaleString()} waiting on an email confirmation that has not been opened yet` : ''}. Only confirmed signatures are counted. <a href="/doc/petition/">How this is verified →</a></p>`;
 }
 
+// Two governments, one signature. Named before the form rather than after it,
+// because "do I have to sign the county one too?" is the question that stops a
+// reader mid-page, and the paper copy answers it the same way.
+function addressedBlock() {
+  const {addressedTo = [], signingNote} = PETITION;
+  if (!addressedTo.length) return '';
+  return `<aside class="petition-addressed">
+    <p class="eyebrow"><span></span> DELIVERED TO</p>
+    <ul>${addressedTo.map((recipient) => `<li>${escapeHtml(recipient)}</li>`).join('')}</ul>
+    ${signingNote ? `<span class="addressed-note">${escapeHtml(signingNote)}</span>` : ''}
+  </aside>`;
+}
+
 // Above the form, because the residents closest to the site are the ones least
 // likely to sign anything online.
 function inPersonBlock() {
@@ -820,6 +846,7 @@ function petitionPage() {
       <p class="lede">${escapeHtml(PETITION.ask)}</p>
     </header>
     ${notice}
+    ${addressedBlock()}
     ${inPersonBlock()}
     ${petitionTally()}
     <section class="petition-text">
@@ -832,9 +859,15 @@ function petitionPage() {
   </main>${searchPanel()}`;
 }
 
+// Open to everyone, like the petition and unlike the community desk: the point
+// of the page is to put a resident in front of an official, and an account
+// requirement in the middle of that is a reason to give up.
+function contactPage() {
+  return `${topbar()}<main class="contact">${contactSections()}</main>${searchPanel()}`;
+}
+
 const communityFeatures = [
   {number: 'C2', title: 'Surveys', text: 'Structured community input on the draft ordinance and its conditions.'},
-  {number: 'C4', title: 'Contact', text: 'Reach the organizers behind the field desk.'},
 ];
 
 function community() {
@@ -857,7 +890,8 @@ function community() {
       : `<button class="strip-link" data-survey-open>TAKE THE ONE-TAP SURVEY →</button>`}</p>
     <div class="community-grid">
       <button class="community-card live" data-map><i>C0</i><b>Site map</b><span>The proposed parcel, the ½ / 1 / 3 mile rings, and the homes, schools, churches, waterways and flood zones around it.</span><em>OPEN THE MAP →</em></button>
-      <button class="community-card live" data-petition><i>C3</i><b>Petition</b><span>Ask the Americus City Council to adopt the temporary data center moratorium. Open to everyone, signed in or not.</span><em>SIGN THE PETITION →</em></button>
+      <button class="community-card live" data-petition><i>C3</i><b>Petition</b><span>Ask the county commissioners and the Americus city council to adopt the 18-month data center moratorium. One signature to both. Open to everyone, signed in or not.</span><em>SIGN THE PETITION →</em></button>
+      <button class="community-card live" data-contact><i>C4</i><b>Contact</b><span>Your commissioner and council member by name, with e-mail addresses — plus how to write, how to speak at a meeting, and what records you can demand.</span><em>OPEN THE CONTACT DESK →</em></button>
       <button class="community-card live" data-board><i>C1</i><b>Message board</b><span>Neighbor-to-neighbor threads on the proposal, meetings, and what people are hearing.</span><em>OPEN THE BOARD →</em></button>
       ${communityFeatures.map((feature) => `<div class="community-card"><i>${feature.number}</i><b>${feature.title}</b><span>${feature.text}</span><em>COMING SOON</em></div>`).join('')}
     </div>
@@ -964,6 +998,7 @@ function updateHead() {
     : route.view === 'petition' ? `${PETITION.title} — Sumter Field Desk`
     : route.view === 'map' ? 'Site map — Sumter Field Desk'
     : route.view === 'board' ? 'Message board — Sumter Field Desk'
+    : route.view === 'contact' ? 'Contact your officials — Sumter Field Desk'
     : HOME_TITLE;
   const canonical = document.querySelector('link[rel="canonical"]');
   if (canonical) canonical.href = new URL(pathFor(route), location.origin).href;
@@ -983,6 +1018,7 @@ async function render() {
       : route.view === 'community' ? community()
       : route.view === 'map' ? siteMap()
       : route.view === 'petition' ? petitionPage()
+      : route.view === 'contact' ? contactPage()
       : route.view === 'board' ? boardView()
       : home()) + surveyPanel();
   }
@@ -1008,6 +1044,7 @@ function bind() {
   document.querySelectorAll('[data-map]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'map'}); }));
   document.querySelectorAll('[data-board]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'board'}); }));
   document.querySelectorAll('[data-petition]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'petition'}); }));
+  document.querySelectorAll('[data-contact]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'contact'}); }));
   document.querySelectorAll('[data-thread]').forEach((button) => button.addEventListener('click', () => setRoute({view: 'board', threadId: button.dataset.thread})));
   document.querySelector('[data-sign]')?.addEventListener('submit', (event) => { event.preventDefault(); submitSignature(event.currentTarget); });
   document.querySelector('[data-paper]')?.addEventListener('submit', (event) => { event.preventDefault(); submitPaperSignature(event.currentTarget); });

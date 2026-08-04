@@ -26,24 +26,29 @@ jobs:
           fetch-depth: 0
 
       - name: Validate research desk
-        run: node website/check.mjs
+        run: node website/build/check.mjs
 
       - name: Assemble static site
         run: |
           mkdir -p _site/research
-          # Every browser script is a .js; the build and server scripts are .mjs
-          # and stay behind. Globbing means a new module ships without anyone
-          # having to remember this list — app.js imports petition.js, and an
+          # website/ is laid out the way the site is served: client/ and assets/
+          # keep their names in the URL, and index.html and sw.js sit at the
+          # root — sw.js has to, or the worker cannot claim scope "/".
+          # Copying whole directories means a new module ships without anyone
+          # having to remember a list; app.js imports petition.js, and an
           # omission here breaks the whole app, not just one feature.
-          cp website/*.js website/index.html website/styles.css website/manifest.webmanifest website/favicon.svg _site/
-          cp -r website/vendor _site/vendor
-          cp -r website/icons _site/icons
-          cp research/*.md _site/research/
+          cp website/index.html website/sw.js _site/
+          cp -r website/client _site/client
+          cp -r website/assets _site/assets
+          # The .pdf is the moratorium resolution the petition links to. Copying
+          # only the markdown left that link pointing at a file the build never
+          # shipped, so it 404'd on Pages while working fine in dev.
+          cp research/*.md research/*.pdf _site/research/
           touch _site/.nojekyll
           test ! -e _site/data-center-environmental-research-report.md
 
       - name: Prerender routes, sitemap, and link previews
-        run: node website/prerender.mjs _site
+        run: node website/build/prerender.mjs _site
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

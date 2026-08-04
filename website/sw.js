@@ -4,29 +4,34 @@
 // app shell are worth having offline; live data is not. Anything the desk
 // reports must be current, so GIS queries, Auth0, and every /api/* call go to
 // the network and are never stored.
-const VERSION = 'field-desk-v8';
+// Bumped whenever the shell URLs move: a stale worker holding the old flat
+// paths would serve 404s from cache long after the deploy.
+const VERSION = 'field-desk-v9';
+// Rooted, not './'-relative. This file has to stay at the site root to claim
+// scope '/', but the assets it caches now live under /client and /assets.
 const SHELL = [
-  './',
-  './index.html',
-  './app.js',
-  './map.js',
-  './auth.js',
-  './auth-config.js',
-  './content.js',
-  './petition.js',
-  './styles.css',
-  './manifest.webmanifest',
-  './favicon.svg',
-  './icons/seal.svg',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './vendor/leaflet/leaflet.js',
-  './vendor/leaflet/leaflet.css',
-  './vendor/leaflet/images/marker-icon.png',
-  './vendor/leaflet/images/marker-icon-2x.png',
-  './vendor/leaflet/images/marker-shadow.png',
-  './vendor/leaflet/images/layers.png',
-  './vendor/leaflet/images/layers-2x.png',
+  '/',
+  '/index.html',
+  '/client/app.js',
+  '/client/map.js',
+  '/client/auth.js',
+  '/client/auth-config.js',
+  '/client/content.js',
+  '/client/petition.js',
+  '/client/contacts.js',
+  '/assets/styles.css',
+  '/assets/manifest.webmanifest',
+  '/assets/favicon.svg',
+  '/assets/icons/seal.svg',
+  '/assets/icons/icon-192.png',
+  '/assets/icons/icon-512.png',
+  '/assets/vendor/leaflet/leaflet.js',
+  '/assets/vendor/leaflet/leaflet.css',
+  '/assets/vendor/leaflet/images/marker-icon.png',
+  '/assets/vendor/leaflet/images/marker-icon-2x.png',
+  '/assets/vendor/leaflet/images/marker-shadow.png',
+  '/assets/vendor/leaflet/images/layers.png',
+  '/assets/vendor/leaflet/images/layers-2x.png',
 ];
 
 self.addEventListener('install', (event) => {

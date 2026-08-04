@@ -13,6 +13,25 @@ Then open `http://localhost:4173/`.
 
 Run `npm run check` to verify that every research file and site asset exists. No package installation is required.
 
+## Layout
+
+The directory is laid out the way the site is served, so a path in the repo is a path in the URL:
+
+| Directory | Holds | Served at |
+|---|---|---|
+| `client/` | Everything the browser loads: `app.js` and the modules it imports (`content.js`, `petition.js`, `contacts.js`, `auth.js`, `auth-config.js`, `map.js`, `gis-sources.js`, `install.js`) | `/client/…` |
+| `assets/` | `styles.css`, `favicon.svg`, `manifest.webmanifest`, `icons/`, vendored `vendor/leaflet/` | `/assets/…` |
+| `server/` | `server.mjs` (the API and the dev static server) and `server.test.mjs` | not served |
+| `build/` | `prerender.mjs` (writes `_site`) and `check.mjs` (the asset checklist) | not served |
+| root | `index.html`, `sw.js`, `package.json` | `/`, `/sw.js` |
+
+Two rules keep this from drifting:
+
+- **`sw.js` stays at the root.** A service worker can only control paths under its own URL, so one served from `/client/sw.js` could never claim scope `/`.
+- **Anything the browser imports lives in `client/`.** Its modules import each other with plain `./name.js`, which resolves against the served URL — a module moved into another directory has to have every importer updated, and the failure only shows up in the browser.
+
+`server.mjs` and `prerender.mjs` import from `client/` across the directory line; that is Node resolving files on disk, not the browser resolving URLs, so it costs nothing. In production the Pages build copies `client/` and `assets/` verbatim and drops `index.html` and `sw.js` at the root; in development `server.mjs` aliases the same two prefixes into `website/`, so both environments serve identical URLs.
+
 ## Auth0 sign-in
 
 The site includes optional Auth0 authentication (the foundation for account profiles, the message board, surveys, and petitions). Until `auth-config.js` is filled in, the site behaves exactly as before — no sign-in button appears.
@@ -21,7 +40,7 @@ One-time setup in the [Auth0 dashboard](https://manage.auth0.com/):
 
 1. Create a (free) tenant if you don't have one.
 2. **Applications → Create Application** → name it (e.g. "Sumter Field Desk") → choose **Single Page Web Applications**.
-3. In the application's **Settings**, copy the **Domain** and **Client ID** into `website/auth-config.js`.
+3. In the application's **Settings**, copy the **Domain** and **Client ID** into `website/client/auth-config.js`.
 4. Still in Settings, set all three of these fields to `http://localhost:4173` plus your production URL (e.g. `https://<user>.github.io`), comma-separated:
    - **Allowed Callback URLs**
    - **Allowed Logout URLs**
@@ -33,8 +52,8 @@ One-time setup in the [Auth0 dashboard](https://manage.auth0.com/):
 `server.mjs` verifies Auth0 access tokens (RS256 via the tenant's JWKS, no dependencies) and exposes an example protected route, `GET /api/me`. To enable it:
 
 1. **Applications → APIs → Create API** → set an Identifier (e.g. `https://sumter-field-desk/api`).
-2. Put that Identifier in `audience` in `website/auth-config.js`.
-3. From the browser, call it with `fetch('/api/me', {headers: await authHeader()})` (see `website/auth.js`).
+2. Put that Identifier in `audience` in `website/client/auth-config.js`.
+3. From the browser, call it with `fetch('/api/me', {headers: await authHeader()})` (see `website/client/auth.js`).
 
 Future backend features (messages, surveys, petition signatures) should follow the `/api/me` pattern: call `verifyToken(request)` and use `claims.sub` as the user ID.
 
@@ -42,14 +61,14 @@ Future backend features (messages, surveys, petition signatures) should follow t
 
 The static site stays on GitHub Pages and the server only provides `/api/*` — so the research desk never goes down with the server. Signing in opens the **Community desk** (`#/community`), which probes the API and degrades gracefully: if the VPS is unreachable it shows "community server offline" while every research note keeps working.
 
-To wire the Pages site to the VPS, set in `website/auth-config.js`:
+To wire the Pages site to the VPS, set in `website/client/auth-config.js`:
 
 - `apiBase` — the VPS URL, e.g. `https://api.yourdomain.com` (leave empty for local dev, where `server.mjs` serves both)
 - `corsOrigins` — add the Pages origin, e.g. `https://<user>.github.io`, so the server accepts cross-origin API calls
 
 ## Interactive site map
 
-`website/map.js` renders the signed-in-only map at `#/map` (topbar link and a card on the community desk; neither appears until sign-in). Leaflet 1.9.4 is vendored under `website/vendor/leaflet/` — no npm install, no CDN at runtime. The two files match Leaflet's published SRI hashes:
+`website/client/map.js` renders the signed-in-only map at `#/map` (topbar link and a card on the community desk; neither appears until sign-in). Leaflet 1.9.4 is vendored under `website/assets/vendor/leaflet/` — no npm install, no CDN at runtime. The two files match Leaflet's published SRI hashes:
 
 ```
 leaflet.js   sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=
@@ -110,7 +129,7 @@ The county has taken the whole `Public` folder offline before — `Error: Servic
 
 ## Icons and install (PWA)
 
-`website/favicon.svg` and `website/icons/*.png` are generated from the **real surveyed boundary of parcel 64-17**, read live from the county tax parcel layer and projected to Web Mercator at true orientation — the same shape, the same way up, as the site map draws. Regenerate with:
+`website/assets/favicon.svg` and `website/assets/icons/*.png` are generated from the **real surveyed boundary of parcel 64-17**, read live from the county tax parcel layer and projected to Web Mercator at true orientation — the same shape, the same way up, as the site map draws. Regenerate with:
 
 ```bash
 python3 tools/build-favicon.py     # needs rsvg-convert for the PNGs
@@ -140,7 +159,7 @@ Routes, all behind `verifyToken()`: `GET /api/board`, `POST /api/board`, `GET /a
 
 ## Petition
 
-`/petition/` — **public, no sign-in.** A petition is only worth delivering if the people it speaks for could actually sign it, so this is the one community feature without a login wall. The text, the in-person signing details and the Sumter County ZIP list all live in `website/petition.js`; the schema is `deploy/migrations/004-petition.sql`; the public methodology page is `research/13-petition-integrity.md`, which is a promise to readers — **if you change the behaviour, change that note in the same commit.**
+`/petition/` — **public, no sign-in.** A petition is only worth delivering if the people it speaks for could actually sign it, so this is the one community feature without a login wall. The text, the in-person signing details and the Sumter County ZIP list all live in `website/client/petition.js`; the schema is `deploy/migrations/004-petition.sql`; the public methodology page is `research/13-petition-integrity.md`, which is a promise to readers — **if you change the behaviour, change that note in the same commit.**
 
 ### How a signature is counted
 
@@ -168,7 +187,7 @@ Paper sheets signed in person are keyed in by an organizer via `POST /api/petiti
 
 ### Before launch
 
-1. **Fill in `inPerson` in `website/petition.js`** — place, address, hours, contact. While `address` is empty the page says a location is being arranged instead of naming one.
+1. **Fill in `inPerson` in `website/client/petition.js`** — place, address, hours, contact. While `address` is empty the page says a location is being arranged instead of naming one.
 2. **Verify `SUMTER_ZIPS`** against the USPS ZIP lookup. A wrong entry inflates the one number the council will actually weigh.
 3. **Cloudflare Turnstile** — dash.cloudflare.com → Turnstile → Add site. Put the site key in `turnstileSiteKey` in `auth-config.js` and the secret in the `TURNSTILE_SECRET` repository secret.
 4. **Mail** — a [Resend](https://resend.com) API key in `RESEND_API_KEY`. `MAIL_FROM` must be an address on a domain verified in Resend (`scc4t.com` is verified; the built-in default is `Sumter Field Desk <petition@scc4t.com>`, so the variable only needs setting to override that). Set `MAIL_REPLY_TO` to an inbox a human reads — someone whose name was signed without their consent will hit reply, and that is the path by which a forged signature gets reported. With no API key the server prints the confirmation link to its log instead of sending, which is how the flow is exercised locally.

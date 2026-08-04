@@ -5,16 +5,17 @@ import {extname, join, normalize, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {promisify} from 'node:util';
 import {gunzip as gunzipCb, gzip as gzipCb} from 'node:zlib';
-import {authConfig} from './auth-config.js';
-import {escapeHtml} from './content.js';
+import {authConfig} from '../client/auth-config.js';
+import {escapeHtml} from '../client/content.js';
 import {
   GIS_SOURCES, OVERPASS, arcgisUrl, gisPayloadError, overpassQuery,
-} from './gis-sources.js';
+} from '../client/gis-sources.js';
 import {
   DISPOSABLE_DOMAINS, TIERS, findPetition, normalizeEmail, normalizeIdentity, validateSignature,
-} from './petition.js';
+} from '../client/petition.js';
 
-const websiteDir = fileURLToPath(new URL('.', import.meta.url));
+const serverDir = fileURLToPath(new URL('.', import.meta.url));         // website/server
+const websiteDir = normalize(join(serverDir, '..'));
 const projectDir = normalize(join(websiteDir, '..'));
 const port = Number(process.env.PORT || 4173);
 const types = {
@@ -642,7 +643,9 @@ async function handlePetitionSign(request, response, petition) {
       text: [
         `${signature.name},`,
         '',
-        'You (or someone using this address) asked to sign the petition asking the Americus City Council to adopt the temporary data center moratorium.',
+        'You (or someone using this address) asked to sign the petition asking the Sumter County Board of Commissioners and the Mayor and City Council of Americus to adopt the joint 18-month data center moratorium.',
+        '',
+        'It is one signature to both bodies — there is no second petition to sign.',
         '',
         'Your signature is NOT counted until you open this link:',
         confirmUrl,
@@ -1057,14 +1060,21 @@ async function handleApi(pathname, request, response, url) {
 // Public document roots. Everything else under the project directory —
 // server.env, deploy/, ignore/, .git — must stay unreachable.
 const publicRoots = ['/website/', '/research/'];
-const rootAliases = ['/app.js', '/styles.css', '/auth.js', '/auth-config.js', '/content.js', '/map.js',
-  '/petition.js', '/install.js', '/sw.js', '/manifest.webmanifest', '/favicon.svg'];
+
+// The built site puts website/ at the root: the browser asks for
+// /client/app.js, not /website/client/app.js. In dev nothing is copied, so the
+// same two directories are aliased into place — a prefix each rather than a
+// file list, so adding a module does not mean remembering to come back here.
+const aliasedDirs = ['/client/', '/assets/'];
+// Two files the build also leaves at the root. index.html is the shell; sw.js
+// has to be served from the root or the worker cannot claim scope '/'.
+const aliasedFiles = ['/index.html', '/sw.js'];
 
 // Client-side routes. In production the build writes a real HTML file at each
 // of these paths; in dev the shell is served and the router resolves the path.
 // Deliberately an explicit pattern rather than a catch-all, so an unknown path
 // still 403s instead of leaking the shell for anything not on this list.
-const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|board(\/\d+)?)\/?$/;
+const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|board(\/\d+)?)\/?$/;
 
 // Resolves a request path to a file inside a public root, or null.
 //
@@ -1079,7 +1089,7 @@ function resolvePublicFile(rawPath) {
   if (decoded.includes('\0') || decoded.includes('\\')) return null;
 
   let requested = normalize(decoded === '/' || spaRoute.test(decoded) ? '/website/index.html' : decoded);
-  if (rootAliases.includes(requested) || requested.startsWith('/vendor/') || requested.startsWith('/icons/')) {
+  if (aliasedFiles.includes(requested) || aliasedDirs.some((dir) => requested.startsWith(dir))) {
     requested = normalize(`/website${requested}`);
   }
   // Checked against the normalized path, so "/website/../ignore/x" has already
