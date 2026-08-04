@@ -834,6 +834,42 @@ function organizerTools() {
   </section>`;
 }
 
+let shareMenuOpen = false;
+
+function petitionShareMenu() {
+  if (!shareMenuOpen) return '';
+  const url = location.origin + '/petition/';
+  const text = encodeURIComponent(PETITION.title);
+  const encodedUrl = encodeURIComponent(url);
+  return `<div class="share-menu" role="menu">
+    <a class="share-option" href="mailto:?subject=${text}&body=${encodeURIComponent(PETITION.title + '\n' + url)}" target="_blank" rel="noreferrer" role="menuitem">Email</a>
+    <a class="share-option" href="sms:?&body=${text}%20${encodedUrl}" target="_blank" rel="noreferrer" role="menuitem">Text message</a>
+    <a class="share-option" href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" rel="noreferrer" role="menuitem">Facebook</a>
+    <a class="share-option" href="https://twitter.com/intent/tweet?text=${text}&url=${encodedUrl}" target="_blank" rel="noreferrer" role="menuitem">X / Twitter</a>
+    <button class="share-option" data-copy-link role="menuitem">Copy link</button>
+  </div>`;
+}
+
+async function sharePetition(button) {
+  const url = location.origin + '/petition/';
+  if (navigator.share) {
+    try {
+      await navigator.share({title: PETITION.title, text: PETITION.ask, url});
+      return;
+    } catch { /* user cancelled or share failed — fall through to menu */ }
+  }
+  shareMenuOpen = !shareMenuOpen;
+  render();
+  if (shareMenuOpen) {
+    const close = (event) => {
+      if (!button.closest('.petition-share')?.contains(event.target)) {
+        shareMenuOpen = false; render(); document.removeEventListener('click', close, true);
+      }
+    };
+    document.addEventListener('click', close, true);
+  }
+}
+
 function petitionPage() {
   const notice = petitionView.state === 'unavailable'
     ? '<p class="board-notice">The community server is online but its petition database is not configured yet, so signatures cannot be recorded.</p>'
@@ -844,6 +880,10 @@ function petitionPage() {
       <p class="eyebrow"><span></span> ${escapeHtml(PETITION.eyebrow)}</p>
       <h1>${escapeHtml(PETITION.title)}</h1>
       <p class="lede">${escapeHtml(PETITION.ask)}</p>
+      <div class="petition-share">
+        <button class="petition-share-btn" data-share aria-haspopup="true" aria-expanded="${shareMenuOpen}">Share this petition ↗</button>
+        ${petitionShareMenu()}
+      </div>
     </header>
     ${notice}
     ${addressedBlock()}
@@ -1011,6 +1051,7 @@ let showLoading = app.dataset.prerendered === undefined;
 async function render() {
   unmountSiteMap();
   updateHead();
+  if (route.view !== 'petition') shareMenuOpen = false;
   if (showLoading) app.innerHTML = '<div class="loading">Opening the field desk…</div>';
   showLoading = true;
   try {
@@ -1048,6 +1089,12 @@ function bind() {
   document.querySelectorAll('[data-thread]').forEach((button) => button.addEventListener('click', () => setRoute({view: 'board', threadId: button.dataset.thread})));
   document.querySelector('[data-sign]')?.addEventListener('submit', (event) => { event.preventDefault(); submitSignature(event.currentTarget); });
   document.querySelector('[data-paper]')?.addEventListener('submit', (event) => { event.preventDefault(); submitPaperSignature(event.currentTarget); });
+  document.querySelector('[data-share]')?.addEventListener('click', (event) => sharePetition(event.currentTarget));
+  document.querySelector('[data-copy-link]')?.addEventListener('click', async () => {
+    const url = location.origin + '/petition/';
+    try { await navigator.clipboard.writeText(url); } catch { /* clipboard unavailable */ }
+    shareMenuOpen = false; render();
+  });
   document.querySelector('[data-snapshot]')?.addEventListener('click', () => recordSnapshot());
   document.querySelector('[data-export]')?.addEventListener('click', () => downloadSignatures());
   document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deletePost(button.dataset.delete)));
