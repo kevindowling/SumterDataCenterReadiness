@@ -57,6 +57,37 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
 
+      - name: Check the installed systemd unit against the repo
+        # This workflow syncs website/, research/ and the migrations. It never
+        # syncs the unit file: that is written once when the VPS is provisioned,
+        # and the deploy user's sudo rights stop at restarting the service, so
+        # CI cannot install a new one even if it wanted to.
+        #
+        # The failure that costs an outage is a unit naming a path the repo has
+        # since moved. Everything deploys green, the restart execs a file that
+        # is no longer there, and the service crash-loops. So drift is caught
+        # here — before the sync and before the restart, while the running
+        # process is still serving happily from the code it already loaded.
+        run: |
+          scp deploy/sumter-field-desk.service "deploy@${{ secrets.VPS_HOST }}:/tmp/unit.expected"
+          ssh "deploy@${{ secrets.VPS_HOST }}" '
+            set -euo pipefail
+            if ! diff -u /etc/systemd/system/sumter-field-desk.service /tmp/unit.expected; then
+              {
+                echo
+                echo "The installed unit does not match deploy/sumter-field-desk.service (diff above)."
+                echo "Deploying would restart the service into the stale unit, so this stops here"
+                echo "with the site still up. On the VPS, as root:"
+                echo
+                echo "  install -m 644 /tmp/unit.expected /etc/systemd/system/sumter-field-desk.service"
+                echo "  systemctl daemon-reload && systemctl restart sumter-field-desk"
+                echo
+                echo "Then re-run this workflow."
+              } >&2
+              exit 1
+            fi
+            rm -f /tmp/unit.expected'
+
       - name: Sync application files
         run: |
           rsync -az --delete --exclude node_modules \
