@@ -173,6 +173,14 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .event-topics{margin:14px 0 0;padding-left:22px}
 .event-topics li{margin:7px 0;padding-left:5px;font-size:16px}
 .event-topics li::marker{color:var(--orange);font-family:var(--mono)}
+.event-program{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:14px 0 0;align-items:baseline}
+.event-program dt{font:600 17px/1.3 var(--serif)}
+.event-program dd{margin:0;color:var(--muted);font-size:14px;line-height:1.35;text-align:right}
+.event-signups{margin:26px 0 0;padding-left:16px;border-left:3px solid var(--orange);color:var(--muted);font-size:15px;line-height:1.45}
+.event-flyer{display:block;margin:-26px -26px 22px;border-bottom:1px solid var(--ink);text-decoration:none}
+.event-flyer img{display:block;width:100%;height:auto}
+.event-flyer span{display:block;padding:12px 26px;color:var(--ink);font:500 9px/1 var(--mono);letter-spacing:.1em}
+.event-flyer:hover span{background:var(--ink);color:var(--light)}
 .event-card{align-self:start;padding:26px;border:1px solid var(--ink);background:var(--light);box-shadow:10px 10px 0 #171a1814}
 .event-field+.event-field{margin-top:22px;padding-top:22px;border-top:1px solid #171a1833}
 .event-field small,.event-field b,.event-field span{display:block}
@@ -321,4 +329,4 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .contact-documents li{padding-left:18px;border-left:3px solid var(--orange)}
 .contact-documents a{font:600 19px/1.3 var(--serif);color:#1b6069;text-underline-offset:4px}
 .contact-documents span{display:block;margin-top:6px;color:var(--muted);font-size:15px;line-height:1.45}
-@media(max-width:720px){.contact{padding:30px 20px 70px}.contact-head h1{font-size:clamp(36px,11vw,52px)}.bodies-grid,.approach-grid{grid-template-columns:1fr}.contact-body{padding:18px}.contact-body dl{grid-template-columns:1fr;gap:4px 0}.roster th,.roster td{padding:8px 4px}}
+@media(max-width:720px){.event-program{grid-template-columns:1fr;gap:2px}.event-program dd{text-align:left;margin-bottom:8px}.contact{padding:30px 20px 70px}.contact-head h1{font-size:clamp(36px,11vw,52px)}.bodies-grid,.approach-grid{grid-template-columns:1fr}.contact-body{padding:18px}.contact-body dl{grid-template-columns:1fr;gap:4px 0}.roster th,.roster td{padding:8px 4px}}
