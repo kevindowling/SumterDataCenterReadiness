@@ -31,6 +31,22 @@ const events = [
       'Noise, land use & property values',
       'What residents can do next',
     ],
+    // The printed flyer, for anyone who wants to share or post it. The program
+    // below is not read off the image: an image is invisible to a screen
+    // reader, to search, and to anyone on a connection where it does not load,
+    // and the running order is the part people actually come for.
+    program: [
+      {name: 'Katie Minich', role: 'Welcome'},
+      {name: 'Kevin Dowling', role: 'Life inside a data center'},
+      {name: 'James Malphrus', role: 'Sowega Aquifer Alliance'},
+      {name: 'Kirk Lyman-Barner', role: 'Better government'},
+      {name: 'Q&A', role: 'Open to the community'},
+    ],
+    signups: 'Sign up at the door: moratorium petition, volunteers, T-shirts.',
+    flyer: {
+      src: '/assets/images/event_flyer.jpg',
+      alt: 'Flyer: Community Meeting About Data Centers, Tuesday August 4 2026 at 6:00 p.m., Lake Blackshear Regional Library. Everyone welcome — bring your questions.',
+    },
   },
 ];
 
@@ -203,8 +219,15 @@ function eventBanner() {
       <p class="event-summary">${escapeHtml(event.summary)}</p>
       <p class="event-topics-label">WHAT THEY'LL TALK ABOUT</p>
       <ul class="event-topics">${event.topics.map((topic) => `<li>${escapeHtml(topic)}</li>`).join('')}</ul>
+      ${event.program ? `<p class="event-topics-label">WHO IS SPEAKING</p>
+      <dl class="event-program">${event.program.map((slot) => `<dt>${escapeHtml(slot.name)}</dt><dd>${escapeHtml(slot.role)}</dd>`).join('')}</dl>` : ''}
+      ${event.signups ? `<p class="event-signups">${escapeHtml(event.signups)}</p>` : ''}
     </div>
     <div class="event-card">
+      ${event.flyer ? `<a class="event-flyer" href="${event.flyer.src}" target="_blank" rel="noreferrer">
+        <img src="${event.flyer.src}" alt="${escapeHtml(event.flyer.alt)}" width="1080" height="1350" loading="lazy" />
+        <span>Open the flyer to print or share ↗</span>
+      </a>` : ''}
       <div class="event-field"><small>DATE &amp; TIME</small><b>${escapeHtml(event.when)}</b></div>
       <div class="event-field"><small>LOCATION</small><b>${escapeHtml(event.venue)}</b><span>${escapeHtml(event.address)}</span></div>
       <div class="event-field"><small>HOSTED BY</small><b>${escapeHtml(event.host)}</b></div>
