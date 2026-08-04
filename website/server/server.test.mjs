@@ -27,7 +27,7 @@ test('serves the home page', async () => {
 });
 
 test('serves site assets and research notes', async () => {
-  for (const path of ['/app.js', '/auth.js', '/auth-config.js', '/content.js', '/styles.css', '/research/02-water.md']) {
+  for (const path of ['/client/app.js', '/client/auth.js', '/client/auth-config.js', '/client/content.js', '/assets/styles.css', '/research/02-water.md']) {
     const response = await fetch(`${base}${path}`);
     assert.equal(response.status, 200, `${path} should be served`);
   }
@@ -72,7 +72,7 @@ test('refuses percent-encoded path traversal', async () => {
     '/website/..%2f.git%2fconfig',
     '/research/..%2fignore%2fSETUP.md',
     '/website/..%2f..%2f..%2fetc%2fpasswd',
-    '/vendor/..%2f..%2fserver.env',
+    '/assets/..%2f..%2fserver.env',
     '/website/..%5cserver.env',
   ];
   for (const path of attacks) {
@@ -82,7 +82,7 @@ test('refuses percent-encoded path traversal', async () => {
 });
 
 test('still serves legitimate assets after traversal hardening', async () => {
-  for (const path of ['/', '/app.js', '/map.js', '/vendor/leaflet/leaflet.js', '/research/README.md']) {
+  for (const path of ['/', '/client/app.js', '/client/map.js', '/assets/vendor/leaflet/leaflet.js', '/research/README.md']) {
     const response = await fetch(`${base}${path}`);
     assert.equal(response.status, 200, `${path} should still be served`);
   }
@@ -90,13 +90,13 @@ test('still serves legitimate assets after traversal hardening', async () => {
 
 test('serves the PWA assets with correct content types', async () => {
   const expected = {
-    '/manifest.webmanifest': /application\/manifest\+json/,
+    '/assets/manifest.webmanifest': /application\/manifest\+json/,
     '/sw.js': /text\/javascript/,
-    '/install.js': /text\/javascript/,
-    '/favicon.svg': /image\/svg\+xml/,
-    '/icons/icon-192.png': /image\/png/,
-    '/icons/icon-512-maskable.png': /image\/png/,
-    '/icons/icon-180.png': /image\/png/,
+    '/client/install.js': /text\/javascript/,
+    '/assets/favicon.svg': /image\/svg\+xml/,
+    '/assets/icons/icon-192.png': /image\/png/,
+    '/assets/icons/icon-512-maskable.png': /image\/png/,
+    '/assets/icons/icon-180.png': /image\/png/,
   };
   for (const [path, type] of Object.entries(expected)) {
     const response = await fetch(`${base}${path}`);
@@ -106,7 +106,7 @@ test('serves the PWA assets with correct content types', async () => {
 });
 
 test('manifest declares installable icons', async () => {
-  const manifest = await (await fetch(`${base}/manifest.webmanifest`)).json();
+  const manifest = await (await fetch(`${base}/assets/manifest.webmanifest`)).json();
   assert.ok(manifest.name && manifest.start_url && manifest.display === 'standalone');
   const sizes = manifest.icons.map((icon) => icon.sizes);
   assert.ok(sizes.includes('192x192') && sizes.includes('512x512'), 'needs 192 and 512 icons');
@@ -367,7 +367,7 @@ test('protected API refuses a forged token', async () => {
 // takes a short id and builds the upstream URL itself. These tests exist to
 // make sure no future edit lets a caller name their own destination.
 test('the GIS cache only serves layers named in the catalogue', async () => {
-  const {GIS_SOURCES} = await import('./gis-sources.js');
+  const {GIS_SOURCES} = await import('../client/gis-sources.js');
   for (const id of Object.keys(GIS_SOURCES)) {
     const response = await fetch(`${base}/api/gis?layer=${id}`);
     // 503 without a database configured, 200 with one. Never 404.

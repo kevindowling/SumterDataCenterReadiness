@@ -44,10 +44,10 @@ function loadLeaflet() {
     if (globalThis.L) { resolve(globalThis.L); return; }
     const css = document.createElement('link');
     css.rel = 'stylesheet';
-    css.href = './vendor/leaflet/leaflet.css';
+    css.href = '/assets/vendor/leaflet/leaflet.css';
     document.head.append(css);
     const script = document.createElement('script');
-    script.src = './vendor/leaflet/leaflet.js';
+    script.src = '/assets/vendor/leaflet/leaflet.js';
     script.onload = () => resolve(globalThis.L);
     script.onerror = () => reject(new Error('Could not load the map library.'));
     document.head.append(script);

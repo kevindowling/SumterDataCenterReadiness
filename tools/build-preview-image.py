@@ -4,12 +4,12 @@
 The site icon is a square parcel outline. It is the wrong shape for a link
 preview: scrapers crop to a wide card, so a square logo is letterboxed or
 cut. This draws a purpose-made card at the ratio those cards actually use,
-reusing the palette in website/styles.css and the parcel outline from
-website/favicon.svg so the preview matches the site it links to.
+reusing the palette in website/assets/styles.css and the parcel outline from
+website/assets/favicon.svg so the preview matches the site it links to.
 
     python3 tools/build-preview-image.py
 
-Writes website/icons/preview.svg and website/icons/preview.png. PNG output
+Writes website/assets/icons/preview.svg and website/assets/icons/preview.png. PNG output
 needs rsvg-convert (librsvg); the SVG alone is written if it is missing.
 """
 import re
@@ -19,7 +19,7 @@ from pathlib import Path
 
 WIDTH, HEIGHT = 1200, 630
 
-# Matches the custom properties in website/styles.css.
+# Matches the custom properties in website/assets/styles.css.
 INK = '#171a18'
 LIGHT = '#f8f4e9'
 ORANGE = '#e55726'
@@ -77,8 +77,8 @@ def svg_document(logo: str) -> str:
 
 
 def main():
-    website = Path(__file__).resolve().parent.parent / 'website'
-    icons = website / 'icons'
+    assets = Path(__file__).resolve().parent.parent / 'website' / 'assets'
+    icons = assets / 'icons'
     icons.mkdir(exist_ok=True)
 
     source = icons / 'preview.svg'

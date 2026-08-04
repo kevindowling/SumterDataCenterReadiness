@@ -100,9 +100,11 @@ const SESSION_LOST = /missing refresh token|login required|consent required/i;
 // Resolves the bearer token for /api/* calls. `optional` is for routes that
 // also serve signed-out readers: rather than failing the page, they fall back
 // to the anonymous response the same route gives everyone else.
-async function bearerToken({optional = false} = {}) {
+async function bearerToken({optional = false, fresh = false} = {}) {
   try {
-    return await (await getClient()).getTokenSilently();
+    // `fresh` skips the SDK's own cache. Only apiFetch sets it, and only after
+    // the server has already rejected the cached copy.
+    return await (await getClient()).getTokenSilently(fresh ? {cacheMode: 'off'} : undefined);
   } catch (error) {
     if (optional) return null;
     if (SESSION_LOST.test(error.message || '')) {
@@ -129,7 +131,20 @@ export const apiOrigin = () => (isLocal ? '' : authConfig.apiBase || '');
 // the call then goes out unauthenticated when no token can be had.
 export async function apiFetch(path, options = {}) {
   const {optionalAuth = false, ...init} = options;
+  const send = (bearer) => fetch(`${apiOrigin()}${path}`, {
+    ...init,
+    headers: {...(init.headers || {}), ...(bearer ? {Authorization: `Bearer ${bearer}`} : {})},
+  });
+
   const token = await bearerToken({optional: optionalAuth});
-  const headers = {...(init.headers || {}), ...(token ? {Authorization: `Bearer ${token}`} : {})};
-  return fetch(`${apiOrigin()}${path}`, {...init, headers});
+  const response = await send(token);
+  // The SDK hands back its cached access token until that token's own expiry,
+  // so a token the server refuses for any other reason — a rotated signing key,
+  // a changed audience — gets resent on every call and the page looks broken
+  // until the reader signs out by hand. One forced renewal costs a round trip
+  // and clears that whole class of stall. The rejected request never reached
+  // the handler, so replaying it changes nothing on the server.
+  if (response.status !== 401 || !token) return response;
+  const renewed = await bearerToken({optional: true, fresh: true});
+  return renewed && renewed !== token ? send(renewed) : response;
 }

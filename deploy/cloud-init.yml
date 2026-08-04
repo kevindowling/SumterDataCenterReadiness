@@ -44,7 +44,7 @@ write_files:
       User=deploy
       Group=deploy
       WorkingDirectory=/opt/sumter-field-desk/website
-      ExecStart=/usr/bin/node server.mjs
+      ExecStart=/usr/bin/node server/server.mjs
       Environment=PORT=4173
       EnvironmentFile=-/opt/sumter-field-desk/server.env
       Restart=always

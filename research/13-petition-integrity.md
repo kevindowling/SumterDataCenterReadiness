@@ -54,7 +54,7 @@ Never published, and never released:
 - IP addresses. Only a hashed network prefix (a /24 or /48, not the address) is stored at all.
 - Internal review flags for any individual signature.
 
-The full list with contact details is not posted publicly. It can be produced for an authorized recipient — the City Council or the City Clerk — under controlled conditions, on request from the organizers.
+The full list with contact details is not posted publicly. It can be produced for an authorized recipient — the City Council or the City Clerk, the Board of Commissioners or the County Clerk — under controlled conditions, on request from the organizers. The same list goes to both: this is one petition presented to two governing bodies, not two collections of signatures.
 
 ## Making the totals checkable later
 

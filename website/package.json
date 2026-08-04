@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server.mjs",
-    "start": "node server.mjs",
-    "check": "node check.mjs",
-    "build": "node prerender.mjs ../_site",
+    "dev": "node server/server.mjs",
+    "start": "node server/server.mjs",
+    "check": "node build/check.mjs",
+    "build": "node build/prerender.mjs ../_site",
     "test": "node --test"
   },
   "dependencies": {

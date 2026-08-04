@@ -15,8 +15,8 @@ whatever a printer uses, with no font dependency at all.
 
     python3 tools/build-seal.py
 
-Writes website/icons/sumter-county-transparency-logo.svg (the group's own
-colours) and website/icons/seal.svg (the desk palette, for use in the site
+Writes website/assets/icons/sumter-county-transparency-logo.svg (the group's own
+colours) and website/assets/icons/seal.svg (the desk palette, for use in the site
 chrome). Edit tools/seal-source.svg and re-run; do not edit the outputs.
 """
 import math
@@ -148,7 +148,7 @@ def build(source: str, glyphs: Glyphs) -> str:
 
 def main():
     root = Path(__file__).resolve().parent.parent
-    icons = root / 'website' / 'icons'
+    icons = root / 'website' / 'assets' / 'icons'
     icons.mkdir(parents=True, exist_ok=True)
 
     source = (root / 'tools' / 'seal-source.svg').read_text()

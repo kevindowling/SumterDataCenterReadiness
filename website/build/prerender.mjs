@@ -20,17 +20,19 @@ import {fileURLToPath} from 'node:url';
 import {
   HOME_DESCRIPTION, HOME_TITLE, SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN, docPath, docUrl,
   documents, escapeHtml, isUnlisted, markdown, seoDescription, seoTitle, unlistedDocuments,
-} from './content.js';
-import {livePetition} from './petition.js';
+} from '../client/content.js';
+import {livePetition} from '../client/petition.js';
+import {contactSections} from '../client/contacts.js';
 
-const here = dirname(fileURLToPath(import.meta.url));
-const repo = join(here, '..');
+const here = dirname(fileURLToPath(import.meta.url));   // website/build
+const website = join(here, '..');
+const repo = join(website, '..');
 const out = process.argv[2] || join(repo, '_site');
 
 // A 1200x630 card, not the square site icon: scrapers crop link previews to a
 // wide box, which letterboxes or slices a square logo. Built by
 // tools/build-preview-image.py.
-const PREVIEW_IMAGE = `${SITE_ORIGIN}/icons/preview.png`;
+const PREVIEW_IMAGE = `${SITE_ORIGIN}/assets/icons/preview.png`;
 const PREVIEW_ALT = 'Sumter Field Desk - data center research for Americus, Georgia';
 
 // Last commit date for a file, for an honest sitemap <lastmod>. Stamping every
@@ -44,12 +46,10 @@ function lastModified(path) {
   return new Date().toISOString().slice(0, 10);
 }
 
-// The shell uses "./asset" paths, which are correct only at the site root. A
-// page at /doc/records/ would resolve them against its own directory, so the
-// generated copies get absolute paths instead.
-const absolutize = (html) => html
-  .replace(/(href|src)="\.\//g, '$1="/')
-  .replace(/href="\.\/(favicon\.svg|icons\/)/g, 'href="/$1');
+// The shell uses "./client/…" and "./assets/…" paths, which are correct only at
+// the site root. A page at /doc/records/ would resolve them against its own
+// directory, so the generated copies get absolute paths instead.
+const absolutize = (html) => html.replace(/(href|src)="\.\//g, '$1="/');
 
 function head({title, description, url, image = PREVIEW_IMAGE, noindex = false}) {
   const safe = {title: escapeHtml(title), description: escapeHtml(description)};
@@ -175,7 +175,7 @@ async function emit(path, contents) {
   return path;
 }
 
-const shell = absolutize(await readFile(join(here, 'index.html'), 'utf8'));
+const shell = absolutize(await readFile(join(website, 'index.html'), 'utf8'));
 const written = [];
 
 for (const doc of [...documents, ...unlistedDocuments]) {
@@ -224,12 +224,29 @@ written.push(await emit(join('petition', 'index.html'), withHead(shell, {
         <h1>${escapeHtml(petition.title)}</h1>
         <p class="lede">${escapeHtml(petition.ask)}</p>
       </header>
+      <aside class="petition-addressed">
+        <p class="eyebrow"><span></span> DELIVERED TO</p>
+        <ul>${petition.addressedTo.map((recipient) => `<li>${escapeHtml(recipient)}</li>`).join('')}</ul>
+        <span class="addressed-note">${escapeHtml(petition.signingNote)}</span>
+      </aside>
       <section class="petition-text">
         ${petition.body.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}
         <p><a href="${petition.document.href}">${escapeHtml(petition.document.label)}</a></p>
         <p><a href="${docPath('petition')}">How signatures are verified and counted</a></p>
       </section>
     </main></div>`,
+)));
+
+// The contact page ships its text in the HTML for the same reason the petition
+// does, and for one more: a resident searching for "americus city council
+// email" should land on a page that answers it without waiting for a script.
+written.push(await emit(join('contact', 'index.html'), withHead(shell, {
+  title: `Contact your officials — ${SITE_NAME}`,
+  description: 'Sumter County commissioners and Americus mayor and council by name, district and e-mail — plus how to write to them, how to speak at a meeting, and what records Georgia law entitles you to.',
+  url: `${SITE_ORIGIN}/contact/`,
+}).replace(
+  '<div id="app"><noscript>This research desk requires JavaScript.</noscript></div>',
+  `<div id="app" data-prerendered="contact"><main class="contact">${contactSections()}</main></div>`,
 )));
 
 // Views with no note behind them still need a real URL and a sane title.
@@ -267,7 +284,8 @@ const newest = (dates) => dates.slice().sort().pop();
 const noteDates = documents.map((doc) => lastModified(`research/${doc.file}`));
 const urls = [
   {loc: `${SITE_ORIGIN}/`, lastmod: newest(noteDates)},
-  {loc: `${SITE_ORIGIN}/petition/`, lastmod: lastModified('website/petition.js')},
+  {loc: `${SITE_ORIGIN}/petition/`, lastmod: lastModified('website/client/petition.js')},
+  {loc: `${SITE_ORIGIN}/contact/`, lastmod: lastModified('website/client/contacts.js')},
   ...documents.map((doc, index) => ({loc: docUrl(doc.id), lastmod: noteDates[index]})),
 ];
 written.push(await emit('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>

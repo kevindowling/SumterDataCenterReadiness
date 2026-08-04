@@ -7,7 +7,7 @@ up, as the site map draws. Re-run if the county record changes:
 
     python3 tools/build-favicon.py
 
-Writes website/favicon.svg and website/icons/*.png. PNG output needs
+Writes website/assets/favicon.svg and website/assets/icons/*.png. PNG output needs
 rsvg-convert (librsvg); the SVG alone is written if it is missing.
 """
 import json
@@ -95,13 +95,13 @@ def svg_document(path, radius=14):
 
 
 def main():
-    website = Path(__file__).resolve().parent.parent / 'website'
-    icons = website / 'icons'
+    assets = Path(__file__).resolve().parent.parent / 'website' / 'assets'
+    icons = assets / 'icons'
     icons.mkdir(exist_ok=True)
 
     ring = fetch_ring()
     path, before, after = outline_path(ring, span=56)
-    (website / 'favicon.svg').write_text(svg_document(path))
+    (assets / 'favicon.svg').write_text(svg_document(path))
     print(f'favicon.svg written ({before} vertices simplified to {after})')
 
     rsvg = shutil.which('rsvg-convert')
@@ -113,10 +113,10 @@ def main():
         if inset:
             # Shrink the artwork inside a full-bleed square for maskable icons.
             inner, _, _ = outline_path(ring, span=56 * (1 - 2 * inset))
-            source = website / f'.{name}.svg'
+            source = assets / f'.{name}.svg'
             source.write_text(svg_document(inner, radius=0))
         else:
-            source = website / 'favicon.svg'
+            source = assets / 'favicon.svg'
         subprocess.run([rsvg, '-w', str(size), '-h', str(size), str(source),
                         '-o', str(icons / name)], check=True)
         if inset:
