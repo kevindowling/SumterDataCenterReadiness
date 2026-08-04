@@ -191,6 +191,13 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .petition{max-width:900px;margin:auto;padding:clamp(34px,4.5vw,72px) clamp(20px,5vw,64px) 90px}
 .petition-head h1{margin:0 0 22px;font-size:clamp(42px,5.2vw,80px);font-weight:600;line-height:.9;letter-spacing:-.05em}
 .petition-head .lede{max-width:640px;margin:0;font-size:clamp(18px,1.5vw,23px)}
+.petition-share{position:relative;display:inline-block;margin-top:20px}
+.petition-share-btn{padding:12px 20px;border:1px solid var(--ink);background:none;cursor:pointer;font:500 11px/1 var(--mono);letter-spacing:.08em}
+.petition-share-btn:hover{background:var(--ink);color:var(--light)}
+.share-menu{position:absolute;top:calc(100% + 4px);left:0;z-index:200;min-width:190px;border:1px solid var(--ink);background:var(--paper);box-shadow:6px 6px 0 #171a1820}
+.share-option{display:block;width:100%;padding:11px 16px;border:none;border-bottom:1px solid #171a1820;background:none;color:var(--ink);cursor:pointer;font:500 11px/1 var(--mono);letter-spacing:.07em;text-align:left;text-decoration:none}
+.share-option:last-child{border-bottom:none}
+.share-option:hover{background:var(--ink);color:var(--light)}
 .petition-addressed{margin:34px 0 0;padding:22px 24px;border-left:3px solid var(--orange);background:var(--light)}
 .petition-addressed .eyebrow{margin-bottom:14px}
 .petition-addressed ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
