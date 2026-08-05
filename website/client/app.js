@@ -47,12 +47,37 @@ const events = [
       src: '/assets/images/event_flyer.jpg',
       alt: 'Flyer: Community Meeting About Data Centers, Tuesday August 4 2026 at 6:00 p.m., Lake Blackshear Regional Library. Everyone welcome — bring your questions.',
     },
+    // What the meeting left behind. This is what keeps the event on the home
+    // page after `date` passes: the banner stops saying "come to this" and
+    // starts saying "here is what happened", for the far larger number of
+    // residents who could not be in the room.
+    recap: {
+      video: {
+        id: 'qYPjHDAbO9k',
+        length: '1 hr 14 min',
+      },
+      deck: {
+        href: '/research/better-government-2026-08-04.pdf',
+        title: 'Better government',
+        speaker: 'Kirk Lyman-Barner',
+        meta: 'PDF · 3.8 MB',
+      },
+    },
   },
 ];
 
 const upcomingEvents = () => {
   const today = new Date().toISOString().slice(0, 10);
   return events.filter((event) => event.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+};
+
+// A finished meeting stays on the page only while it still has something to
+// show. Without a `recap` it drops off the morning after, exactly as it would
+// have with no handling at all.
+const recapEvents = () => {
+  const today = new Date().toISOString().slice(0, 10);
+  return events.filter((event) => event.date < today && event.recap)
+    .sort((a, b) => b.date.localeCompare(a.date));
 };
 
 const app = document.querySelector('#app');
@@ -236,6 +261,55 @@ function eventBanner() {
   </section>`;
 }
 
+// Flipped by the reader clicking play, never on load. Kept at module scope so
+// a re-render (sign-in, survey close) does not tear the player back down.
+let videoPlaying = false;
+
+function recapBanner() {
+  const [event] = recapEvents();
+  if (!event) return '';
+  const {video, deck} = event.recap;
+  // Nothing is fetched from YouTube until the reader asks for it. The poster is
+  // the site's own card rather than an i.ytimg.com thumbnail, so the home page
+  // makes no third-party request for a recording most visitors will not play —
+  // the same bargain the vendored Leaflet copy makes for the map.
+  const player = videoPlaying
+    ? `<iframe class="recap-frame" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&amp;rel=0"
+        title="${escapeHtml(event.title)} — full meeting recording"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`
+    : `<button class="recap-play" data-play>
+        <span class="recap-play-glyph" aria-hidden="true">▶</span>
+        <span class="recap-play-label">Watch the meeting</span>
+        <span class="recap-play-meta">${escapeHtml(video.length)} · loads from YouTube</span>
+      </button>`;
+  // Three blocks, not two, so the grid can put the player directly under the
+  // headline when the columns collapse. Stacked the other way the reader meets
+  // the speaker list and a slide download before the thing they came to watch.
+  return `<section class="recap-banner" aria-label="Recording of the ${escapeHtml(event.when)} meeting">
+    <div class="event-copy recap-head">
+      <p class="eyebrow"><span></span> WATCH THE MEETING</p>
+      <h2>${escapeHtml(event.title)}</h2>
+      <p class="event-summary">Recorded ${escapeHtml(event.when)} at the ${escapeHtml(event.venue)}. If you could not be in the room, the whole meeting is here — nothing trimmed.</p>
+    </div>
+    <div class="recap-detail">
+      ${event.program ? `<p class="event-topics-label">WHO SPOKE</p>
+      <dl class="event-program">${event.program.map((slot) => `<dt>${escapeHtml(slot.name)}</dt><dd>${escapeHtml(slot.role)}</dd>`).join('')}</dl>` : ''}
+      ${deck ? `<a class="recap-deck" href="${deck.href}" target="_blank" rel="noreferrer">
+        <small>SLIDES FROM THE MEETING</small>
+        <b>${escapeHtml(deck.title)}</b>
+        <span>${escapeHtml(deck.speaker)} · ${escapeHtml(deck.meta)} ↓</span>
+      </a>` : ''}
+    </div>
+    <div class="recap-media">
+      <!-- Recorded on a phone, so the well is portrait: a 16:9 embed would sit
+           this video in a wall of black with the speakers a thumbnail wide. -->
+      <div class="recap-well">${player}</div>
+      <a class="recap-youtube" href="https://youtu.be/${video.id}" target="_blank" rel="noreferrer">Open on YouTube ↗</a>
+    </div>
+  </section>`;
+}
+
 function home() {
   document.title = 'Sumter Field Desk - Data Center Research';
   // The map leads: it is the one thing that answers "where is this and does it
@@ -252,6 +326,7 @@ function home() {
       </div>
     </section>
     ${eventBanner()}
+    ${recapBanner()}
     <section class="status-strip meeting-strip">
       <div><small>COMMUNITY PURPOSE</small><b class="meeting-address">ASK BEFORE APPROVAL</b><span>facts, conditions, and accountability</span></div>
       ${communityCell()}
@@ -1118,6 +1193,7 @@ function bind() {
     try { await navigator.clipboard.writeText(url); } catch { /* clipboard unavailable */ }
     shareMenuOpen = false; render();
   });
+  document.querySelector('[data-play]')?.addEventListener('click', () => { videoPlaying = true; render(); });
   document.querySelector('[data-snapshot]')?.addEventListener('click', () => recordSnapshot());
   document.querySelector('[data-export]')?.addEventListener('click', () => downloadSignatures());
   document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deletePost(button.dataset.delete)));

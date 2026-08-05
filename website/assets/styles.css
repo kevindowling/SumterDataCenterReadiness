@@ -191,6 +191,34 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .event-calendar:hover{background:transparent;color:var(--ink)}
 @media(max-width:1050px){.event-banner{grid-template-columns:1fr;padding-block:55px 65px}}
 @media(max-width:720px){.event-banner{padding:48px 20px 56px}.event-copy h2{font-size:clamp(36px,11vw,52px)}.event-summary{font-size:17px}}
+/* Recording of a meeting that already happened. Shares .event-copy with the
+   upcoming-meeting banner so the two read as one family. */
+/* Two text rows against one full-height media column, so the collapsed layout
+   can slot the player between them (head → player → speakers and slides). */
+.recap-banner{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);grid-template-areas:"head media" "detail media";column-gap:clamp(30px,5vw,70px);row-gap:0;align-content:start;max-width:1420px;margin:0 auto;padding:70px clamp(20px,5vw,80px) 80px;border-top:1px solid var(--ink)}
+.recap-head{grid-area:head}
+.recap-detail{grid-area:detail}
+.recap-media{grid-area:media;align-self:start}
+/* Portrait: the meeting was recorded on a phone. Capped so a 9:16 well cannot
+   grow taller than the viewport on a narrow screen. */
+.recap-well{position:relative;aspect-ratio:9/16;max-height:min(78vh,660px);margin-inline:auto;border:1px solid var(--ink);background:var(--ink);box-shadow:10px 10px 0 #171a1814;overflow:hidden}
+.recap-well>*{position:absolute;inset:0;width:100%;height:100%;border:0}
+.recap-play{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;background:var(--ink);color:var(--light);text-align:center;cursor:pointer;font:inherit}
+.recap-play-glyph{display:grid;place-items:center;width:64px;height:64px;border:1px solid var(--light);border-radius:50%;font-size:21px;padding-left:5px}
+.recap-play:hover .recap-play-glyph{background:var(--orange);border-color:var(--orange)}
+.recap-play-label{font-size:21px;font-weight:600;line-height:1.15}
+.recap-play-meta{color:#fdfcf8a6;font:500 9px/1.4 var(--mono);letter-spacing:.1em}
+.recap-youtube{display:block;margin-top:14px;color:var(--muted);font:500 9px/1 var(--mono);letter-spacing:.1em;text-align:center;text-decoration:none}
+.recap-youtube:hover{color:var(--ink)}
+.recap-deck{display:block;margin-top:30px;padding:20px;border:1px solid var(--ink);background:var(--light);text-decoration:none;box-shadow:6px 6px 0 #171a1814}
+.recap-deck small{display:block;color:var(--orange);font:500 8px/1 var(--mono);letter-spacing:.13em}
+.recap-deck b{display:block;margin-top:9px;color:var(--ink);font-size:20px;font-weight:600;line-height:1.15}
+.recap-deck span{display:block;margin-top:6px;color:var(--muted);font-size:14px}
+.recap-deck:hover{background:var(--ink)}
+.recap-deck:hover b{color:var(--light)}
+.recap-deck:hover span{color:#fdfcf8a6}
+@media(max-width:1050px){.recap-banner{grid-template-columns:1fr;grid-template-areas:"head" "media" "detail";padding-block:55px 65px}.recap-media{margin-top:34px}.recap-detail{margin-top:34px}.recap-well{max-width:340px}}
+@media(max-width:720px){.recap-banner{padding:48px 20px 56px}.recap-head h2{font-size:clamp(36px,11vw,52px)}}
 /* Prerendered fallback nav: present in the static HTML a crawler or a reader
    without JavaScript is served, and replaced the moment the app renders. */
 .prerender-nav{max-width:1500px;margin:auto;padding:48px clamp(20px,5vw,80px)}.prerender-nav h2{margin:0 0 16px;font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.prerender-nav ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}.prerender-nav a{color:var(--ink);text-underline-offset:3px}
