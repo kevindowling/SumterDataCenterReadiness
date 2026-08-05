@@ -23,6 +23,9 @@ import {
 } from '../client/content.js';
 import {livePetition} from '../client/petition.js';
 import {contactSections} from '../client/contacts.js';
+import {
+  MEETINGS, meetingDescription, meetingPath, meetingSeoTitle,
+} from '../client/meetings.js';
 
 const here = dirname(fileURLToPath(import.meta.url));   // website/build
 const website = join(here, '..');
@@ -263,6 +266,23 @@ for (const [path, title, description] of [
   })));
 }
 
+// The meeting calendar, and one page per meeting. These are indexable on
+// purpose: someone searching "Americus city council August 20" should be able
+// to land on a page that tells them the sign-up sheet opens at 5:30.
+written.push(await emit(join('meetings', 'index.html'), withHead(shell, {
+  title: `Public meetings — ${SITE_NAME}`,
+  description: 'When and where the Sumter County commission and the Americus city council meet, and how to get on the speakers\' list.',
+  url: `${SITE_ORIGIN}/meetings/`,
+})));
+
+for (const meeting of MEETINGS) {
+  written.push(await emit(join('meetings', meeting.id, 'index.html'), withHead(shell, {
+    title: meetingSeoTitle(meeting),
+    description: meetingDescription(meeting),
+    url: `${SITE_ORIGIN}${meetingPath(meeting.id)}`,
+  })));
+}
+
 // Home page: the shell itself, with the canonical tag the others carry.
 written.push(await emit('index.html', withHead(shell, {
   title: HOME_TITLE,
@@ -286,6 +306,11 @@ const urls = [
   {loc: `${SITE_ORIGIN}/`, lastmod: newest(noteDates)},
   {loc: `${SITE_ORIGIN}/petition/`, lastmod: lastModified('website/client/petition.js')},
   {loc: `${SITE_ORIGIN}/contact/`, lastmod: lastModified('website/client/contacts.js')},
+  {loc: `${SITE_ORIGIN}/meetings/`, lastmod: lastModified('website/client/meetings.js')},
+  ...MEETINGS.map((meeting) => ({
+    loc: `${SITE_ORIGIN}${meetingPath(meeting.id)}`,
+    lastmod: lastModified('website/client/meetings.js'),
+  })),
   ...documents.map((doc, index) => ({loc: docUrl(doc.id), lastmod: noteDates[index]})),
 ];
 written.push(await emit('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
