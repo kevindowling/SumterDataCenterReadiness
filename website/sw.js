@@ -4,9 +4,16 @@
 // app shell are worth having offline; live data is not. Anything the desk
 // reports must be current, so GIS queries, Auth0, and every /api/* call go to
 // the network and are never stored.
-// Bumped whenever the shell URLs move: a stale worker holding the old flat
-// paths would serve 404s from cache long after the deploy.
-const VERSION = 'field-desk-v9';
+// Bump this on ANY change to app.js, sw.js, or the shell list — not only when
+// URLs move. The shell is served cache-first, so without a bump a returning
+// reader runs the previous app.js for one more visit. That is invisible for a
+// wording change and badly wrong for a new route: the deploy that added
+// /meetings/ served the new prerendered HTML to a cached app.js that had no
+// such route, so the router fell through and rendered the home page at the
+// /meetings/ URL. Anyone who had ever opened the site saw it; a first-time
+// visitor saw the calendar. Reproduce by loading the old build, deploying the
+// new one to the same origin, and opening the new route.
+const VERSION = 'field-desk-v10';
 // Rooted, not './'-relative. This file has to stay at the site root to claim
 // scope '/', but the assets it caches now live under /client and /assets.
 const SHELL = [
@@ -66,6 +73,34 @@ const isLive = (url) =>
   /(^|\.)arcgisonline\.com$/.test(url.hostname) ||
   /(^|\.)overpass-api\.de$/.test(url.hostname);
 
+// What a deploy can change the meaning of: the pages, the router, and the
+// stylesheet that lays them out. These go to the network first, because
+// cache-first served them one deploy behind — harmless for a wording change,
+// wrong for anything structural. A reader whose cached app.js predated the
+// /meetings/ route was handed the new prerendered page and rendered the home
+// view over it, at the /meetings/ URL. Icons, fonts and the vendored Leaflet
+// copy stay cache-first below: those are replaced, not revised.
+const isAppCode = (url, request) =>
+  request.mode === 'navigate' ||
+  url.pathname.startsWith('/client/') ||
+  url.pathname === '/assets/styles.css';
+
+// Network first, cache as the offline fallback.
+async function fresh(request) {
+  try {
+    const response = await fetch(request);
+    if (response.ok) (await caches.open(VERSION)).put(request, response.clone());
+    return response;
+  } catch {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    // A navigation with nothing cached still gets the shell if we have it.
+    return request.mode === 'navigate'
+      ? (await caches.match('/index.html')) || Response.error()
+      : Response.error();
+  }
+}
+
 self.addEventListener('fetch', (event) => {
   const {request} = event;
   if (request.method !== 'GET') return;
@@ -74,22 +109,14 @@ self.addEventListener('fetch', (event) => {
   if (isLive(url)) return;                       // straight to the network
   if (url.origin !== self.location.origin) return;
 
-  // Research notes: network first so corrections show up immediately, with the
-  // cached copy as the offline fallback.
-  if (url.pathname.includes('/research/')) {
-    event.respondWith((async () => {
-      try {
-        const response = await fetch(request);
-        if (response.ok) (await caches.open(VERSION)).put(request, response.clone());
-        return response;
-      } catch {
-        return (await caches.match(request)) || Response.error();
-      }
-    })());
+  // Research notes: network first so corrections show up immediately. Same
+  // policy as the app code, for the same reason.
+  if (url.pathname.includes('/research/') || isAppCode(url, request)) {
+    event.respondWith(fresh(request));
     return;
   }
 
-  // App shell: cache first, refreshed in the background.
+  // Everything else: cache first, refreshed in the background.
   event.respondWith((async () => {
     const cached = await caches.match(request);
     const network = fetch(request).then(async (response) => {
@@ -98,11 +125,6 @@ self.addEventListener('fetch', (event) => {
     }).catch(() => null);
 
     if (cached) { network.catch(() => {}); return cached; }
-    const response = await network;
-    if (response) return response;
-    // A navigation with nothing cached still gets the shell if we have it.
-    return request.mode === 'navigate'
-      ? (await caches.match('./index.html')) || Response.error()
-      : Response.error();
+    return (await network) || Response.error();
   })());
 });

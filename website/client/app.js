@@ -136,7 +136,7 @@ const topbar = () => `
       <span class="edition">COMMUNITY RESEARCH EDITION</span>
       <button class="search-button" data-search><kbd>/</kbd> Search the desk</button>
       <button class="source-link" data-doc="start">Research notes ↗</button>
-      <button class="source-link" data-meetings>Public meetings ↗</button>
+      <button class="source-link" data-meetings>Calendar ↗</button>
       <button class="source-link" data-contact>Contact officials ↗</button>
       ${accountControls()}
     </div>
@@ -344,6 +344,7 @@ function meetingsPage() {
       <h1>The decisions get made <em>in these rooms.</em></h1>
       <p class="lede">Both the county and the city meet in public, monthly, and both are required by Georgia law to let you in. This is when and where. Where a body publishes how to get on the speakers' list, that is here too — for the city, the list opens thirty minutes before the meeting and closes when it starts.</p>
       <p class="meetings-provenance">Every date below was read off the body's own posted calendar and checked in by hand on ${escapeHtml(longDate(CONFIRMED_ON))}, ${CONFIRMED_ON.slice(0, 4)} — not computed from a rule like "third Tuesday", because the weeks move. Agendas are published closer to the date; confirm before you travel.</p>
+      <p class="meetings-note">The <a href="${BODIES.authority.calendar}" target="_blank" rel="noreferrer">Development Authority</a> — the body that would handle bonds, a PILOT, or an abatement — publishes no standing schedule and posts single dates, sometimes only days ahead. A gap here means nothing has been posted yet, not that nothing is happening.</p>
       ${calendarIsStale(today) ? `<p class="meetings-stale">This calendar has not been refreshed since ${escapeHtml(monthLabel(STALE_AFTER.slice(0, 7)))}. Check the <a href="${BODIES.commission.calendar}" target="_blank" rel="noreferrer">county calendar</a> and the <a href="${BODIES.council.calendar}" target="_blank" rel="noreferrer">city agenda portal</a> directly.</p>` : ''}
     </section>
     <section class="meetings-list">

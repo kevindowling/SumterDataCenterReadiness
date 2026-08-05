@@ -41,6 +41,21 @@ export const BODIES = {
     agendas: 'https://americuscityga.iqm2.com/Citizens/Calendar.aspx',
     remote: 'The city offers a teleconference option.',
   },
+  // The authority that would actually do a data-center deal — bonds, a PILOT,
+  // an abatement — and the only body here with no standing schedule. It posts
+  // one date at a time, so an empty stretch on this calendar means nothing has
+  // been posted, not that nothing is happening. Watch its calendar directly.
+  authority: {
+    name: 'Sumter County Development Authority',
+    short: 'Development Authority',
+    venue: 'Location not posted',
+    venuePosted: false,
+    address: 'Office: Rees Park Economic Development Center, 409 Elm Avenue, Americus, GA 31709',
+    phone: '(229) 924-7007',
+    rhythm: 'No standing schedule is published. Individual dates appear on the authority\'s calendar, sometimes only days ahead.',
+    calendar: 'https://www.selectsumter.com/resources-incentives/calendar',
+    agendas: 'https://www.selectsumter.com/resources-incentives/calendar',
+  },
   citizens: {
     name: 'Sumter County Citizens for Transparency',
     short: 'Community meeting',
@@ -84,11 +99,14 @@ const SOURCE = {
   commission: (date) =>
     `https://www.sumtercountyga.us/calendar.aspx?view=list&year=${date.slice(0, 4)}&month=${Number(date.slice(5, 7))}`,
   council: () => 'https://americuscityga.iqm2.com/Citizens/Calendar.aspx',
+  authority: () => 'https://www.selectsumter.com/resources-incentives/calendar',
 };
 
-// date, body, kind, whether public comment is published.
-const official = (date, body, kind, speak) =>
-  ({date, body, kind, speak, time: '18:00', status: 'confirmed', source: SOURCE[body](date)});
+// date, body, kind, whether public comment is published. Time defaults to the
+// 6:00 p.m. both governments keep; the authority meets at 4:00, in working
+// hours, which is worth seeing on the page rather than smoothing over.
+const official = (date, body, kind, speak, time = '18:00') =>
+  ({date, body, kind, speak, time, status: 'confirmed', source: SOURCE[body](date)});
 
 export const MEETINGS = [
   {
@@ -129,6 +147,7 @@ export const MEETINGS = [
       },
     },
   },
+  official('2026-08-10', 'authority', 'Board meeting', 'unknown', '16:00'),
   official('2026-08-11', 'commission', 'Work session', 'unknown'),
   official('2026-08-13', 'council', 'Agenda-setting meeting', 'unknown'),
   official('2026-08-18', 'commission', 'Regular meeting', 'unknown'),
@@ -258,7 +277,9 @@ export const meetingSeoTitle = (meeting) =>
 
 export function meetingDescription(meeting) {
   if (meeting.summary) return meeting.summary;
-  const where = `${meetingWhen(meeting)} at ${meeting.venue}, ${meeting.address}.`;
+  const where = meeting.venuePosted === false
+    ? `${meetingWhen(meeting)}. The location was not posted with the date — confirm before you go.`
+    : `${meetingWhen(meeting)} at ${meeting.venue}, ${meeting.address}.`;
   return meeting.speak === 'published'
     ? `${meeting.name}. ${where} Five speakers, five minutes each; the sign-up sheet opens 30 minutes before.`
     : `${meeting.name}. ${where} Open to the public.`;
