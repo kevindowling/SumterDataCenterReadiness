@@ -145,6 +145,62 @@ export const MEETINGS = [
         speaker: 'Kirk Lyman-Barner',
         meta: 'PDF · 3.8 MB',
       },
+      // A summary is not a transcript. Every number below is what a speaker
+      // said in the room, not something this desk has checked. Read it as "he
+      // said 500,000 gallons a day", not as a verified figure. The recording
+      // is the record. This is here for people who cannot sit through 74
+      // minutes of it.
+      notes: {
+        source: 'Written from the captions on the recording above. Figures are as speakers gave them in the room. Nothing here has been independently verified.',
+        parts: [
+          {
+            who: 'Katie Minich',
+            role: 'Welcome',
+            said: 'Opened for Sumter County Citizens for Transparency. The room was full and the meeting was streamed. She said the turnout was the point: people want information and they want transparency, and she hoped elected officials were paying attention.',
+          },
+          {
+            who: 'Kevin Dowling',
+            role: 'Life inside a data center',
+            said: 'Spent ten years inside data centers. He described how much planning goes into one. Every server has a place, a power draw, and a cooling plan before it is racked. What is being built now is built for speed instead of reliability. Ten years ago one building drew what a neighborhood draws. Today the unit of measure is a city, and he said the building proposed here would draw about what Sumter County draws. He would welcome a data center in Americus if it were for Americus and if Americus were ready for it. He does not think we are ready. His open questions are water, air from generators, and noise. A Georgia Power representative answered from the floor that the utility had met with the developer and does have the ability to serve the load.',
+          },
+          {
+            who: 'James Malphrus',
+            role: 'Sowega Aquifer Alliance',
+            said: 'His group is based in Albany and came together six to eight weeks ago. It is a think tank and advocacy hub, not a hard no on data centers, and it publishes its research at bigbaddatacenters.com. On jobs: construction brings in specialty crews from outside the county for about eighteen months. They leave. The inflation stays. Permanent staffing is usually thirty to fifty jobs. Property tax gets written down by abatements, so what a local government really sells is utilities. On water: he cited a Newton County campus using 500,000 gallons a day, followed by sediment in neighboring wells and residents having to redrill. He cited a QTS facility that has used more than 109 million gallons since construction started in February 2024, which he put at eleven Georgia Aquariums. On air: a Virginia Commonwealth University study mapped 138 data centers in Northern Virginia between 2015 and 2023. Its lead researcher said you would rather live next to a natural gas plant than next to a cluster of data centers. On noise: he said the 55 and 65 dB limits that show up in ordinances trace back to OSHA, which addresses eight-hour exposure at 85 dB and says nothing about a sound that never stops. He wants a moratorium, time to study, and ordinances in place before permits issue. The group is working in six or seven counties and is running a survey to set citizen priorities and shape a fill-in-the-blank ordinance.',
+          },
+          {
+            who: 'Kirk Lyman-Barner',
+            role: 'Better government',
+            said: 'Laid out the steps to building a data center: land, zoning, power, water, environmental permits, transportation, tax agreements. We do not know where this project stands on most of them. Asked whether Sumter County is ready, he said no. The group has lengthened its ask from six months to longer, because six months is not enough time to write an ordinance. The moratorium is temporary, it is only on permitting, and it has to cover both the city and the county. If it is only the city, the developer moves to another parcel and we start over with no protections. Under the current industrial zoning this plant can be built with no ordinance, and zoning will not stop it. A promise of closed-loop cooling can change once construction is under way. He said the group documented fifty to a hundred data centers that changed their design mid-project. On transparency, he put himself in the good old boy network and said it gets lazy about notices, open meetings, and public input. Georgia rules against gratuities require a documented study before land goes for a nominal price. An NDA can protect proprietary business information. It cannot hide tax incentives, agendas, or public notices. Real estate can be discussed in executive session, but the deal cannot be closed there. He also named the conflict in a city that signs an NDA, counts on the revenue, and writes the ordinance, with the city manager sitting on the zoning board. Economic benefits cannot be speculative. He wants the promised jobs and payments documented up front and backed by a bond. He cited a Carl Vinson Institute figure of about a 4% tax increase on average, offset by the abatements. The group has filed open records requests, including on a dinner where the parties met.',
+          },
+          {
+            who: 'Q&A',
+            role: 'From the floor',
+            said: 'A retired bank executive who was a fiduciary for forty years said the city and county violated that duty and sold without an independent appraisal. The land was county owned and was transferred to the Development Authority. Liberty Georgia USA was incorporated in Georgia in June, just before the transfer. Its website names no people. The trail runs to an investment group. One attendee offered $5,000 toward a lawyer. Asked about the meeting where somebody said to wait and find out who was paying the tab before asking hard questions, council member Kris Bowden said it was a meeting with some of the data center people, that he was invited to it, and that there was no quorum. He named the attendees as himself, the mayor, possibly one other council member, and the city manager. Others asked about sound and wildlife. There is research on cattle and on bees. Deer and pollinators are open questions. The wetlands on the site hold the Muckalee crayfish, listed Threatened by the state of Georgia, which breeds there. It is ranked S2, it has no federal protection, and its range is essentially Muckalee Creek and its tributaries in the Flint system. One resident laid out what she had watched in person: the Development Authority said a month and a half ago that no data center was planned, the council said two weeks ago that it had been approached, and last week said it had entered an agreement.',
+            // The one claim from the floor with a state record behind it, so it
+            // gets the record rather than a paraphrase.
+            link: {
+              href: 'https://georgiabiodiversity.org/portal/profile?group=all&es_id=22437',
+              label: 'Muckalee crayfish, Georgia Biodiversity Portal',
+            },
+          },
+          {
+            who: 'Georgia Power',
+            role: 'Pete Nichols, area manager',
+            said: 'Generation is not the constraint. The grid east of the Mississippi is interconnected, and he said there is enough generation to serve this. Transmission is the part being built. Georgia Power is building 400 miles of it across the state, including 101 miles of 500 kV line, an upgrade running from Kinchafoonee down to Plains, and a new substation at Plains. None of it has required condemnation so far. In the one case raised from the floor, the utility offered about double a $120,000 appraisal and the owner did not want to sell. Loads over 99 MW have to sign fifteen-year contracts and pay 100% of the capital and the operations and maintenance, so other customers do not carry it. Rates are frozen through 2028. The Public Service Commission requires public meetings when more than twelve landowners are affected. The Patriot Act limits what the utility can publish about where its infrastructure runs.',
+          },
+          {
+            who: 'The city',
+            role: 'Mayor Travis Rush and the city manager',
+            said: 'Mayor Travis Rush said the council is working with lawyers and with other counties, that there is a contract agreement with the developer, and that concerns raised by residents have been sent to the company to accept or refuse. He welcomed anyone who wants to help write the ordinance. Kirk Lyman-Barner answered that the developer helping write the ordinance is itself the red flag. City manager Raphael Maddox, three months into the job, said the clergy meeting was a standing quarterly town hall and that he invited Liberty to it once the data center came up. The next quarterly meeting is for local businesses. He said his instruction to staff was to be careful, because Georgia only requires one party to know a conversation is being recorded. He said he never told anyone to stay silent.',
+          },
+          {
+            who: 'Liberty',
+            role: 'Tony and Paul, from Toronto',
+            said: 'They were in the back of the room and were called forward. They said they were brought in about eighteen months to two years ago to put capital and technical help into a bitcoin data center already operating in Americus that was going to shut down, and that they have made ten to fifteen trips here since. Conversations with local economic development turned into this proposal. They frame it as an innovation center with the data center as an extension of it, including curriculum work with the schools. They put the build at about $5 billion, plus perhaps $10 billion of customer equipment inside it. They said it is small by industry standards, not a 400 MW Meta or Google campus, and that they are not using water. They said the commitment is backed: if they do not spend what they said and create the jobs they said, they give the land back and pay a substantial premium over what they paid. Asked whether they have a customer, they said yes. The room got heated and the organizers closed the meeting, saying the city and the company should hold one of their own.',
+          },
+        ],
+      },
     },
   },
   official('2026-08-10', 'authority', 'Board meeting', 'unknown', '16:00'),

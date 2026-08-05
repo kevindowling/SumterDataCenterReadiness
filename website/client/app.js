@@ -282,6 +282,22 @@ function videoWell(meeting) {
     <a class="recap-youtube" href="https://youtu.be/${video.id}" target="_blank" rel="noreferrer">Open on YouTube ↗</a>`;
 }
 
+// What was said, for the reader who will not watch 74 minutes of video. It
+// sits under the player rather than replacing it: the recording is the record,
+// and the note above the summary says so before anyone quotes this page.
+function recapNotes(notes) {
+  if (!notes) return '';
+  return `<div class="recap-notes">
+    <h3>What was said</h3>
+    <p class="recap-notes-source">${escapeHtml(notes.source)}</p>
+    ${notes.parts.map((part) => `<article class="recap-note">
+      <h4>${escapeHtml(part.who)}<small>${escapeHtml(part.role)}</small></h4>
+      <p>${escapeHtml(part.said)}</p>
+      ${part.link ? `<p class="recap-note-source"><a href="${escapeHtml(part.link.href)}" target="_blank" rel="noreferrer">${escapeHtml(part.link.label)} ↗</a></p>` : ''}
+    </article>`).join('')}
+  </div>`;
+}
+
 const deckLink = (deck) => `<a class="recap-deck" href="${deck.href}" target="_blank" rel="noreferrer">
   <small>SLIDES FROM THE MEETING</small>
   <b>${escapeHtml(deck.title)}</b>
@@ -416,6 +432,7 @@ function meetingPage(id) {
         <div class="recap-media">${videoWell(meeting)}</div>
         <div>${meeting.recap.deck ? deckLink(meeting.recap.deck) : ''}</div>
       </div>
+      ${recapNotes(meeting.recap.notes)}
     </section>` : ''}
     <section class="meeting-source">
       <p class="event-topics-label">WHERE THIS DATE COMES FROM</p>

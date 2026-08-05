@@ -284,6 +284,14 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .meeting-recap{margin-top:44px;padding-top:34px;border-top:1px solid var(--ink)}
 .meeting-recap h2{margin:0 0 22px;font-size:26px;font-weight:600;letter-spacing:-.02em}
 .meeting-recap-grid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:clamp(24px,4vw,48px);align-items:start}
+.recap-notes{margin-top:38px;padding-top:30px;border-top:1px solid #171a1826}
+.recap-notes h3{margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em}
+.recap-notes-source{margin:10px 0 0;max-width:70ch;color:var(--muted);font-size:14px;line-height:1.5}
+.recap-note{margin-top:26px;max-width:74ch}
+.recap-note h4{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;font-size:17px;font-weight:600}
+.recap-note h4 small{color:var(--orange);font:500 8px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase}
+.recap-note p{margin:8px 0 0;font-size:16px;line-height:1.62}
+.recap-note-source a{color:var(--ink);font:500 9px/1 var(--mono);letter-spacing:.1em;text-decoration:none;border-bottom:1px solid var(--orange);padding-bottom:3px}
 .meeting-source{margin-top:44px;padding-top:26px;border-top:1px solid #171a1826;color:var(--muted)}
 .meeting-source p{margin:10px 0 0;font-size:14px;line-height:1.5}
 .meeting-source-links{display:flex;flex-wrap:wrap;gap:18px}
