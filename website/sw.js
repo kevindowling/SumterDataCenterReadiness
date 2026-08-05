@@ -27,7 +27,23 @@ const SHELL = [
   '/client/petition.js',
   '/client/contacts.js',
   '/client/meetings.js',
+  // Both of these are imported but were missing here, which made the offline
+  // promise false in the one case it matters: a reader who has visited exactly
+  // once. app.js imports install.js at the top, so offline that import failed
+  // and the whole module died — shell served from cache, #app empty, blank
+  // page. It went unnoticed because a second visit caches them at runtime, and
+  // every manual test had made more than one. Keep this list in step with the
+  // imports; check.mjs already lists both files.
+  '/client/install.js',
+  '/client/gis-sources.js',
   '/assets/styles.css',
+  '/assets/fonts.css',
+  // Only the latin subsets are precached. The latin-ext and vietnamese files
+  // are declared in fonts.css with their unicode-range and fetched on demand,
+  // which for this site's text means never.
+  '/assets/fonts/newsreader-latin.woff2',
+  '/assets/fonts/dm-mono-400-latin.woff2',
+  '/assets/fonts/dm-mono-500-latin.woff2',
   '/assets/manifest.webmanifest',
   '/assets/favicon.svg',
   '/assets/icons/seal.svg',
