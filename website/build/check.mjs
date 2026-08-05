@@ -22,6 +22,7 @@ const required = [
   'website/assets/icons/icon-180.png',
   'website/server/server.mjs', 'website/build/prerender.mjs',
   'research/moratorium-resolution.pdf', 'research/georgia-sunshine-laws-6th-edition.pdf',
+  'research/better-government-2026-08-04.pdf',
   ...docs.map((name) => `research/${name}`),
 ];
 const errors = [];

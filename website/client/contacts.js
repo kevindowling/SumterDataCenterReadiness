@@ -23,10 +23,9 @@ export const organizers = {
   group: 'Sumter County Citizens for Transparency',
   email: 'contact@scc4t.com',
   blurb: 'Two neighbors keep this desk. Write to us about anything on the site — a correction, a document you think we should have, a question about the petition, or an offer to help.',
+  // Names as they appear on the group's own event flyer.
   people: [
-    // TODO: confirm both entries before launch — full names as each person
-    // wants them printed, and the role line each is comfortable with.
-    {name: 'Kirk', role: 'Organizer'},
+    {name: 'Kirk Lyman-Barner', role: 'Organizer'},
     {name: 'Kevin Dowling', role: 'Organizer'},
   ],
   // What the group will and will not do with a message. Stated plainly because
