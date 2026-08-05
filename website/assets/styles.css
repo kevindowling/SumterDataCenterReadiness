@@ -219,6 +219,76 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .recap-deck:hover span{color:#fdfcf8a6}
 @media(max-width:1050px){.recap-banner{grid-template-columns:1fr;grid-template-areas:"head" "media" "detail";padding-block:55px 65px}.recap-media{margin-top:34px}.recap-detail{margin-top:34px}.recap-well{max-width:340px}}
 @media(max-width:720px){.recap-banner{padding:48px 20px 56px}.recap-head h2{font-size:clamp(36px,11vw,52px)}}
+/* Next chance to speak. One band on the home page, because a meeting a reader
+   learns about after the sign-up sheet closed may as well not have happened. */
+.speak-band{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:26px;max-width:1420px;margin:0 auto;padding:34px clamp(20px,5vw,80px) 38px;border-top:1px solid var(--ink);background:var(--ink);color:var(--light)}
+.speak-band .eyebrow{color:var(--light)}
+.speak-copy b{display:block;margin-top:10px;font-size:clamp(24px,2.6vw,34px);font-weight:600;line-height:1.1}
+.speak-copy>span{display:block;margin-top:7px;color:#fdfcf8a6;font-size:15px}
+.speak-copy p{max-width:640px;margin:14px 0 0;color:#fdfcf8cc;font-size:14px;line-height:1.5}
+.speak-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.speak-go{padding:14px 22px;border:1px solid var(--light);background:var(--light);color:var(--ink);font:500 10px/1 var(--mono);letter-spacing:.06em;text-decoration:none}
+.speak-go:hover{background:var(--orange);border-color:var(--orange);color:var(--light)}
+.speak-all{color:#fdfcf8a6;font:500 9px/1 var(--mono);letter-spacing:.1em;text-decoration:none}
+.speak-all:hover{color:var(--light)}
+/* The calendar. A month-grouped list rather than a seven-column grid: four
+   meetings a month would leave a grid twenty-four cells of empty paper, and a
+   list is what survives a phone screen and a screen reader intact. */
+.meetings,.meeting{max-width:1000px;margin:0 auto;padding:40px clamp(20px,5vw,60px) 90px}
+.meetings-head h1{margin:14px 0 0;font-size:clamp(38px,5vw,68px);font-weight:600;line-height:.95;letter-spacing:-.04em}
+.meetings-head h1 em{font-style:italic}
+.meetings-head .lede{max-width:760px;margin:22px 0 0;font-size:clamp(17px,1.3vw,20px);line-height:1.5}
+.meetings-provenance{max-width:760px;margin:20px 0 0;padding-left:16px;border-left:3px solid var(--orange);color:var(--muted);font-size:14px;line-height:1.5}
+.meetings-stale{margin:20px 0 0;padding:14px 16px;border:1px solid var(--orange);color:var(--ink);font-size:14px;line-height:1.5}
+.meetings-list{margin-top:50px}
+.meetings-list h2{margin:0;font-size:26px;font-weight:600;letter-spacing:-.02em}
+.meetings-empty{margin:16px 0 0;color:var(--muted);font-size:15px}
+.meeting-month{margin-top:26px}
+.meeting-month h3{margin:0 0 8px;color:var(--muted);font:500 9px/1 var(--mono);letter-spacing:.13em}
+.meeting-row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:18px;padding:16px 14px;border-bottom:1px solid #171a1826;color:var(--ink);text-decoration:none}
+.meeting-row:first-of-type{border-top:1px solid var(--ink)}
+.meeting-row:hover{background:#171a180a}
+.meeting-day{text-align:center}
+.meeting-day b{display:block;font-size:26px;font-weight:600;line-height:1}
+.meeting-day small{display:block;margin-top:3px;color:var(--muted);font:500 8px/1 var(--mono);letter-spacing:.1em}
+.meeting-what b{display:block;font-size:18px;font-weight:600;line-height:1.25}
+.meeting-what span{display:block;margin-top:5px;color:var(--muted);font-size:14px}
+.meeting-tags{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+.tag{font:500 8px/1 var(--mono);letter-spacing:.1em;font-style:normal;padding:6px 9px;border:1px solid currentColor;white-space:nowrap}
+.tag-speak{color:var(--orange)}
+.tag-open{color:var(--muted)}
+.tag-watch{background:var(--ink);border-color:var(--ink);color:var(--light)}
+.meetings-past .meeting-row.is-past .meeting-day b,.meetings-past .meeting-row.is-past .meeting-what b{color:var(--muted)}
+/* A single meeting. */
+.meeting-back{display:inline-block;margin-bottom:26px;color:var(--muted);font:500 9px/1 var(--mono);letter-spacing:.1em;text-decoration:none}
+.meeting-back:hover{color:var(--ink)}
+.meeting-head h1{margin:14px 0 0;font-size:clamp(34px,4.2vw,56px);font-weight:600;line-height:1;letter-spacing:-.04em}
+.meeting-head .lede{max-width:700px;margin:20px 0 0;font-size:17px;line-height:1.5}
+.meeting-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:22px;margin-top:34px;padding:26px;border:1px solid var(--ink);background:var(--light);box-shadow:10px 10px 0 #171a1814}
+.meeting-facts .event-field+.event-field{margin-top:0;padding-top:0;border-top:0}
+.meeting-facts .event-calendar{align-self:end;margin-top:0}
+.speak-rules{margin-top:34px;padding:26px;border:1px solid var(--orange)}
+.speak-rules dl{display:grid;grid-template-columns:auto 1fr;gap:10px 20px;margin:18px 0 0;align-items:baseline}
+.speak-rules dt{color:var(--muted);font:500 8px/1 var(--mono);letter-spacing:.13em;white-space:nowrap}
+.speak-rules dd{margin:0;font-size:15px;line-height:1.5}
+.speak-rules>p{margin:16px 0 0;font-size:15px;line-height:1.5}
+.speak-caution{color:var(--muted);font-size:14px}
+.speak-unknown{border-color:#171a1840}
+.meeting-topics{margin-top:34px}
+.meeting-recap{margin-top:44px;padding-top:34px;border-top:1px solid var(--ink)}
+.meeting-recap h2{margin:0 0 22px;font-size:26px;font-weight:600;letter-spacing:-.02em}
+.meeting-recap-grid{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:clamp(24px,4vw,48px);align-items:start}
+.meeting-source{margin-top:44px;padding-top:26px;border-top:1px solid #171a1826;color:var(--muted)}
+.meeting-source p{margin:10px 0 0;font-size:14px;line-height:1.5}
+.meeting-source-links{display:flex;flex-wrap:wrap;gap:18px}
+.meeting-source-links a{color:var(--ink);font:500 9px/1 var(--mono);letter-spacing:.1em;text-decoration:none;border-bottom:1px solid var(--orange);padding-bottom:3px}
+@media(max-width:720px){
+  .speak-band{padding:30px 20px 34px}
+  .meeting-row{grid-template-columns:52px minmax(0,1fr);gap:14px;padding:14px 6px}
+  .meeting-tags{grid-column:2;justify-content:flex-start;margin-top:4px}
+  .meeting-recap-grid{grid-template-columns:1fr}
+  .meetings,.meeting{padding:30px 20px 70px}
+}
 /* Prerendered fallback nav: present in the static HTML a crawler or a reader
    without JavaScript is served, and replaced the moment the app renders. */
 .prerender-nav{max-width:1500px;margin:auto;padding:48px clamp(20px,5vw,80px)}.prerender-nav h2{margin:0 0 16px;font:500 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.prerender-nav ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}.prerender-nav a{color:var(--ink);text-underline-offset:3px}

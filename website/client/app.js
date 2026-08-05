@@ -6,79 +6,14 @@ import {
 } from './content.js';
 import {LIMITS, livePetition} from './petition.js';
 import {contactSections} from './contacts.js';
+import {
+  BODIES, COMMENT, CONFIRMED_ON, STALE_AFTER, americusToday, byMonth, calendarIsStale, clockTime,
+  dayOfMonth, endStamp, findMeeting, longDate, meetingLabel, meetingPath, meetingSeoTitle,
+  meetingWhen, monthLabel, nextSpeakable, pastMeetings, recapMeetings, startStamp,
+  upcomingMeetings, weekday,
+} from './meetings.js';
 import {authConfig} from './auth-config.js';
 
-
-// Upcoming public meetings. `startUtc`/`endUtc` are explicit so the calendar
-// file never depends on the reader's timezone; `date` drives the "is it still
-// upcoming?" test, so a past event drops off the site on its own.
-const events = [
-  {
-    id: 'data-centers-are-coming-2026-08-04',
-    date: '2026-08-04',
-    startUtc: '20260804T220000Z', // 6:00 p.m. EDT
-    endUtc: '20260805T000000Z',
-    when: 'Tuesday, August 4 · 6:00 p.m.',
-    kind: 'PUBLIC COMMUNITY MEETING',
-    title: 'Data centers are coming.',
-    venue: 'Lake Blackshear Regional Library',
-    address: '307 East Lamar St., Americus, GA 31709',
-    host: 'Sumter County Citizens for Transparency',
-    summary: 'A company is proposing to build a large-scale data center in Americus. Before decisions get made, our community deserves to understand what that means for us — our water, our power bills, our land, and our future.',
-    topics: [
-      'Water usage & local supply impacts',
-      'Electricity demand & utility rates',
-      'Noise, land use & property values',
-      'What residents can do next',
-    ],
-    // The printed flyer, for anyone who wants to share or post it. The program
-    // below is not read off the image: an image is invisible to a screen
-    // reader, to search, and to anyone on a connection where it does not load,
-    // and the running order is the part people actually come for.
-    program: [
-      {name: 'Katie Minich', role: 'Welcome'},
-      {name: 'Kevin Dowling', role: 'Life inside a data center'},
-      {name: 'James Malphrus', role: 'Sowega Aquifer Alliance'},
-      {name: 'Kirk Lyman-Barner', role: 'Better government'},
-      {name: 'Q&A', role: 'Open to the community'},
-    ],
-    signups: 'Sign up at the door: moratorium petition, volunteers, T-shirts.',
-    flyer: {
-      src: '/assets/images/event_flyer.jpg',
-      alt: 'Flyer: Community Meeting About Data Centers, Tuesday August 4 2026 at 6:00 p.m., Lake Blackshear Regional Library. Everyone welcome — bring your questions.',
-    },
-    // What the meeting left behind. This is what keeps the event on the home
-    // page after `date` passes: the banner stops saying "come to this" and
-    // starts saying "here is what happened", for the far larger number of
-    // residents who could not be in the room.
-    recap: {
-      video: {
-        id: 'qYPjHDAbO9k',
-        length: '1 hr 14 min',
-      },
-      deck: {
-        href: '/research/better-government-2026-08-04.pdf',
-        title: 'Better government',
-        speaker: 'Kirk Lyman-Barner',
-        meta: 'PDF · 3.8 MB',
-      },
-    },
-  },
-];
-
-const upcomingEvents = () => {
-  const today = new Date().toISOString().slice(0, 10);
-  return events.filter((event) => event.date >= today).sort((a, b) => a.date.localeCompare(b.date));
-};
-
-// A finished meeting stays on the page only while it still has something to
-// show. Without a `recap` it drops off the morning after, exactly as it would
-// have with no handling at all.
-const recapEvents = () => {
-  const today = new Date().toISOString().slice(0, 10);
-  return events.filter((event) => event.date < today && event.recap)
-    .sort((a, b) => b.date.localeCompare(a.date));
-};
 
 const app = document.querySelector('#app');
 const cache = new Map();
@@ -118,6 +53,8 @@ function pathFor(next) {
     : next.view === 'map' ? '/map/'
     : next.view === 'petition' ? '/petition/'
     : next.view === 'contact' ? '/contact/'
+    : next.view === 'meetings' ? '/meetings/'
+    : next.view === 'meeting' ? meetingPath(next.id)
     : next.view === 'board' ? (next.threadId ? `/board/${next.threadId}/` : '/board/')
     : '/';
 }
@@ -132,10 +69,15 @@ function setRoute(next) {
 function routeFromPath(pathname) {
   const doc = pathname.match(/^\/doc\/([a-z0-9-]+)\/?$/);
   const thread = pathname.match(/^\/board\/(\d+)\/?$/);
+  const meeting = pathname.match(/^\/meetings\/([a-z0-9-]+)\/?$/);
   return /^\/community\/?$/.test(pathname) ? {view: 'community'}
     : /^\/map\/?$/.test(pathname) ? {view: 'map'}
     : /^\/petition\/?$/.test(pathname) ? {view: 'petition'}
     : /^\/contact\/?$/.test(pathname) ? {view: 'contact'}
+    : /^\/meetings\/?$/.test(pathname) ? {view: 'meetings'}
+    // An unknown id falls back to the calendar rather than the home page: a
+    // stale link to a meeting is best answered with the list of real ones.
+    : meeting ? (findMeeting(meeting[1]) ? {view: 'meeting', id: meeting[1]} : {view: 'meetings'})
     : thread ? {view: 'board', threadId: thread[1]}
     : /^\/board\/?$/.test(pathname) ? {view: 'board'}
     : doc ? {view: 'doc', id: doc[1]} : {view: 'home'};
@@ -194,6 +136,7 @@ const topbar = () => `
       <span class="edition">COMMUNITY RESEARCH EDITION</span>
       <button class="search-button" data-search><kbd>/</kbd> Search the desk</button>
       <button class="source-link" data-doc="start">Research notes ↗</button>
+      <button class="source-link" data-meetings>Public meetings ↗</button>
       <button class="source-link" data-contact>Contact officials ↗</button>
       ${accountControls()}
     </div>
@@ -220,22 +163,31 @@ function fieldMap() {
 
 // A minimal RFC 5545 file, built in the browser so the meeting can be saved to
 // a phone calendar without any server round-trip.
-function calendarFile(event) {
+function calendarFile(meeting) {
   const fold = (line) => line.replace(/\r?\n/g, '\\n');
+  // A reminder that fires an hour before a meeting is only useful if it says
+  // what to do with the hour. For a meeting with a sign-up sheet, that is the
+  // sheet.
+  const note = meeting.speak === 'published'
+    ? `${meeting.name}\n\n${COMMENT.published.signup} ${COMMENT.published.how}`
+    : meeting.summary ? `${meeting.summary}\n\nHosted by ${meeting.name}.`
+    : `${meeting.name} — ${meeting.kind.toLowerCase()}.`;
   const body = [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Sumter Field Desk//EN', 'BEGIN:VEVENT',
-    `UID:${event.id}@sumter-field-desk`,
-    `DTSTART:${event.startUtc}`, `DTEND:${event.endUtc}`,
-    `SUMMARY:${fold(`${event.title} — ${event.kind.toLowerCase()}`)}`,
-    `LOCATION:${fold(`${event.venue}, ${event.address}`)}`,
-    `DESCRIPTION:${fold(`${event.summary}\n\nHosted by ${event.host}.`)}`,
+    `UID:${meeting.id}@sumter-field-desk`,
+    `DTSTART:${startStamp(meeting)}`, `DTEND:${endStamp(meeting)}`,
+    `SUMMARY:${fold(meetingLabel(meeting))}`,
+    `LOCATION:${fold(`${meeting.venue}, ${meeting.address}`)}`,
+    `DESCRIPTION:${fold(note)}`,
     'END:VEVENT', 'END:VCALENDAR',
   ].join('\r\n');
   return `data:text/calendar;charset=utf-8,${encodeURIComponent(body)}`;
 }
 
 function eventBanner() {
-  const [event] = upcomingEvents();
+  // The organisers' own events lead the home page; the official calendar is a
+  // list, not a hero — nobody needs a full-bleed banner for a work session.
+  const [event] = upcomingMeetings().filter((meeting) => meeting.body === 'citizens');
   if (!event) return '';
   return `<section class="event-banner" aria-label="Upcoming public meeting">
     <div class="event-copy">
@@ -253,9 +205,9 @@ function eventBanner() {
         <img src="${event.flyer.src}" alt="${escapeHtml(event.flyer.alt)}" width="1080" height="1350" loading="lazy" />
         <span>Open the flyer to print or share ↗</span>
       </a>` : ''}
-      <div class="event-field"><small>DATE &amp; TIME</small><b>${escapeHtml(event.when)}</b></div>
+      <div class="event-field"><small>DATE &amp; TIME</small><b>${escapeHtml(meetingWhen(event))}</b></div>
       <div class="event-field"><small>LOCATION</small><b>${escapeHtml(event.venue)}</b><span>${escapeHtml(event.address)}</span></div>
-      <div class="event-field"><small>HOSTED BY</small><b>${escapeHtml(event.host)}</b></div>
+      <div class="event-field"><small>HOSTED BY</small><b>${escapeHtml(event.name)}</b></div>
       <a class="event-calendar" href="${calendarFile(event)}" download="${event.id}.ics">Add to calendar ↓</a>
     </div>
   </section>`;
@@ -266,7 +218,7 @@ function eventBanner() {
 let videoPlaying = false;
 
 function recapBanner() {
-  const [event] = recapEvents();
+  const [event] = recapMeetings();
   if (!event) return '';
   const {video, deck} = event.recap;
   // Nothing is fetched from YouTube until the reader asks for it. The poster is
@@ -286,11 +238,11 @@ function recapBanner() {
   // Three blocks, not two, so the grid can put the player directly under the
   // headline when the columns collapse. Stacked the other way the reader meets
   // the speaker list and a slide download before the thing they came to watch.
-  return `<section class="recap-banner" aria-label="Recording of the ${escapeHtml(event.when)} meeting">
+  return `<section class="recap-banner" aria-label="Recording of the ${escapeHtml(meetingWhen(event))} meeting">
     <div class="event-copy recap-head">
       <p class="eyebrow"><span></span> WATCH THE MEETING</p>
       <h2>${escapeHtml(event.title)}</h2>
-      <p class="event-summary">Recorded ${escapeHtml(event.when)} at the ${escapeHtml(event.venue)}. If you could not be in the room, the whole meeting is here — nothing trimmed.</p>
+      <p class="event-summary">Recorded ${escapeHtml(meetingWhen(event))} at the ${escapeHtml(event.venue)}. If you could not be in the room, the whole meeting is here — nothing trimmed.</p>
     </div>
     <div class="recap-detail">
       ${event.program ? `<p class="event-topics-label">WHO SPOKE</p>
@@ -310,6 +262,174 @@ function recapBanner() {
   </section>`;
 }
 
+// --- The public meeting calendar -------------------------------------------
+
+// Shared by the home banner and the meeting page, so the click-to-load bargain
+// is made in exactly one place.
+function videoWell(meeting) {
+  const {video} = meeting.recap;
+  const player = videoPlaying
+    ? `<iframe class="recap-frame" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&amp;rel=0"
+        title="${escapeHtml(meetingLabel(meeting))} — full meeting recording"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`
+    : `<button class="recap-play" data-play>
+        <span class="recap-play-glyph" aria-hidden="true">▶</span>
+        <span class="recap-play-label">Watch the meeting</span>
+        <span class="recap-play-meta">${escapeHtml(video.length)} · loads from YouTube</span>
+      </button>`;
+  return `<div class="recap-well">${player}</div>
+    <a class="recap-youtube" href="https://youtu.be/${video.id}" target="_blank" rel="noreferrer">Open on YouTube ↗</a>`;
+}
+
+const deckLink = (deck) => `<a class="recap-deck" href="${deck.href}" target="_blank" rel="noreferrer">
+  <small>SLIDES FROM THE MEETING</small>
+  <b>${escapeHtml(deck.title)}</b>
+  <span>${escapeHtml(deck.speaker)} · ${escapeHtml(deck.meta)} ↓</span>
+</a>`;
+
+// One line on the home page for the next meeting a resident may actually
+// address. Knowing a meeting exists is worth nothing three hours after the
+// sign-up sheet closed, so the sheet is what this band leads with.
+function speakBand() {
+  const meeting = nextSpeakable();
+  if (!meeting) return '';
+  return `<section class="speak-band">
+    <div class="speak-copy">
+      <p class="eyebrow"><span></span> NEXT CHANCE TO SPEAK</p>
+      <b>${escapeHtml(meetingWhen(meeting))}</b>
+      <span>${escapeHtml(meeting.name)} · ${escapeHtml(meeting.venue)}</span>
+      <p>${escapeHtml(COMMENT.published.limit)} ${escapeHtml(COMMENT.published.signup)}</p>
+    </div>
+    <div class="speak-actions">
+      <a class="speak-go" href="${meetingPath(meeting.id)}">How to sign up →</a>
+      <a class="speak-all" href="/meetings/">All public meetings ↗</a>
+    </div>
+  </section>`;
+}
+
+const speakTag = (meeting) => meeting.speak === 'published'
+  ? '<i class="tag tag-speak">YOU CAN SPEAK</i>'
+  : meeting.speak === 'open' ? '<i class="tag tag-open">EVERYONE WELCOME</i>' : '';
+
+function meetingRow(meeting, today) {
+  const past = meeting.date < today;
+  return `<a class="meeting-row${past ? ' is-past' : ''}" href="${meetingPath(meeting.id)}">
+    <span class="meeting-day"><b>${dayOfMonth(meeting.date)}</b><small>${weekday(meeting.date).slice(0, 3).toUpperCase()}</small></span>
+    <span class="meeting-what">
+      <b>${escapeHtml(meetingLabel(meeting))}</b>
+      <span>${escapeHtml(clockTime(meeting.time))} · ${escapeHtml(meeting.venue)}</span>
+    </span>
+    <span class="meeting-tags">
+      ${meeting.recap ? '<i class="tag tag-watch">WATCH</i>' : ''}
+      ${past ? '' : speakTag(meeting)}
+    </span>
+  </a>`;
+}
+
+const meetingMonths = (list, today) => byMonth(list).map(([key, group]) => `
+  <div class="meeting-month">
+    <h3>${escapeHtml(monthLabel(key))}</h3>
+    ${group.map((meeting) => meetingRow(meeting, today)).join('')}
+  </div>`).join('');
+
+function meetingsPage() {
+  document.title = `Public meetings — ${HOME_TITLE}`;
+  const today = americusToday();
+  const upcoming = upcomingMeetings(today);
+  const past = pastMeetings(today);
+  return `${topbar()}<main class="meetings">
+    <section class="meetings-head">
+      <p class="eyebrow"><span></span> PUBLIC MEETINGS</p>
+      <h1>The decisions get made <em>in these rooms.</em></h1>
+      <p class="lede">Both the county and the city meet in public, monthly, and both are required by Georgia law to let you in. This is when and where. Where a body publishes how to get on the speakers' list, that is here too — for the city, the list opens thirty minutes before the meeting and closes when it starts.</p>
+      <p class="meetings-provenance">Every date below was read off the body's own posted calendar and checked in by hand on ${escapeHtml(longDate(CONFIRMED_ON))}, ${CONFIRMED_ON.slice(0, 4)} — not computed from a rule like "third Tuesday", because the weeks move. Agendas are published closer to the date; confirm before you travel.</p>
+      ${calendarIsStale(today) ? `<p class="meetings-stale">This calendar has not been refreshed since ${escapeHtml(monthLabel(STALE_AFTER.slice(0, 7)))}. Check the <a href="${BODIES.commission.calendar}" target="_blank" rel="noreferrer">county calendar</a> and the <a href="${BODIES.council.calendar}" target="_blank" rel="noreferrer">city agenda portal</a> directly.</p>` : ''}
+    </section>
+    <section class="meetings-list">
+      <h2>Coming up</h2>
+      ${upcoming.length
+        ? meetingMonths(upcoming, today)
+        : `<p class="meetings-empty">No meetings are listed ahead. Check the <a href="${BODIES.commission.calendar}" target="_blank" rel="noreferrer">county calendar</a> and the <a href="${BODIES.council.calendar}" target="_blank" rel="noreferrer">city agenda portal</a>.</p>`}
+    </section>
+    ${past.length ? `<section class="meetings-list meetings-past">
+      <h2>Already happened</h2>
+      ${meetingMonths(past, today)}
+    </section>` : ''}
+  </main>${searchPanel()}`;
+}
+
+function speakBlock(meeting) {
+  if (meeting.speak === 'published') {
+    const rules = COMMENT.published;
+    return `<section class="speak-rules">
+      <p class="eyebrow"><span></span> ${escapeHtml(rules.label)}</p>
+      <dl>
+        <dt>How many</dt><dd>${escapeHtml(rules.limit)}</dd>
+        <dt>Signing up</dt><dd>${escapeHtml(rules.signup)} ${escapeHtml(rules.how)}</dd>
+      </dl>
+      <p class="speak-caution">${escapeHtml(rules.caution)}</p>
+    </section>`;
+  }
+  if (meeting.speak === 'open') return '';
+  // Not a gap in the page — a finding. The room is open either way, and the
+  // phone number to settle the rest of the question is the useful part.
+  return `<section class="speak-rules speak-unknown">
+    <p class="eyebrow"><span></span> ${escapeHtml(COMMENT.unknown.label)}</p>
+    <p>${escapeHtml(COMMENT.unknown.body)}</p>
+    <p class="speak-caution">Ask ${escapeHtml(meeting.name)} at ${escapeHtml(meeting.phone)} before you plan to speak.</p>
+  </section>`;
+}
+
+function meetingPage(id) {
+  const meeting = findMeeting(id);
+  if (!meeting) return meetingsPage();
+  document.title = `${meetingLabel(meeting)} — ${meetingWhen(meeting)}`;
+  const today = americusToday();
+  const past = meeting.date < today;
+  return `${topbar()}<main class="meeting">
+    <a class="meeting-back" href="/meetings/">← All public meetings</a>
+    <section class="meeting-head">
+      <p class="eyebrow"><span></span> ${escapeHtml(past ? 'PAST MEETING' : meeting.name)}</p>
+      <h1>${escapeHtml(meetingLabel(meeting))}</h1>
+      ${meeting.summary ? `<p class="lede">${escapeHtml(meeting.summary)}</p>` : ''}
+    </section>
+    <section class="meeting-facts">
+      <div class="event-field"><small>DATE &amp; TIME</small><b>${escapeHtml(meetingWhen(meeting))}</b></div>
+      <div class="event-field"><small>LOCATION</small><b>${escapeHtml(meeting.venue)}</b><span>${escapeHtml(meeting.address)}</span></div>
+      ${meeting.remote ? `<div class="event-field"><small>ATTENDING REMOTELY</small><span>${escapeHtml(meeting.remote)}</span></div>` : ''}
+      ${past ? '' : `<a class="event-calendar" href="${calendarFile(meeting)}" download="${meeting.id}.ics">Add to calendar ↓</a>`}
+    </section>
+    ${past ? '' : speakBlock(meeting)}
+    ${meeting.topics ? `<section class="meeting-topics">
+      <p class="event-topics-label">WHAT ${past ? 'THEY TALKED' : "THEY'LL TALK"} ABOUT</p>
+      <ul class="event-topics">${meeting.topics.map((topic) => `<li>${escapeHtml(topic)}</li>`).join('')}</ul>
+    </section>` : ''}
+    ${meeting.program ? `<section class="meeting-topics">
+      <p class="event-topics-label">WHO ${past ? 'SPOKE' : 'IS SPEAKING'}</p>
+      <dl class="event-program">${meeting.program.map((slot) => `<dt>${escapeHtml(slot.name)}</dt><dd>${escapeHtml(slot.role)}</dd>`).join('')}</dl>
+    </section>` : ''}
+    ${meeting.recap ? `<section class="meeting-recap">
+      <h2>Watch the meeting</h2>
+      <div class="meeting-recap-grid">
+        <div class="recap-media">${videoWell(meeting)}</div>
+        <div>${meeting.recap.deck ? deckLink(meeting.recap.deck) : ''}</div>
+      </div>
+    </section>` : ''}
+    <section class="meeting-source">
+      <p class="event-topics-label">WHERE THIS DATE COMES FROM</p>
+      <p>${meeting.status === 'confirmed'
+        ? `Read off ${escapeHtml(meeting.name)}'s own posted calendar and checked in by hand on ${escapeHtml(longDate(CONFIRMED_ON))}, ${CONFIRMED_ON.slice(0, 4)}.`
+        : 'This date has not been confirmed against a posted calendar.'}</p>
+      <p class="meeting-source-links">
+        ${meeting.source ? `<a href="${meeting.source}" target="_blank" rel="noreferrer">The posted calendar ↗</a>` : ''}
+        ${meeting.agendas ? `<a href="${meeting.agendas}" target="_blank" rel="noreferrer">Agendas and minutes ↗</a>` : ''}
+      </p>
+      ${meeting.rhythm ? `<p class="meeting-rhythm">${escapeHtml(meeting.rhythm)}</p>` : ''}
+    </section>
+  </main>${searchPanel()}`;
+}
+
 function home() {
   document.title = 'Sumter Field Desk - Data Center Research';
   // The map leads: it is the one thing that answers "where is this and does it
@@ -326,6 +446,7 @@ function home() {
       </div>
     </section>
     ${eventBanner()}
+    ${speakBand()}
     ${recapBanner()}
     <section class="status-strip meeting-strip">
       <div><small>COMMUNITY PURPOSE</small><b class="meeting-address">ASK BEFORE APPROVAL</b><span>facts, conditions, and accountability</span></div>
@@ -1137,6 +1258,8 @@ function updateHead() {
     : route.view === 'map' ? 'Site map — Sumter Field Desk'
     : route.view === 'board' ? 'Message board — Sumter Field Desk'
     : route.view === 'contact' ? 'Contact your officials — Sumter Field Desk'
+    : route.view === 'meetings' ? 'Public meetings — Sumter Field Desk'
+    : route.view === 'meeting' ? meetingSeoTitle(findMeeting(route.id))
     : HOME_TITLE;
   const canonical = document.querySelector('link[rel="canonical"]');
   if (canonical) canonical.href = new URL(pathFor(route), location.origin).href;
@@ -1158,6 +1281,8 @@ async function render() {
       : route.view === 'map' ? siteMap()
       : route.view === 'petition' ? petitionPage()
       : route.view === 'contact' ? contactPage()
+      : route.view === 'meetings' ? meetingsPage()
+      : route.view === 'meeting' ? meetingPage(route.id)
       : route.view === 'board' ? boardView()
       : home()) + surveyPanel();
   }
@@ -1193,6 +1318,7 @@ function bind() {
     try { await navigator.clipboard.writeText(url); } catch { /* clipboard unavailable */ }
     shareMenuOpen = false; render();
   });
+  document.querySelectorAll('[data-meetings]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'meetings'}); }));
   document.querySelector('[data-play]')?.addEventListener('click', () => { videoPlaying = true; render(); });
   document.querySelector('[data-snapshot]')?.addEventListener('click', () => recordSnapshot());
   document.querySelector('[data-export]')?.addEventListener('click', () => downloadSignatures());

@@ -19,6 +19,7 @@ const SHELL = [
   '/client/content.js',
   '/client/petition.js',
   '/client/contacts.js',
+  '/client/meetings.js',
   '/assets/styles.css',
   '/assets/manifest.webmanifest',
   '/assets/favicon.svg',

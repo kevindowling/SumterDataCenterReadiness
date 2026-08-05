@@ -1,5 +1,5 @@
 import {createHash, createHmac, createPublicKey, randomBytes, verify as verifySignature} from 'node:crypto';
-import {createReadStream, statSync} from 'node:fs';
+import {createReadStream, readFileSync, statSync} from 'node:fs';
 import {createServer} from 'node:http';
 import {extname, join, normalize, sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -1075,7 +1075,10 @@ const aliasedFiles = ['/index.html', '/sw.js'];
 // of these paths; in dev the shell is served and the router resolves the path.
 // Deliberately an explicit pattern rather than a catch-all, so an unknown path
 // still 403s instead of leaking the shell for anything not on this list.
-const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|board(\/\d+)?)\/?$/;
+const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|meetings(\/[a-z0-9-]+)?|board(\/\d+)?)\/?$/;
+
+// The one file whose "./" paths have to be rewritten before it is served.
+const isShell = (file) => file.endsWith(join('website', 'index.html'));
 
 // Resolves a request path to a file inside a public root, or null.
 //
@@ -1125,6 +1128,18 @@ createServer((request, response) => {
   if (!file) { response.writeHead(403); response.end('Forbidden'); return; }
   try {
     const resolved = statSync(file).isDirectory() ? join(file, 'index.html') : file;
+    // The shell's "./client/…" paths are only correct at the site root, so a
+    // route one or more directories deep — /petition/, /meetings/<id>/ —
+    // resolved them against its own directory and 403'd on every module. The
+    // build fixes this with the same substitution when it writes _site; doing
+    // it here too is what makes the two environments serve identical URLs
+    // rather than only claiming to.
+    if (isShell(resolved)) {
+      const html = readFileSync(resolved, 'utf8').replace(/(href|src)="\.\//g, '$1="/');
+      response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+      response.end(html);
+      return;
+    }
     response.writeHead(200, {'Content-Type': types[extname(resolved)] || 'application/octet-stream'});
     createReadStream(resolved).pipe(response);
   } catch {
