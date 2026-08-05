@@ -136,10 +136,12 @@ The county has taken the whole `Public` folder offline before — `Error: Servic
 Refreshing it is a manual chore by design:
 
 1. Read the [county calendar](https://www.sumtercountyga.us/calendar.aspx) and the [city agenda portal](https://americuscityga.iqm2.com/Citizens/Calendar.aspx) month by month.
-2. Add an `official(date, body, kind, speak, source)` line per meeting.
+2. Add an `official(date, body, kind, speak)` line per meeting. The source link is derived from the date, so it always points at the month and year actually being cited.
 3. Move `CONFIRMED_ON` and `STALE_AFTER` forward.
 
 Past `STALE_AFTER` the page stops presenting itself as current and points readers at both official calendars instead of quietly showing an empty month.
+
+**Nothing is limited to one year.** Dates are full ISO dates, months are grouped and labelled with their year, and `easternInstant` reads the America/New_York offset for whatever date it is handed — leap days and DST changes in any year included. The list currently ends in December 2026 only because that is as far as both bodies have posted: as of August 2026 the city's portal reports "0 meetings" for all of 2027 and the county's calendar shows none. When they post, adding the rows is the only change needed.
 
 **`speak` is the field that matters.** `published` means the body posts how to get on the speakers' list and those rules are quoted on the page; `unknown` means it does not, which is rendered as a finding with a phone number rather than left blank. Only the city's regular meeting is `published` today — five speakers, five minutes each, sign-up opening thirty minutes before and closing when the meeting starts. That is why the home page carries a "next chance to speak" band: a meeting a reader hears about after the sheet closed may as well not have happened.
 

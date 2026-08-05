@@ -76,12 +76,19 @@ export const CONFIRMED_ON = '2026-08-05';
 // county and city calendars rather than trust a page nobody has refreshed.
 export const STALE_AFTER = '2026-12-31';
 
-const COUNTY_SOURCE = (month) => `https://www.sumtercountyga.us/calendar.aspx?view=list&year=2026&month=${month}`;
-const CITY_SOURCE = 'https://americuscityga.iqm2.com/Citizens/Calendar.aspx';
+// The page a date was read off, derived from the date itself. Written out per
+// row it silently carried a hardcoded year, so the first 2027 meeting added
+// would have linked to the 2026 calendar and quietly undercut the one claim
+// this list makes — that somebody checked.
+const SOURCE = {
+  commission: (date) =>
+    `https://www.sumtercountyga.us/calendar.aspx?view=list&year=${date.slice(0, 4)}&month=${Number(date.slice(5, 7))}`,
+  council: () => 'https://americuscityga.iqm2.com/Citizens/Calendar.aspx',
+};
 
-// date, body, kind, whether public comment is published, source.
-const official = (date, body, kind, speak, source) =>
-  ({date, body, kind, speak, time: '18:00', status: 'confirmed', source});
+// date, body, kind, whether public comment is published.
+const official = (date, body, kind, speak) =>
+  ({date, body, kind, speak, time: '18:00', status: 'confirmed', source: SOURCE[body](date)});
 
 export const MEETINGS = [
   {
@@ -122,26 +129,26 @@ export const MEETINGS = [
       },
     },
   },
-  official('2026-08-11', 'commission', 'Work session', 'unknown', COUNTY_SOURCE(8)),
-  official('2026-08-13', 'council', 'Agenda-setting meeting', 'unknown', CITY_SOURCE),
-  official('2026-08-18', 'commission', 'Regular meeting', 'unknown', COUNTY_SOURCE(8)),
-  official('2026-08-20', 'council', 'Regular meeting', 'published', CITY_SOURCE),
-  official('2026-09-08', 'commission', 'Work session', 'unknown', COUNTY_SOURCE(9)),
-  official('2026-09-15', 'commission', 'Regular meeting', 'unknown', COUNTY_SOURCE(9)),
-  official('2026-09-17', 'council', 'Agenda-setting meeting', 'unknown', CITY_SOURCE),
-  official('2026-09-24', 'council', 'Regular meeting', 'published', CITY_SOURCE),
-  official('2026-10-13', 'commission', 'Work session', 'unknown', COUNTY_SOURCE(10)),
-  official('2026-10-15', 'council', 'Agenda-setting meeting', 'unknown', CITY_SOURCE),
-  official('2026-10-20', 'commission', 'Regular meeting', 'unknown', COUNTY_SOURCE(10)),
-  official('2026-10-22', 'council', 'Regular meeting', 'published', CITY_SOURCE),
-  official('2026-11-10', 'commission', 'Work session', 'unknown', COUNTY_SOURCE(11)),
-  official('2026-11-12', 'council', 'Agenda-setting meeting', 'unknown', CITY_SOURCE),
-  official('2026-11-17', 'commission', 'Regular meeting', 'unknown', COUNTY_SOURCE(11)),
-  official('2026-11-19', 'council', 'Regular meeting', 'published', CITY_SOURCE),
-  official('2026-12-08', 'commission', 'Work session', 'unknown', COUNTY_SOURCE(12)),
-  official('2026-12-10', 'council', 'Agenda-setting meeting', 'unknown', CITY_SOURCE),
-  official('2026-12-15', 'commission', 'Regular meeting', 'unknown', COUNTY_SOURCE(12)),
-  official('2026-12-17', 'council', 'Regular meeting', 'published', CITY_SOURCE),
+  official('2026-08-11', 'commission', 'Work session', 'unknown'),
+  official('2026-08-13', 'council', 'Agenda-setting meeting', 'unknown'),
+  official('2026-08-18', 'commission', 'Regular meeting', 'unknown'),
+  official('2026-08-20', 'council', 'Regular meeting', 'published'),
+  official('2026-09-08', 'commission', 'Work session', 'unknown'),
+  official('2026-09-15', 'commission', 'Regular meeting', 'unknown'),
+  official('2026-09-17', 'council', 'Agenda-setting meeting', 'unknown'),
+  official('2026-09-24', 'council', 'Regular meeting', 'published'),
+  official('2026-10-13', 'commission', 'Work session', 'unknown'),
+  official('2026-10-15', 'council', 'Agenda-setting meeting', 'unknown'),
+  official('2026-10-20', 'commission', 'Regular meeting', 'unknown'),
+  official('2026-10-22', 'council', 'Regular meeting', 'published'),
+  official('2026-11-10', 'commission', 'Work session', 'unknown'),
+  official('2026-11-12', 'council', 'Agenda-setting meeting', 'unknown'),
+  official('2026-11-17', 'commission', 'Regular meeting', 'unknown'),
+  official('2026-11-19', 'council', 'Regular meeting', 'published'),
+  official('2026-12-08', 'commission', 'Work session', 'unknown'),
+  official('2026-12-10', 'council', 'Agenda-setting meeting', 'unknown'),
+  official('2026-12-15', 'commission', 'Regular meeting', 'unknown'),
+  official('2026-12-17', 'council', 'Regular meeting', 'published'),
 ].map((meeting) => ({
   ...meeting,
   id: `${meeting.date}-${meeting.slug || meeting.body}`,
