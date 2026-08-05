@@ -14,6 +14,7 @@ const required = [
   'website/client/app.js', 'website/client/auth.js', 'website/client/auth-config.js',
   'website/client/content.js', 'website/client/petition.js', 'website/client/contacts.js',
   'website/client/map.js', 'website/client/gis-sources.js', 'website/client/install.js',
+  'website/client/meetings.js',
   'website/assets/styles.css', 'website/assets/manifest.webmanifest', 'website/assets/favicon.svg',
   'website/assets/vendor/leaflet/leaflet.js', 'website/assets/vendor/leaflet/leaflet.css',
   'website/assets/icons/icon-192.png', 'website/assets/icons/icon-512.png',

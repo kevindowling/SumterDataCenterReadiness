@@ -19,7 +19,7 @@ The directory is laid out the way the site is served, so a path in the repo is a
 
 | Directory | Holds | Served at |
 |---|---|---|
-| `client/` | Everything the browser loads: `app.js` and the modules it imports (`content.js`, `petition.js`, `contacts.js`, `auth.js`, `auth-config.js`, `map.js`, `gis-sources.js`, `install.js`) | `/client/…` |
+| `client/` | Everything the browser loads: `app.js` and the modules it imports (`content.js`, `petition.js`, `contacts.js`, `meetings.js`, `auth.js`, `auth-config.js`, `map.js`, `gis-sources.js`, `install.js`) | `/client/…` |
 | `assets/` | `styles.css`, `favicon.svg`, `manifest.webmanifest`, `icons/`, vendored `vendor/leaflet/` | `/assets/…` |
 | `server/` | `server.mjs` (the API and the dev static server) and `server.test.mjs` | not served |
 | `build/` | `prerender.mjs` (writes `_site`) and `check.mjs` (the asset checklist) | not served |
@@ -126,6 +126,24 @@ The county has taken the whole `Public` folder offline before — `Error: Servic
 **ArcGIS reports a failed query as HTTP 200 with an error in the body**, so status alone is not enough to decide a response is worth keeping. Both the browser and the server parse and validate before storing (`gisPayloadError`). The client cache name was bumped `v1` → `v2` to evict entries written before that check existed.
 
 **The map is gated, the data is not.** Hiding the route keeps the map off the public front door, but on GitHub Pages `map.js` is still fetchable and every service it calls is public. Treat this as presentation, not access control.
+
+## Public meeting calendar
+
+`website/client/meetings.js` holds every meeting the site publishes, and `/meetings/` renders them month by month. Each one also gets its own page — `/meetings/2026-08-20-council/` — prerendered with its own title and description, so a link to a single meeting previews properly and a search for "Americus city council August 20" can land on it.
+
+**Every date is checked in by hand, never computed.** The county publishes a rule (work session the second Tuesday, regular meeting the third) and it would be easy to generate dates from it. Don't. The city's September 2026 meetings fall on the third and fourth Thursday while February's and March's fell on the second and third; a generated calendar would have published two wrong dates and sent people to a locked building. Each entry records the calendar it was read off (`source`) and `CONFIRMED_ON` says when, so the claim carries its own expiry.
+
+Refreshing it is a manual chore by design:
+
+1. Read the [county calendar](https://www.sumtercountyga.us/calendar.aspx) and the [city agenda portal](https://americuscityga.iqm2.com/Citizens/Calendar.aspx) month by month.
+2. Add an `official(date, body, kind, speak, source)` line per meeting.
+3. Move `CONFIRMED_ON` and `STALE_AFTER` forward.
+
+Past `STALE_AFTER` the page stops presenting itself as current and points readers at both official calendars instead of quietly showing an empty month.
+
+**`speak` is the field that matters.** `published` means the body posts how to get on the speakers' list and those rules are quoted on the page; `unknown` means it does not, which is rendered as a finding with a phone number rather than left blank. Only the city's regular meeting is `published` today — five speakers, five minutes each, sign-up opening thirty minutes before and closing when the meeting starts. That is why the home page carries a "next chance to speak" band: a meeting a reader hears about after the sheet closed may as well not have happened.
+
+Times are stored as local wall clock (`time: '18:00'`) and converted to UTC for the `.ics` file by `easternInstant`, which reads the America/New_York offset for that specific date. These meetings straddle the November DST change, so hand-written UTC stamps would have been an hour off for November and December.
 
 ## Icons and install (PWA)
 
