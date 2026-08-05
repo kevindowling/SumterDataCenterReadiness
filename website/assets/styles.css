@@ -198,7 +198,11 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .recap-banner{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);grid-template-areas:"head media" "detail media";column-gap:clamp(30px,5vw,70px);row-gap:0;align-content:start;max-width:1420px;margin:0 auto;padding:70px clamp(20px,5vw,80px) 80px;border-top:1px solid var(--ink)}
 .recap-head{grid-area:head}
 .recap-detail{grid-area:detail}
-.recap-media{grid-area:media;align-self:start}
+/* grid-area belongs to the banner's named template only. Left unscoped it also
+   applied on the meeting page, where no such area exists, so the player was
+   placed into a phantom track and collapsed to a sliver beside the slides. */
+.recap-banner .recap-media{grid-area:media}
+.recap-media{align-self:start}
 /* Portrait: the meeting was recorded on a phone. Capped so a 9:16 well cannot
    grow taller than the viewport on a narrow screen. */
 .recap-well{position:relative;aspect-ratio:9/16;max-height:min(78vh,660px);margin-inline:auto;border:1px solid var(--ink);background:var(--ink);box-shadow:10px 10px 0 #171a1814;overflow:hidden}
@@ -217,7 +221,7 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .recap-deck:hover{background:var(--ink)}
 .recap-deck:hover b{color:var(--light)}
 .recap-deck:hover span{color:#fdfcf8a6}
-@media(max-width:1050px){.recap-banner{grid-template-columns:1fr;grid-template-areas:"head" "media" "detail";padding-block:55px 65px}.recap-media{margin-top:34px}.recap-detail{margin-top:34px}.recap-well{max-width:340px}}
+@media(max-width:1050px){.recap-banner{grid-template-columns:1fr;grid-template-areas:"head" "media" "detail";padding-block:55px 65px}.recap-banner .recap-media{margin-top:34px}.recap-detail{margin-top:34px}.recap-well{max-width:340px}}
 @media(max-width:720px){.recap-banner{padding:48px 20px 56px}.recap-head h2{font-size:clamp(36px,11vw,52px)}}
 /* Next chance to speak. One band on the home page, because a meeting a reader
    learns about after the sign-up sheet closed may as well not have happened. */
@@ -240,6 +244,8 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .meetings-head .lede{max-width:760px;margin:22px 0 0;font-size:clamp(17px,1.3vw,20px);line-height:1.5}
 .meetings-provenance{max-width:760px;margin:20px 0 0;padding-left:16px;border-left:3px solid var(--orange);color:var(--muted);font-size:14px;line-height:1.5}
 .meetings-stale{margin:20px 0 0;padding:14px 16px;border:1px solid var(--orange);color:var(--ink);font-size:14px;line-height:1.5}
+.meetings-note{max-width:760px;margin:16px 0 0;padding-left:16px;border-left:3px solid #171a1833;color:var(--muted);font-size:14px;line-height:1.5}
+.meetings-note a{color:var(--ink)}
 .meetings-list{margin-top:50px}
 .meetings-list h2{margin:0;font-size:26px;font-weight:600;letter-spacing:-.02em}
 .meetings-empty{margin:16px 0 0;color:var(--muted);font-size:15px}

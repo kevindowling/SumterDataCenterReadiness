@@ -16,6 +16,7 @@ const required = [
   'website/client/map.js', 'website/client/gis-sources.js', 'website/client/install.js',
   'website/client/meetings.js',
   'website/assets/styles.css', 'website/assets/manifest.webmanifest', 'website/assets/favicon.svg',
+  'website/assets/fonts.css', 'website/assets/fonts/newsreader-latin.woff2',
   'website/assets/vendor/leaflet/leaflet.js', 'website/assets/vendor/leaflet/leaflet.css',
   'website/assets/icons/icon-192.png', 'website/assets/icons/icon-512.png',
   'website/assets/icons/preview.png', 'website/assets/icons/seal.svg',

@@ -25,7 +25,7 @@ const types = {
   '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
   '.geojson': 'application/geo+json; charset=utf-8',
   '.webmanifest': 'application/manifest+json; charset=utf-8', '.ico': 'image/x-icon',
-  '.pdf': 'application/pdf',
+  '.pdf': 'application/pdf', '.woff2': 'font/woff2',
 };
 
 // Verifies an Auth0-issued RS256 access token without dependencies. Every

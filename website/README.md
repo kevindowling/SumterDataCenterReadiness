@@ -147,6 +147,25 @@ Past `STALE_AFTER` the page stops presenting itself as current and points reader
 
 Times are stored as local wall clock (`time: '18:00'`) and converted to UTC for the `.ics` file by `easternInstant`, which reads the America/New_York offset for that specific date. These meetings straddle the November DST change, so hand-written UTC stamps would have been an hour off for November and December.
 
+## Fonts
+
+Newsreader and DM Mono are served from this origin, not from Google. Regenerate with:
+
+```bash
+python3 tools/vendor-fonts.py
+```
+
+That asks `fonts.googleapis.com` for the same stylesheet the browser used to request, downloads every `.woff2` it names into `website/assets/fonts/`, and writes `website/assets/fonts.css` with the URLs rewritten to local paths. Google's `unicode-range` rules are kept exactly as served, so a reader whose page has no Vietnamese never downloads the Vietnamese subset — in practice an English page fetches three files, about 157 KB.
+
+Two things the script has to get right, both of which it got wrong first:
+
+- **Newsreader is variable.** All three requested weights resolve to one file per subset, so it must be downloaded once and declared three times. Naming it per weight fetched the same 128 KB three times.
+- **DM Mono is not.** Its 400 and 500 are different files, so they must *not* collapse to one name. They did, and the second silently overwrote the first, leaving both weights pointing at the 500.
+
+Only upright faces are vendored, matching what the hosted stylesheet served; italic is synthesised by the browser exactly as it was before, so the change is invisible on the page. Adding true italics would be a real improvement and a real visual change — a separate decision.
+
+The latin subsets are precached by the service worker; latin-ext and vietnamese are fetched on demand, which for this site means never. Because the filenames are stable rather than content-hashed, a font change needs a `VERSION` bump in `sw.js` like any other shell change.
+
 ## Icons and install (PWA)
 
 `website/assets/favicon.svg` and `website/assets/icons/*.png` are generated from the **real surveyed boundary of parcel 64-17**, read live from the county tax parcel layer and projected to Web Mercator at true orientation — the same shape, the same way up, as the site map draws. Regenerate with:
