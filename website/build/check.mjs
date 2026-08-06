@@ -6,7 +6,7 @@ const docs = [
   'README.md', '01-project-and-unknowns.md', '02-water.md', '03-sound.md',
   '04-air-and-generators.md', '05-electricity-and-resilience.md',
   '06-decision-checklist.md', '07-verification-notes.md', '08-source-desk.md',
-  '10-liberty-data-centers.md', '11-open-government.md', '12-velocity-trap.md',
+  '09-development-agreement.md', '10-liberty-data-centers.md', '11-open-government.md', '12-velocity-trap.md',
   '13-petition-integrity.md',
 ];
 const required = [
@@ -25,6 +25,7 @@ const required = [
   'website/server/server.mjs', 'website/build/prerender.mjs',
   'research/moratorium-resolution.pdf', 'research/georgia-sunshine-laws-6th-edition.pdf',
   'research/better-government-2026-08-04.pdf',
+  'research/pda-liberty-development-agreement.pdf',
   ...docs.map((name) => `research/${name}`),
 ];
 const errors = [];

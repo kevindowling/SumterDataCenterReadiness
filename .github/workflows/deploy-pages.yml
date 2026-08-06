@@ -40,9 +40,11 @@ jobs:
           cp website/index.html website/sw.js _site/
           cp -r website/client _site/client
           cp -r website/assets _site/assets
-          # The .pdf is the moratorium resolution the petition links to. Copying
-          # only the markdown left that link pointing at a file the build never
-          # shipped, so it 404'd on Pages while working fine in dev.
+          # The .pdfs are primary documents the notes link to - the moratorium
+          # resolution, the sunshine-laws booklet, the meeting deck, and the
+          # signed development agreement. Copying only the markdown left those
+          # links pointing at files the build never shipped, so they 404'd on
+          # Pages while working fine in dev.
           cp research/*.md research/*.pdf _site/research/
           touch _site/.nojekyll
           test ! -e _site/data-center-environmental-research-report.md
