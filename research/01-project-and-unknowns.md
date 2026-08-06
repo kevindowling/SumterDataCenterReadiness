@@ -4,7 +4,9 @@
 
 Not enough has been made public to calculate this project's environmental footprint.
 
-**Unverified description:** The project has been described as a data center on a tract between Brady Road and Sweat Avenue in the J. Frank Myers Industrial Park. No public record documenting the site was located; the source for that description should be attached before any of it is repeated as an official project fact.
+**What is documented:** the [signed development agreement](09-development-agreement.md) of July 1, 2026 identifies the developer as **Liberty GA USA LLC**, the site as about 102 acres on Swett Avenue (tax parcel 64-17), and the buildout as four phases running through December 2033, with a "Data Center Campus" defined as approximately 400,000 square feet or more of gross floor area.
+
+**What that document does not contain:** a megawatt figure, a water demand figure, a decibel limit, a generator schedule, or a utility will-serve letter. The contract commits Liberty to standards; it does not disclose the engineering. The gap below is therefore narrower than it was, and still decisive.
 
 ## The decision officials are really making
 
@@ -38,7 +40,7 @@ The enforceable project description should include:
 
 - Application, concept plan, staff report, and draft ordinance
 - Parcel and ownership records
-- Development and tax agreements
+- Development and tax agreements — the [economic development agreement](09-development-agreement.md) is now in hand; the purchase and sale agreement it references, and any tax abatement or bond agreement, are not
 - Water, sewer, electric, and gas will-serve letters
 - Full-buildout power and water schedules
 - Cooling schematic and equipment list

@@ -16,7 +16,7 @@ Residents should check the [county calendar](https://www.sumtercountyga.us/calen
 
 ### The application and site description
 
-The reported site between Brady Road and Sweat Avenue needs to be tied to a public application, parcel record, concept plan, or attributed announcement. Obtain the legal applicant, parcel numbers, requested approval, full site plan, and every proposed phase.
+**Partly answered.** The [signed development agreement](09-development-agreement.md) ties the project to about 102 acres on Swett Avenue, tax parcel 64-17, Land Lots 202 and 203 of the 27th Land District, and names Liberty GA USA LLC as the developer. Still missing: the concept plan and site plan, the requested land-use approval, and the purchase and sale agreement the contract references.
 
 ### Water demand and cooling design
 
@@ -36,7 +36,11 @@ The number, model, fuel, capacity, emission controls, and permitted hours of the
 
 ### Public costs and enforceable benefits
 
-Obtain every development agreement, tax incentive, infrastructure commitment, emergency-service estimate, job promise, community-benefit proposal, and financial backstop. A proposal is not a benefit until its cost, funding, administration, and enforcement are defined.
+**Partly answered.** The [development agreement](09-development-agreement.md) conveys land agreed to be worth $469,000 for $1.00, and promises at least 150 jobs at an average wage of $80,000 within two years of final completion. Its only monetary remedy for default is reimbursement of that same $469,000, in two halves. Still missing: any tax abatement, bond, or payment-in-lieu-of-taxes agreement, the emergency-service cost estimate, and any community-benefit commitment. A proposal is not a benefit until its cost, funding, administration, and enforcement are defined.
+
+### Cooling, wells and sewer
+
+**Partly answered.** The agreement bars private water wells and private sanitary sewer, requires city water and sewer service, and prohibits open-loop and once-through cooling. It does not name the cooling equipment, and a closed circuit can still reject heat by evaporation. Obtain the equipment schedule and the water balance before treating §11 as a limit on consumption.
 
 ## Numbers that remain planning scenarios
 

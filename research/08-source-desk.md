@@ -4,6 +4,7 @@
 
 | Topic | Source | Use |
 |---|---|---|
+| The project itself | [Economic Development Agreement, PDA and Liberty GA USA LLC, July 1, 2026](/research/pda-liberty-development-agreement.pdf) | The executed contract: parties, parcel, phasing, incentives, and operating conditions; read [clause by clause](09-development-agreement.md). A scan mirrored here, not yet compared against the Authority's file copy |
 | Municipal water source | [City of Americus 2024 Water Quality Report](https://cms3.revize.com/revize/americusga/2024%20Americus%20CCR.pdf) | Confirms groundwater wells; contains unrelated editing errors elsewhere |
 | Withdrawal permit | [Georgia EPD water-withdrawal lists](https://epd.georgia.gov/watershed-protection-branch-lists) | Links the official non-farm groundwater permit spreadsheet |
 | Advertised infrastructure | [Sumter County Development Authority](https://www.selectsumter.com/sites-buildings) | Plant, consumption, and wastewater marketing figures |
