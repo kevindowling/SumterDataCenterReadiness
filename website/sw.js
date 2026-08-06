@@ -27,6 +27,7 @@ const SHELL = [
   '/client/petition.js',
   '/client/contacts.js',
   '/client/meetings.js',
+  '/client/meetings-data.js',
   // Both of these are imported but were missing here, which made the offline
   // promise false in the one case it matters: a reader who has visited exactly
   // once. app.js imports install.js at the top, so offline that import failed
