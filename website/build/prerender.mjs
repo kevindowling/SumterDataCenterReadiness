@@ -306,10 +306,14 @@ const urls = [
   {loc: `${SITE_ORIGIN}/`, lastmod: newest(noteDates)},
   {loc: `${SITE_ORIGIN}/petition/`, lastmod: lastModified('website/client/petition.js')},
   {loc: `${SITE_ORIGIN}/contact/`, lastmod: lastModified('website/client/contacts.js')},
-  {loc: `${SITE_ORIGIN}/meetings/`, lastmod: lastModified('website/client/meetings.js')},
+  // Dated from the data file, not from meetings.js: the calendar's content
+  // changes when a meeting is added, and after the data moved out, changes to
+  // meetings.js are formatting and date maths that leave every listing saying
+  // exactly what it said before.
+  {loc: `${SITE_ORIGIN}/meetings/`, lastmod: lastModified('website/client/meetings-data.js')},
   ...MEETINGS.map((meeting) => ({
     loc: `${SITE_ORIGIN}${meetingPath(meeting.id)}`,
-    lastmod: lastModified('website/client/meetings.js'),
+    lastmod: lastModified('website/client/meetings-data.js'),
   })),
   ...documents.map((doc, index) => ({loc: docUrl(doc.id), lastmod: noteDates[index]})),
 ];
