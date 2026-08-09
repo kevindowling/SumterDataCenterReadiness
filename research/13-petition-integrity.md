@@ -1,6 +1,6 @@
 # How the petition is verified
 
-A petition is only worth delivering if the people receiving it believe the names on it. This note describes exactly what the Sumter Field Desk does to every signature, what it publishes, what it keeps private, and what it cannot promise. It is written so that anyone — a resident, a council member, or someone who disagrees with the petition — can check the claims rather than take them on trust.
+A petition is only worth delivering if the people receiving it believe the names on it. The petition is [on this site](/petition/), and what it asks for is the [joint moratorium resolution](/research/moratorium-resolution.pdf) as drafted: an 18-month pause on data-center zoning, permitting and construction in both the city and the county, and time to write the ordinance neither government has. This note describes exactly what the Sumter Field Desk does to every signature, what it publishes, what it keeps private, and what it cannot promise. It is written so that anyone — a resident, a council member, or someone who disagrees with the petition — can check the claims rather than take them on trust.
 
 ## The one-line version
 
@@ -38,6 +38,8 @@ Signatures caught by the hidden-field check are recorded as rejected and never c
 
 Paper signatures collected in person are counted the same as online ones and are reported on their own line. They are keyed in by a named organizer and marked as paper, because "an organizer watched this person sign" and "this person opened a link in their own mailbox" are different kinds of evidence, and a total that merges them is quietly overstating one of them.
 
+The sheets themselves are published, so that line can be checked rather than trusted: [the signed paper sheets](/research/petition-signatures-redacted.pdf) (PDF, 6 pages). Street addresses are painted out; names, signatures, town, ZIP, and the circulator who certified each page are as signed.
+
 ## What is published and what is not
 
 Published:
@@ -58,16 +60,16 @@ The full list with contact details is not posted publicly. It can be produced fo
 
 ## Making the totals checkable later
 
-Periodically the desk records an **audit snapshot**: the totals at that moment, the number of rows behind them, and a SHA-256 hash of a canonical export of the confirmed signatures. Each snapshot also records the hash of the one before it, forming a chain. Anyone holding an earlier published snapshot can therefore detect a later silent edit to the signature list. The snapshot log is public at `/api/petition/moratorium/snapshots`.
+Periodically the desk records an **audit snapshot**: the totals at that moment, the number of rows behind them, and a SHA-256 hash of a canonical export of the confirmed signatures. Each snapshot also records the hash of the one before it, forming a chain. Anyone holding an earlier published snapshot can therefore detect a later silent edit to the signature list. The snapshot log is public at [`/api/petition/moratorium/snapshots`](/api/petition/moratorium/snapshots).
 
 ## What this does not prove
 
 Being straight about the limits is part of the point:
 
 - **This is not identity verification.** It proves control of an email address, not that the person is who they say they are, and not that they live where they say they live. A determined person with several mailboxes can sign more than once. The tiering by ZIP is self-reported.
-- **It is not a legal instrument.** Signing here is a public expression of support. If Georgia law or the Americus zoning code provides for a formal protest petition — which typically requires wet signatures from property owners of record within a set distance — that is a separate process with separate requirements, and an online form does not satisfy it.
+- **It is not a legal instrument.** Signing here is a public expression of support. If Georgia law or the Americus zoning code provides for a formal protest petition — which typically requires wet signatures from property owners of record within a set distance — that is a separate process with separate requirements, and an online form does not satisfy it. Whether either government has such a procedure is an open question this desk has not settled; the [records note](11-open-government.md) explains how to ask for the answer in writing.
 - **Turnstile is not a bot guarantee.** It raises the cost of automation; it does not end it. That is why it is one control among several and not the one the count rests on.
-- **The desk can be wrong.** If you believe a signature is fraudulent — including one in your own name that you did not put there — write to the organizers and it will be removed and the totals corrected in public.
+- **The desk can be wrong.** If you believe a signature is fraudulent — including one in your own name that you did not put there — write to the organizers at contact@scc4t.com, or through the [contact page](/contact/), and it will be removed and the totals corrected in public.
 
 ## Corrections
 

@@ -17,6 +17,8 @@ A [commercial data aggregator](https://findenergy.com/ga/sumter-county-electrici
 
 These are arithmetic scenarios. The Americus project load is unknown.
 
+At the August 4, 2026 community meeting a Georgia Power representative answered from the floor that the utility had met with the developer and does have the ability to serve the load ([recording and summary](/meetings/2026-08-04-data-centers-are-coming/)). That is a statement made in a room, not a will-serve letter: it names no megawatt figure, no service date, and no allocation of upgrade cost.
+
 ## What has actually happened on the grid
 
 [NERC documented](https://www.ferc.gov/sites/default/files/2025-04/Presentation%20NERC%20Seeks%20to%20Address%20Reliability%20Impacts%20from%C2%A0Large%20Load%20Integration_1.pdf) simultaneous losses of approximately **1,500 MW** and **1,800 MW** of Northern Virginia data-center load following voltage disturbances. The initiating transmission faults were not necessarily caused by the data centers. The reliability problem was that many facilities reacted together, suddenly leaving generation greater than demand.
@@ -58,4 +60,4 @@ The program is also a local jobs program. Auditing, weatherizing, rewiring, roof
 - Published interconnection, stability, harmonics, and contingency studies
 - Annual demand, outage, transfer, and curtailment reporting
 
-The will-serve letter, load schedule, and any development agreement are records held by the utility department, the county, and the Development Authority. See [how to obtain the records and reach the officials](11-open-government.md).
+The will-serve letter, load schedule, and any development agreement are records held by the utility department, the county, and the Development Authority. See [how to obtain the records and reach the officials](11-open-government.md), and the [contact page](/contact/) for the same roster with each official's published e-mail address.

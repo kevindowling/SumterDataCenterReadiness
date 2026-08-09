@@ -47,4 +47,4 @@ The enforceable project description should include:
 - Generator and fuel inventory
 - Environmental, stormwater, traffic, fire, and acoustic studies
 
-Each of these sits with an identifiable custodian and can be requested in writing under the Georgia Open Records Act. See [how to obtain the records and reach the officials](11-open-government.md).
+Each of these sits with an identifiable custodian and can be requested in writing under the Georgia Open Records Act. See [how to obtain the records and reach the officials](11-open-government.md), and the [contact page](/contact/) for the same roster with each official's published e-mail address.

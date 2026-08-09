@@ -66,4 +66,4 @@ Promises such as “sustainable,” “closed loop,” “minimal impact,” or 
 
 > Table any final action that would create or vest development rights. Publish the complete full-buildout application, draft rules, utility commitments, and independent impact analysis, then schedule a noticed hearing after meaningful public review.
 
-The records behind every box above are obtainable in writing under the Georgia Open Records Act, which sets a three-business-day response deadline; the Open Meetings Act governs the notice, agenda, and minutes for the hearing itself. See [how to obtain the records and reach the officials](11-open-government.md).
+The records behind every box above are obtainable in writing under the Georgia Open Records Act, which sets a three-business-day response deadline; the Open Meetings Act governs the notice, agenda, and minutes for the hearing itself. See [how to obtain the records and reach the officials](11-open-government.md), and the [public meeting calendar](/meetings/) for the next sessions where these questions can be put on the record.

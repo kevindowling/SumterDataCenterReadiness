@@ -151,7 +151,7 @@ Sumter County publishes an [Open Records Request Form](https://www.sumtercountyg
 
 Addresses for Districts 2, 3 and 4 come from the county's own "Elected Officials & Contact Information" sheet, marked current as of May 2025; general inquiries are directed to Sumter County Administration.
 
-Work session: second Tuesday monthly, 6:00 p.m. Regular board meeting: third Tuesday monthly, 6:00 p.m. Both at 500 West Lamar Street; the county states all meetings are open to the public and offers Zoom attendance. Source: [Board of Commissioners Members & Meetings](https://www.sumtercountyga.us/79/Board-of-Commissioners-Members-Meetings). Agendas: [County Agenda Center](https://www.sumtercountyga.us/agendacenter). Calendar: [county calendar](https://www.sumtercountyga.us/calendar.aspx).
+Work session: second Tuesday monthly, 6:00 p.m. Regular board meeting: third Tuesday monthly, 6:00 p.m. Both at 500 West Lamar Street; the county states all meetings are open to the public and offers Zoom attendance. Source: [Board of Commissioners Members & Meetings](https://www.sumtercountyga.us/79/Board-of-Commissioners-Members-Meetings). Agendas: [County Agenda Center](https://www.sumtercountyga.us/agendacenter). Calendar: [county calendar](https://www.sumtercountyga.us/calendar.aspx). The dates this desk has confirmed off that calendar are on the [public meeting calendar](/meetings/).
 
 ### City of Americus
 
@@ -167,11 +167,11 @@ City Hall, 101 West Lamar Street, Americus, GA 31709 · (229) 924-4411 · [ameri
 | Council District 5 | Kelvin Pless | kpless@americusga.gov |
 | Council District 6 | Daryl R. Dowdell I | ddowdell@americusga.gov |
 
-Roster source: [Mayor & City Council](https://www.americusga.gov/government/mayor___city_council_.php); that page publishes no individual e-mail addresses or direct phone numbers. The addresses above come from the city's "Mayor & City Council Contacts" sheet, marked current as of May 2025, which also gives City Hall as (229) 924-3650 and directs general inquiries to the City of Americus Administration. The city clerk's office at City Hall remains the route for agendas, minutes, and records requests. Council meetings have been held at the Russell Thomas Jr. Public Safety Building, Lee Street.
+Roster source: [Mayor & City Council](https://www.americusga.gov/government/mayor___city_council_.php); that page publishes no individual e-mail addresses or direct phone numbers. The addresses above come from the city's "Mayor & City Council Contacts" sheet, marked current as of May 2025, which also gives City Hall as (229) 924-3650 and directs general inquiries to the City of Americus Administration. The city clerk's office at City Hall remains the route for agendas, minutes, and records requests. Council meetings have been held at the Russell Thomas Jr. Public Safety Building, Lee Street; confirmed council dates are on the [public meeting calendar](/meetings/).
 
 ### Speaking during public comment at a City Council meeting
 
-The city publishes the following rules for its regular monthly meeting: a speaker may address the mayor and council on a matter of public concern for **no more than five minutes**; the total number of speakers is limited to **five**; sign up by calling City Clerk Sierra Harvey at (229) 924-4411 ext. 244 on the day of the meeting or in person at the Council Chambers beforehand; the **sign-up sheet opens 30 minutes** before the meeting; time may not be yielded to another speaker and the five minutes may not be exceeded. How the county handles public comment at its work session and regular meeting was not confirmed; ask the county at (229) 928-4500 before planning to speak.
+The city publishes the following rules for its regular monthly meeting: a speaker may address the mayor and council on a matter of public concern for **no more than five minutes**; the total number of speakers is limited to **five**; sign up by calling City Clerk Sierra Harvey at (229) 924-4411 ext. 244 on the day of the meeting or in person at the Council Chambers beforehand; the **sign-up sheet opens 30 minutes** before the meeting; time may not be yielded to another speaker and the five minutes may not be exceeded. How the county handles public comment at its work session and regular meeting was not confirmed; ask the county at (229) 928-4500 before planning to speak. The [public meeting calendar](/meetings/) marks which upcoming meetings publish sign-up rules, and each meeting page repeats the rules and the sign-up number for that date.
 
 ### Sumter County Development Authority
 
