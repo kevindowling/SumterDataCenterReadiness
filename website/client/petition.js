@@ -43,15 +43,31 @@ export const petitions = [
       href: '/research/moratorium-resolution.pdf',
       label: 'Read the full joint resolution (PDF, 4 pages)',
     },
+    // The scanned sheets behind the "signed on paper" line in the tally. A count
+    // nobody can check is just a claim, and these are what make it checkable:
+    // the printed names, the signatures, and the circulator on each page who
+    // certified they watched it signed.
+    //
+    // The street address column is painted out before publishing. Signers gave
+    // an address to prove they live here, not to have it posted, and the paper
+    // sheet has no box to ask them with — unlike the form on this page, where
+    // being listed at all is opt-in. The unredacted scans stay off the server.
+    paperSheets: {
+      href: '/research/petition-signatures-redacted.pdf',
+      label: 'See the signed paper sheets',
+      note: 'PDF, 6 pages. Street addresses removed; names, signatures, town and ZIP are as signed.',
+    },
     // Where the paper copy can be signed in person. Signing on paper counts the
     // same as signing online; it is reported separately so the totals stay
     // honest about how each signature was collected.
     //
-    // TODO: fill in before launch. While `address` is empty the page says the
-    // in-person location is being arranged instead of naming one.
+    // While `address` is empty the page says the in-person location is being
+    // arranged instead of naming one. `place` and `hours` are still blank: the
+    // page drops those cells rather than printing a heading with nothing under
+    // it, so both can be filled in as they are settled.
     inPerson: {
       place: '',
-      address: '',
+      address: '132 W Lamar St, Americus, GA 31709',
       hours: [],
       note: 'Bring photo ID or a piece of mail if you would like your signature recorded as a verified Sumter County resident.',
       contact: '',

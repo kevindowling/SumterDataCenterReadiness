@@ -950,7 +950,20 @@ function petitionTally() {
     ${line(counts.elsewhere, 'Outside Georgia')}
     ${line(counts.paper, 'Signed on paper, in person')}
   </div>
-  <p class="petition-tally-note">${counts.verified.toLocaleString()} confirmed signature${counts.verified === 1 ? '' : 's'} in total${counts.pending ? `, plus ${counts.pending.toLocaleString()} waiting on an email confirmation that has not been opened yet` : ''}. Only confirmed signatures are counted. <a href="/doc/petition/">How this is verified →</a></p>`;
+  <p class="petition-tally-note">${counts.verified.toLocaleString()} confirmed signature${counts.verified === 1 ? '' : 's'} in total${counts.pending ? `, plus ${counts.pending.toLocaleString()} waiting on an email confirmation that has not been opened yet` : ''}. Only confirmed signatures are counted. <a href="/doc/petition/">How this is verified →</a></p>
+  ${paperSheetsLink(counts)}`;
+}
+
+// The scans that back the paper line of the tally. Held back until there is a
+// paper count to back: on a petition with no in-person signatures yet, a link
+// to the sheets would open six blank pages.
+function paperSheetsLink(counts) {
+  const sheets = PETITION.paperSheets;
+  if (!sheets || !counts.paper) return '';
+  return `<p class="petition-tally-note sheets">
+    <a href="${sheets.href}" target="_blank" rel="noreferrer">${escapeHtml(sheets.label)} ↗</a>
+    ${sheets.note ? `<span>${escapeHtml(sheets.note)}</span>` : ''}
+  </p>`;
 }
 
 // Two governments, one signature. Named before the form rather than after it,
@@ -977,11 +990,15 @@ function inPersonBlock() {
       <span>A paper copy will be available to sign at a published address and set hours, and paper signatures are counted exactly the same as online ones. Check back, or ask at the next public meeting.</span>
     </aside>`;
   }
+  // An address can be settled before the venue has a name to print or its hours
+  // are fixed. Each cell is dropped rather than rendered empty: a WHEN heading
+  // with nothing under it reads as information that failed to load, which is
+  // worse than not claiming to know the hours yet.
   return `<aside class="petition-inperson">
     <p class="eyebrow"><span></span> SIGN ON PAPER, IN PERSON</p>
     <div class="inperson-grid">
-      <div><small>WHERE</small><b>${escapeHtml(place)}</b><span>${escapeHtml(address)}</span></div>
-      <div><small>WHEN</small>${hours.map((line) => `<b>${escapeHtml(line)}</b>`).join('')}</div>
+      <div><small>WHERE</small>${place ? `<b>${escapeHtml(place)}</b>` : ''}<span>${escapeHtml(address)}</span></div>
+      ${hours.length ? `<div><small>WHEN</small>${hours.map((line) => `<b>${escapeHtml(line)}</b>`).join('')}</div>` : ''}
       ${contact ? `<div><small>QUESTIONS</small><b>${escapeHtml(contact)}</b></div>` : ''}
     </div>
     ${note ? `<span class="inperson-note">${escapeHtml(note)}</span>` : ''}
