@@ -27,10 +27,12 @@ This report is intended to help residents bring focused questions about water, s
 - The [signed development agreement](09-development-agreement.md) places the project on about 102 acres on Swett Avenue, tax parcel 64-17, and names **Liberty GA USA LLC** as the developer.
 - That agreement conveys the land, agreed to be worth $469,000, to Liberty for **$1.00**, in exchange for four construction phases through December 2033, a 30-year operating covenant, and at least 150 jobs at an average wage of $80,000.
 - It bars private water wells and open-loop cooling, limits backup generators to emergencies, and leaves the City of Americus its full enforcement powers over noise, nuisance, buffers, lighting, and zoning.
+- The people behind the proposal are **Tony and Paul Di Benedetto**, of Toronto. Tony Di Benedetto's firm, Launch Capital Inc., lists Liberty Data Centers first in its published portfolio, and both men answered for Liberty at the [community meeting of August 4](/meetings/2026-08-04-data-centers-are-coming/) - the company's first public appearance in Americus. See [who is behind the proposal](10-liberty-data-centers.md).
 
 ## What is not known publicly
 
-- The end user or tenant of the compute, and who stands behind Liberty GA USA LLC
+- The end user or tenant of the compute. Liberty said on August 4 that it has a customer; it did not name one
+- Who the officers, directors, and owners of Liberty GA USA LLC are, and who signed for it on July 1. The company publishes no name, and no corporate filing has been retrieved
 - Full-buildout IT load and total electrical demand
 - Final cooling and heat-rejection design, and whether it is evaporative
 - Average and peak water demand
@@ -49,8 +51,10 @@ This report is intended to help residents bring focused questions about water, s
 7. [What still needs to be verified?](07-verification-notes.md)
 8. [Where do the key numbers come from?](08-source-desk.md)
 9. [What does the signed agreement actually commit?](09-development-agreement.md)
-10. [How do you obtain the records and reach the officials?](11-open-government.md)
-11. [Why does the pace of the buildout itself cause harm?](12-velocity-trap.md) - a guest analysis by Jeff Ranew
+10. [Who is the company behind the proposal?](10-liberty-data-centers.md)
+11. [How do you obtain the records and reach the officials?](11-open-government.md)
+12. [Why does the pace of the buildout itself cause harm?](12-velocity-trap.md) - a guest analysis by Jeff Ranew
+13. [Why should anyone believe the petition's signature count?](13-petition-integrity.md)
 
 ## How to read the labels
 

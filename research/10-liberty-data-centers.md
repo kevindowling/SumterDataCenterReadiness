@@ -1,8 +1,8 @@
 # Liberty Data Centers - what the public record shows
 
-**Compiled:** July 26, 2026. **Method:** primary sources only - domain registration records (RDAP), the company's own website source code, the Internet Archive, DNS records, and the published pages of a third-party investor. Every finding below is reproducible by anyone with a browser. Items that could not be verified are listed separately under "Not established" and "Blocked".
+**Compiled:** July 26, 2026. **Updated:** August 8, 2026, with the company's first public appearance in Americus. **Method:** primary sources only - domain registration records (RDAP), the company's own website source code, the Internet Archive, DNS records, the published pages of a third-party investor, and the recording of a public meeting. Every finding below is reproducible by anyone with a browser. Items that could not be verified are listed separately under "Not established" and "Blocked".
 
-This note addresses one of the gaps named in the [report README](README.md): the developer, operator, and tenant are not known publicly.
+This note addresses one of the gaps named in the [report README](README.md): who is behind the proposal. As of August 4, 2026 that gap is largely closed: Tony and Paul Di Benedetto, of Toronto, answered for Liberty at a public meeting in Americus, and Tony Di Benedetto's firm is the investor named in the documentary trail below. What remains open is narrower and more specific - the company itself still publishes no officer, no project, and no corporate registration that could be located.
 
 ## Identity at a glance
 
@@ -18,6 +18,7 @@ This note addresses one of the gaps named in the [report README](README.md): the
 | Stated founding date | None given on the website or LinkedIn |
 | Earliest self-claimed event | Seed funding round, announced January 15, 2026 |
 | Named officers or staff | **None published anywhere** |
+| Spoke for the company in Americus | **Tony and Paul Di Benedetto**, of Toronto, at the community meeting of August 4, 2026 |
 | Corporate registration | Not located (see "Blocked") |
 | Press-release dateline | Miami |
 | Published contact | `info@libertydatacenters.com`; (844) 904-3480 |
@@ -81,8 +82,9 @@ This note addresses one of the gaps named in the [report README](README.md): the
 | — | **No further public announcements of any kind** | — |
 | Jun 24 | Current website published | `bundleCreationDate` in the page's own source |
 | Jul 23-24 | Flyers circulating in Americus; City Council meeting; Times-Recorder report | Americus Times-Recorder |
+| Aug 4 | Tony and Paul Di Benedetto answer for Liberty at the community meeting - the company's first public appearance in Americus | [The meeting recording](/meetings/2026-08-04-data-centers-are-coming/) |
 
-The seed-funding announcement of January 15 predates the registration of the company's domain by 12 days.
+The seed-funding announcement of January 15 predates the registration of the company's domain by 12 days. The chart above covers January to July, the period of the documentary record; the August 4 appearance has [its own section below](#august-4-2026-the-company-answers-in-person).
 
 ## The website
 
@@ -241,6 +243,27 @@ All descriptions are the firm's own. Entries marked ● are data-center business
 | Age of launchcapital.ca domain | 8.7 | CIRA registry, registered 2017-11-30 |
 | Age of libertydatacenters.com domain | **0.5** | Verisign registry, registered 2026-01-27 |
 
+## August 4, 2026: the company answers in person
+
+At the [community meeting of August 4](/meetings/2026-08-04-data-centers-are-coming/), **Tony and Paul Di Benedetto**, of Toronto, were in the back of the room, were called forward, and answered for Liberty. It is the first time anyone has spoken for the company at a public event in Americus. Everything in this section is what they said in the room; the recording is on this site and is the record.
+
+That closes the gap this note opened with. Launch Capital Inc. is a Toronto firm; it is **Tony Di Benedetto's** firm by its own team page and page title; it lists Liberty Data Centers as the first entry in its published portfolio; and Tony Di Benedetto came to Americus and answered for Liberty in person. The people behind the proposal are Launch Capital's people.
+
+Two things it does not settle. It does not establish what office, if any, either man holds in Liberty GA USA LLC - speaking for a company at a public meeting is not the same as being its officer, and no corporate filing naming anyone has been retrieved; the searches that would settle it are listed under "Blocked" below. And Paul Di Benedetto is not named on Launch Capital's published team page, which lists Tony as CEO and Justin and Brianna Di Benedetto as associates, so his role in either company rests on his own account of it.
+
+| What they said on August 4 | What the record shows |
+|---|---|
+| They were brought in about eighteen months to two years ago to put capital and technical help into a bitcoin data center already operating in Americus that was going to shut down | Not independently checked, but it matches a business Launch Capital already publishes. Its portfolio lists **BOLT**, a data center operator that "transforms under utilized, energy-enabled assets into high-performance compute hubs for AI, crypto, and quantum" - the same pattern, described in the firm's own words |
+| They have made ten to fifteen trips to Americus since | Not independently checked |
+| Conversations with local economic development turned into this proposal | The [agreement](09-development-agreement.md) with the Payroll Development Authority is dated July 1, 2026 |
+| The build is about $5 billion, with perhaps $10 billion of customer equipment inside it | No investment figure of any size appears in the agreement, which commits four phases, a 30-year operating covenant, and 150 jobs |
+| It is small by industry standards, not a 400 MW Meta or Google campus | No megawatt figure has been published anywhere, by the company or in the agreement |
+| They are not using water | No cooling design has been published. §11 of the agreement bars open-loop cooling but does not cap consumption, and a closed circuit can still evaporate - see [note 02](02-water.md) |
+| They have a customer | The customer was not named. The end user of the compute remains the largest open question in this report |
+| If they do not spend what they said and create the jobs they said, they give the land back and pay a substantial premium over what they paid | They paid $1.00. The agreement's only monetary remedy for default is reimbursement of the land's agreed $469,000 value, in two halves - see [note 09](09-development-agreement.md) |
+
+The room got heated and the organizers closed the meeting, saying the city and the company should hold one of their own.
+
 ## Established, not established, and blocked
 
 | Question | Status |
@@ -250,9 +273,11 @@ All descriptions are the firm's own. Entries marked ● are data-center business
 | That Launch Capital publicly claims Liberty as a portfolio company | **Established** - published on launchcapital.ca |
 | That Launch Capital and Liberty share authored ad copy | **Established** - verbatim string match |
 | That Launch Capital is Tony Di Benedetto's firm | **Established** - firm's own team page and page title |
-| When the company was legally formed | **Not established** |
-| Who its officers, directors, or owners are | **Not established** - no name is published by the company anywhere |
-| Whether Tony Di Benedetto holds any office in Liberty Data Centers | **Not established** - Launch Capital describes itself as providing capital and advisory services, which does not establish an operating role |
+| That the people behind Liberty are Launch Capital's | **Established** - Tony Di Benedetto, whose Toronto firm claims Liberty as its first portfolio entry, answered for Liberty in person at the August 4 community meeting, on the recording published here |
+| When the company was legally formed | **Not established** - a speaker from the floor on August 4 said Liberty Georgia USA was incorporated in Georgia in June, just before the land transfer; no filing has been retrieved to confirm it |
+| Who its officers, directors, or owners are | **Not established** - no name is published by the company anywhere, and no corporate filing has been retrieved |
+| Whether Tony or Paul Di Benedetto holds any office in Liberty Data Centers | **Not established** - speaking for a company at a public meeting is not the same as holding an office in it, and no filing has been located either way |
+| Paul Di Benedetto's role in either company | **Not established** - he is not named on Launch Capital's published team page, which lists Tony as CEO and Justin and Brianna as associates |
 | Who provided the seed funding | **Not established** - not disclosed |
 | Which consultancy was engaged | **Not established** - not named |
 | Why the press releases carry a Miami dateline while Launch Capital is Toronto | **Not established** |
@@ -265,7 +290,7 @@ All descriptions are the firm's own. Entries marked ● are data-center business
 1. **Florida corporate records.** Search [Sunbiz](https://search.sunbiz.org/Inquiry/CorporationSearch/ByName) for "Liberty Data Centers." Both press releases are datelined Miami. A Florida filing would name the officers, the registered agent, and the formation date. This is the single highest-value document and it is free and public.
 2. **Georgia corporate records.** Search the [Georgia Secretary of State business database](https://ecorp.sos.ga.gov/BusinessSearch) for the same name, and for any entity registered as a foreign corporation doing business in Georgia.
 3. **Syntheia's public filings.** Syntheia is a publicly traded company with Tony Di Benedetto as CEO and Chairman. Directors and officers must disclose other directorships in the annual information form and management information circular, filed on [SEDAR+](https://www.sedarplus.ca/). If he holds an office in Liberty Data Centers, it should be listed there.
-4. **Ask on the record.** No representative of the company has been named in any public meeting or news report to date. At a council or commission meeting, ask: who are the principals of the entity seeking approval; under what legal name and in what state is it registered; and what is Launch Capital's relationship to it.
+4. **Ask on the record.** Two men answered for the company at a community meeting on August 4, but no representative has been named on the record at a meeting of either governing body, and neither has stated the company's legal name, state of registration, or officers. At a council or commission meeting, ask: who are the principals of the entity seeking approval; under what legal name and in what state is it registered; who signed for Liberty GA USA LLC on July 1; and what is Launch Capital's relationship to it.
 5. **Georgia Power.** The flyer's statement that the project will bear all power-delivery costs is a claim about Georgia Power's position. Georgia Power can confirm or deny it directly.
 6. **Sumter County / City of Americus.** Request any correspondence, letter of intent, option agreement, or incentive application naming Liberty Data Centers or any affiliated entity. As of the July 23, 2026 council meeting, no permit application had been requested.
 
@@ -281,3 +306,4 @@ All descriptions are the firm's own. Entries marked ● are data-center business
 - [Tony Di Benedetto, Crunchbase](https://www.crunchbase.com/person/tony-di-benedetto-2)
 - [Syntheia leadership team](https://www.syntheia.ai/leadership-team)
 - ["Americus City Council hears citizen concern over data center ordinance," Americus Times-Recorder, July 24, 2026](https://americustimesrecorder.com/2026/07/24/americus-city-council-hears-citizen-concern-over-data-center-ordinance/) - flyer contents, Frank Meyers Industrial Park, permit status
+- [Community meeting, Americus, August 4, 2026](/meetings/2026-08-04-data-centers-are-coming/) - recording and written summary; the company's own answers from the floor

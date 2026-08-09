@@ -222,7 +222,7 @@ export const MEETING_ROWS = [
           },
           {
             who: 'Liberty',
-            role: 'Tony and Paul, from Toronto',
+            role: 'Tony and Paul Di Benedetto, from Toronto',
             said: 'They were in the back of the room and were called forward. They said they were brought in about eighteen months to two years ago to put capital and technical help into a bitcoin data center already operating in Americus that was going to shut down, and that they have made ten to fifteen trips here since. Conversations with local economic development turned into this proposal. They frame it as an innovation center with the data center as an extension of it, including curriculum work with the schools. They put the build at about $5 billion, plus perhaps $10 billion of customer equipment inside it. They said it is small by industry standards, not a 400 MW Meta or Google campus, and that they are not using water. They said the commitment is backed: if they do not spend what they said and create the jobs they said, they give the land back and pay a substantial premium over what they paid. Asked whether they have a customer, they said yes. The room got heated and the organizers closed the meeting, saying the city and the company should hold one of their own.',
           },
         ],

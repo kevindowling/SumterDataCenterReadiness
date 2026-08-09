@@ -16,7 +16,7 @@ The enforceable project description should include:
 
 | Needed fact | Why it matters |
 |---|---|
-| Legal applicant, landowner, operator, and tenant | Establishes who is responsible |
+| Legal applicant, landowner, operator, and tenant | Establishes who is responsible. Tony and Paul Di Benedetto, of Toronto, have now [answered for Liberty in person](10-liberty-data-centers.md); no filing naming the company's officers has been located |
 | Every phase and building | Prevents impacts from being reviewed one slice at a time |
 | IT load and total meter load | Drives heat, power, and backup generation |
 | Final heat-rejection design | Determines whether cooling is dry, wet, or hybrid |

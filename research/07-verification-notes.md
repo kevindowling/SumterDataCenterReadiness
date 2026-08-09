@@ -18,6 +18,10 @@ Dates from here forward are on this desk's [public meeting calendar](/meetings/)
 
 **Partly answered.** The [signed development agreement](09-development-agreement.md) ties the project to about 102 acres on Swett Avenue, tax parcel 64-17, Land Lots 202 and 203 of the 27th Land District, and names Liberty GA USA LLC as the developer. Still missing: the concept plan and site plan, the requested land-use approval, and the purchase and sale agreement the contract references.
 
+### Who is behind the company
+
+**Largely answered.** Tony and Paul Di Benedetto, of Toronto, answered for Liberty at the [community meeting of August 4](/meetings/2026-08-04-data-centers-are-coming/). Tony Di Benedetto's firm, Launch Capital Inc., lists Liberty first in its published portfolio: see [who is behind the proposal](10-liberty-data-centers.md). Still missing, and obtainable: a corporate filing naming the officers, directors, and owners of Liberty GA USA LLC, the state and date of its registration, and who signed the agreement for it on July 1. The company itself publishes no name.
+
 ### Water demand and cooling design
 
 The [city permit limits](https://epd.georgia.gov/watershed-protection-branch-lists) and [historical withdrawals](https://www.usgs.gov/data/estimate-georgia-water-use-data-county-2020) are documented. The project's average-day, peak-day, maximum-month, and annual demands are not. Obtain the final cooling schematic, water balance, source, blowdown plan, and an independent capacity analysis.
