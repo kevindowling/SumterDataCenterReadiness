@@ -26,6 +26,7 @@ const required = [
   'research/moratorium-resolution.pdf', 'research/georgia-sunshine-laws-6th-edition.pdf',
   'research/better-government-2026-08-04.pdf',
   'research/pda-liberty-development-agreement.pdf',
+  'research/petition-signatures-redacted.pdf',
   ...docs.map((name) => `research/${name}`),
 ];
 const errors = [];
