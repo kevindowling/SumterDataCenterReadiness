@@ -44,6 +44,8 @@ The [car comparison](https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-
 
 ## Questions that close the loopholes
 
+The [signed development agreement](09-development-agreement.md) states that backup generators “shall be used only in emergency situations” and limits routine testing to 8:00 a.m. through 6:00 p.m., Monday through Friday (§10). It does not define “emergency,” does not cap how many days testing may occur, and does not name a single engine, fuel, or emission control. That is the gap the questions below are written to close.
+
 - List every engine and turbine by model, rating, fuel, controls, and location.
 - Separate hours for testing, outages, demand response, peak shaving, and delayed grid connection.
 - Define “emergency” narrowly.
@@ -52,7 +54,7 @@ The [car comparison](https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-
 - Require public hour-meter, fuel, and emissions records.
 - Do not allow occupancy before firm grid service without separate approval as a power plant.
 
-The equipment schedule and any air-permit application are records held by the county and Georgia EPD. See [how to obtain the records and reach the officials](11-open-government.md).
+The equipment schedule and any air-permit application are records held by the county and Georgia EPD. See [how to obtain the records and reach the officials](11-open-government.md), and the [contact page](/contact/) for the same roster with each official's published e-mail address.
 
 ## Relevant precedent
 

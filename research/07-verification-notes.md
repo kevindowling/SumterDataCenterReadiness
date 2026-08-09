@@ -2,21 +2,25 @@
 
 ## An honest note about the evidence
 
-This report uses the best public sources located before the July 2026 county and city meetings. It does not have the complete project application, engineering package, utility commitments, or draft approval conditions. That means it can identify credible risks and show their possible scale, but it cannot honestly predict the final facility's impacts.
+This report is built from the best public sources located so far. It does not have the complete project application, engineering package, utility commitments, or draft approval conditions. That means it can identify credible risks and show their possible scale, but it cannot honestly predict the final facility's impacts.
 
 This is not a reason to dismiss the questions. It is the reason commissioners should require answers before granting rights or approvals.
 
-## Verified meeting information
+## Where the meetings are tracked
 
-The official Sumter County calendar listed a **Regular Board Meeting in July 2026** at **500 West Lamar Street, Americus, Georgia 31709**, which has since taken place. County meetings are open to the public.
+The county and city meetings of July 2026 have taken place, as has the community meeting of August 4, whose [recording and summary](/meetings/2026-08-04-data-centers-are-coming/) are on this site — read as what speakers said, not as verified fact.
 
-Residents should check the [county calendar](https://www.sumtercountyga.us/calendar.aspx) and posted agendas for upcoming sessions, since the data-center topic is expected to return.
+Dates from here forward are on this desk's [public meeting calendar](/meetings/), each one read off the body's own posted calendar by hand and linked back to it. Agendas are published closer to the date, so residents should still check the [county calendar](https://www.sumtercountyga.us/calendar.aspx) and the posted agenda before travelling. County meetings are open to the public.
 
 ## Local project facts still needing documents
 
 ### The application and site description
 
 **Partly answered.** The [signed development agreement](09-development-agreement.md) ties the project to about 102 acres on Swett Avenue, tax parcel 64-17, Land Lots 202 and 203 of the 27th Land District, and names Liberty GA USA LLC as the developer. Still missing: the concept plan and site plan, the requested land-use approval, and the purchase and sale agreement the contract references.
+
+### Who is behind the company
+
+**Largely answered.** Tony and Paul Di Benedetto, of Toronto, answered for Liberty at the [community meeting of August 4](/meetings/2026-08-04-data-centers-are-coming/). Tony Di Benedetto's firm, Launch Capital Inc., lists Liberty first in its published portfolio: see [who is behind the proposal](10-liberty-data-centers.md). Still missing, and obtainable: a corporate filing naming the officers, directors, and owners of Liberty GA USA LLC, the state and date of its registration, and who signed the agreement for it on July 1. The company itself publishes no name.
 
 ### Water demand and cooling design
 
@@ -25,6 +29,8 @@ The [city permit limits](https://epd.georgia.gov/watershed-protection-branch-lis
 ### Electric load and utility upgrades
 
 [Statewide growth figures](https://psc.ga.gov/site/downloads/datacenterfactsheet.pdf) are documented. The project's IT load, total meter load, service date, transmission path, upgrade cost, and financial guarantees are not. Obtain the utility will-serve letter and full-buildout load schedule.
+
+**Partly spoken to, not documented.** At the [August 4 community meeting](/meetings/2026-08-04-data-centers-are-coming/) a Georgia Power representative said from the floor that the utility had met with the developer and does have the ability to serve the load. Nothing in that statement is a substitute for a will-serve letter, and it supplies none of the figures listed above.
 
 ### Generators, fuel, and operating hours
 
@@ -61,6 +67,6 @@ Do not let an unanswered question be reframed as proof that there is no risk. As
 3. Will commissioners delay action until residents can review it?
 4. Which approval condition will make the answer enforceable?
 
-Each record listed above sits with an identifiable custodian and can be requested in writing under the Georgia Open Records Act, which sets a three-business-day response deadline. See [how to obtain the records and reach the officials](11-open-government.md).
+Each record listed above sits with an identifiable custodian and can be requested in writing under the Georgia Open Records Act, which sets a three-business-day response deadline. See [how to obtain the records and reach the officials](11-open-government.md), and the [contact page](/contact/) for the same roster with each official's published e-mail address.
 
 The honest conclusion today is not that every harm will occur. It is that the public record is not complete enough to know, and approval should not outrun the evidence.
