@@ -140,6 +140,13 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .markdown figure.chart svg{display:block;width:100%;min-width:600px;height:auto}
 .markdown figure.chart figcaption{margin-top:14px;padding-top:12px;border-top:1px solid #171a1833;color:var(--muted);font:400 12px/1.45 var(--mono)}
 .chart-head{fill:var(--ink);font:500 13px/1 var(--mono);letter-spacing:.02em}
+
+/* A scanned document or drawing in a research note. The image links to itself,
+   because a plat or a rendering is unreadable at column width and the reader
+   needs the full-size file. */
+.markdown figure.plate{margin:30px 0 38px}
+.markdown figure.plate img{display:block;width:100%;height:auto;border:1px solid var(--ink);background:#fff}
+.markdown figure.plate figcaption{margin-top:12px;color:var(--muted);font:400 12px/1.45 var(--mono)}
 .chart-label{fill:var(--ink);font:400 11px/1 var(--mono)}
 .chart-value{fill:var(--ink);font:500 11px/1 var(--mono)}
 .chart-value-in{fill:var(--light);font:500 11px/1 var(--mono)}

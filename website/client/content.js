@@ -6,7 +6,7 @@
 // Anything added here must stay runnable in both.
 
 // Canonical origin. Used for absolute URLs in link previews and the sitemap,
-// which must be absolute — a relative og:image is dropped by every scraper.
+// which must be absolute, a relative og:image is dropped by every scraper.
 export const SITE_ORIGIN = 'https://scc4t.com';
 export const SITE_NAME = 'Sumter Field Desk';
 export const SITE_DESCRIPTION = 'A community research report on the proposed Sumter County data center.';
@@ -42,6 +42,7 @@ export const documents = [
   {id: 'records', file: '11-open-government.md', number: '11', short: 'Records', title: 'Records & officials', question: 'How do you obtain the records and reach the officials?', tone: 'action', time: '9 min', seoTitle: 'How to File a Georgia Open Records Request', seoDescription: 'Obtaining the Americus data center records under Georgia\'s Open Records Act - the three-day deadline, fees, exemptions, a request template, and who to contact.'},
   {id: 'velocity', file: '12-velocity-trap.md', number: '12', short: 'Velocity', title: 'The velocity trap', question: 'Why does the pace of the buildout itself cause harm?', tone: 'grid', time: '10 min', author: 'Jeff Ranew', seoTitle: 'Why Hyperscale AI Buildout Speed Harms Local Communities', seoDescription: 'A guest analysis by Jeff Ranew: how compressed AI data center timelines push developers onto evaporative cooling and on-site fossil generation, and what to require instead.'},
   {id: 'petition', file: '13-petition-integrity.md', number: '13', short: 'Petition', title: 'How the petition is verified', question: 'Why should anyone believe the signature count?', tone: 'action', time: '5 min', seoTitle: 'How the Data Center Moratorium Petition Is Verified', seoDescription: 'Every counted signature is confirmed by email, deduplicated at the database level, and reported by locality. What the Sumter Field Desk publishes, what it keeps private, and what it cannot prove.'},
+  {id: 'land', file: '14-what-can-actually-be-built.md', number: '14', short: 'Land', title: 'Wetland, flood & footprint', question: 'How much of this land can be built on?', tone: 'water', time: '4 min', seoTitle: 'How Much of the Americus Data Center Site Can Be Built On?', seoDescription: 'A 2023 delineation found 61.47 of the 103.91-acre Swett Avenue tract are wetland - 59% - requiring a federal permit to build on. No permit application has been located.'},
 ];
 
 // Notes that render at their own route but are deliberately kept off every

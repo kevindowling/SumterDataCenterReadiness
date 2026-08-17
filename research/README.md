@@ -25,6 +25,8 @@ This report is intended to help residents bring focused questions about water, s
 - The permit lists 3.75 million gallons per day (MGD) as the annual-average limit and 4.2 MGD as the monthly-average limit.
 - The [Development Authority advertises](https://www.selectsumter.com/sites-buildings) approximately 2.5 MGD of average city water consumption and a 7 MGD water-plant capacity.
 - The [signed development agreement](09-development-agreement.md) places the project on about 102 acres on Swett Avenue, tax parcel 64-17, and names **Liberty GA USA LLC** as the developer.
+- **The land has been conveyed.** The Authority deeded the tract to Liberty GA USA LLC on **July 22, 2026**, recorded the next day in Deed Book 1806, Pages 746-748.
+- **Most of the site is wetland.** A 2023 delineation found [61.47 of 103.91 acres, 59%, are wetland](14-what-can-actually-be-built.md), which cannot be built on without a federal permit. No permit application has been located.
 - That agreement conveys the land, agreed to be worth $469,000, to Liberty for **$1.00**, in exchange for four construction phases through December 2033, a 30-year operating covenant, and at least 150 jobs at an average wage of $80,000.
 - It bars private water wells and open-loop cooling, limits backup generators to emergencies, and leaves the City of Americus its full enforcement powers over noise, nuisance, buffers, lighting, and zoning.
 - The people behind the proposal are **Tony and Paul Di Benedetto**, of Toronto. Tony Di Benedetto's firm, Launch Capital Inc., lists Liberty Data Centers first in its published portfolio, and both men answered for Liberty at the [community meeting of August 4](/meetings/2026-08-04-data-centers-are-coming/) - the company's first public appearance in Americus. See [who is behind the proposal](10-liberty-data-centers.md).
@@ -55,6 +57,7 @@ This report is intended to help residents bring focused questions about water, s
 11. [How do you obtain the records and reach the officials?](11-open-government.md)
 12. [Why does the pace of the buildout itself cause harm?](12-velocity-trap.md) - a guest analysis by Jeff Ranew
 13. [Why should anyone believe the petition's signature count?](13-petition-integrity.md)
+14. [How much of this land can be built on?](14-what-can-actually-be-built.md)
 
 ## How to read the labels
 

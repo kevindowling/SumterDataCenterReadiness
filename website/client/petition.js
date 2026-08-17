@@ -13,7 +13,7 @@ export const petitions = [
     eyebrow: 'PETITION TO SUMTER COUNTY AND THE CITY OF AMERICUS',
     // Both governing bodies the signed petition is presented to. The draft is a
     // single joint resolution, but each body has to adopt it for its own
-    // jurisdiction — so the page names both before it asks for a signature.
+    // jurisdiction, so the page names both before it asks for a signature.
     addressedTo: [
       'The Sumter County Board of Commissioners',
       'The Mayor and City Council of the City of Americus',
@@ -22,16 +22,16 @@ export const petitions = [
     // bodies are listed: a reader who thinks a second signature is owed
     // somewhere else is a reader who leaves the page unsure they finished.
     signingNote:
-      'One signature, presented to both. Sign once here, or once on the paper copy — your name goes to the county and to the city. There is no second petition to sign.',
+      'One signature, presented to both. Sign once here, or once on the paper copy; your name goes to the county and to the city. There is no second petition to sign.',
     // One sentence, used in link previews and the meta description.
     summary:
       'A petition asking the Sumter County Board of Commissioners and the Mayor and City Council of Americus each to adopt the joint 18-month moratorium on the zoning, rezoning, permitting and construction of data centers, so both governments can write an ordinance before either has to answer an application.',
-    // The ask, in the signer\'s voice. Rendered as the body of the petition —
+    // The ask, in the signer\'s voice. Rendered as the body of the petition:
     // this is the text a signature is attached to, so it is versioned in the
     // repo and any change to it is visible in the file history.
     body: [
       'We, the undersigned residents of Americus and Sumter County, ask the Sumter County Board of Commissioners and the Mayor and City Council of the City of Americus each to adopt the joint resolution now in draft before them: an 18-month temporary moratorium on the zoning, rezoning, development, permitting and construction of data centers within their respective jurisdictions.',
-      'This is one petition to two governments. The draft is a single joint resolution, but each body adopts it for the ground it governs — the county for unincorporated Sumter County, the city for Americus. A data center refused on one side of that line and permitted on the other would draw on the same water, the same roads and the same power, so we are asking both, together. One signature is presented to both; nobody is asked to sign twice.',
+      'This is one petition to two governments. The draft is a single joint resolution, but each body adopts it for the ground it governs: the county for unincorporated Sumter County, the city for Americus. A data center refused on one side of that line and permitted on the other would draw on the same water, the same roads and the same power, so we are asking both, together. One signature is presented to both; nobody is asked to sign twice.',
       'Neither the State of Georgia, Sumter County, nor the City of Americus has any ordinance governing where data centers may be sited or how they must operate. Neither code of ordinances defines the term at all. Until they do, any application that arrives has to be judged under a zoning code written for something else.',
       'The draft resolution asks for time, not a refusal. It would pause zoning, permitting and construction of data centers for 18 months from the day it is adopted, and directs the Planning and Zoning staff of both governments, the City Council, the Board of Commissioners, and outside experts to study the effects and draft the ordinance amendments the county and the city currently lack.',
       'We are asking our elected officials to use that time before a decision has to be made, rather than after.',
@@ -50,12 +50,12 @@ export const petitions = [
     //
     // The street address column is painted out before publishing. Signers gave
     // an address to prove they live here, not to have it posted, and the paper
-    // sheet has no box to ask them with — unlike the form on this page, where
+    // sheet has no box to ask them with, unlike the form on this page, where
     // being listed at all is opt-in. The unredacted scans stay off the server.
     paperSheets: {
       href: '/research/petition-signatures-redacted.pdf',
       label: 'See the signed paper sheets',
-      note: 'PDF, 6 pages. Street addresses removed; names, signatures, town and ZIP are as signed.',
+      note: 'PDF, 7 pages. Street addresses removed; names, signatures, town and ZIP are as signed.',
     },
     // Where the paper copy can be signed in person. Signing on paper counts the
     // same as signing online; it is reported separately so the totals stay
@@ -165,8 +165,8 @@ export function normalizeEmail(email) {
 export const normalizeIdentity = (name, postalCode) =>
   `${String(name).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')}|${String(postalCode).trim().slice(0, 5)}`;
 
-// Mailbox providers that hand out throwaway addresses. Not a rejection — a
-// signature from one is still counted once confirmed — but it is recorded as a
+// Mailbox providers that hand out throwaway addresses. Not a rejection: a
+// signature from one is still counted once confirmed, but it is recorded as a
 // flag so a reviewer can see it if the totals are ever challenged.
 export const DISPOSABLE_DOMAINS = new Set([
   'mailinator.com', 'guerrillamail.com', 'guerrillamail.net', '10minutemail.com',

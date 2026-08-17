@@ -70,6 +70,8 @@ A meeting is subject to the Act whenever a quorum meets for the discussion or pr
 
 The Act does not generally exempt agency adjudicative sessions, budget sessions, or meetings regarding business or industry relations, financial data, or negotiations.
 
+**One such gathering is on the record here.** The Development Authority's minutes of March 9, 2026 report that "a meeting was held with the mayor, 2 councilmen, and the county chairman to discuss projects," and, separately, that "the county approved giving us this property," meaning the Swett Avenue tract. Two councilmen are not a quorum of the Americus City Council, so on its face that gathering did not trigger the Act. The page is published here: [Authority minutes, March 9, 2026, excerpt](/research/pda-minutes-2026-03-09-excerpt.pdf). It is page 3 of 4; the rest has not been obtained.
+
 | Requirement | Rule | Citation |
 |---|---|---|
 | Regular meeting notice | Posted at least one week in advance in a conspicuous place at the regular meeting site and on the agency's website if it has one; must be sufficient to reasonably apprise a concerned party and must not be misleading | § 50-14-1(d) |
@@ -82,7 +84,7 @@ The Act does not generally exempt agency adjudicative sessions, budget sessions,
 
 ### Closing a meeting
 
-An agency may close a meeting only under a specific statutory exception (§ 50-14-3) and only by majority vote of the members present, taken in a properly noticed open meeting. The portion of the meeting before that vote is open. The specific reasons for closure and the names of those voting for closure go in the official minutes, and that portion of the minutes is public. The presiding officer — or each attending member, if agency policy so provides — must execute and file a notarized affidavit stating under oath that the closed portion was devoted to matters within the exceptions and identifying the specific exception (§ 50-14-4(b)(1)). Executive-session minutes must be kept in writing for possible court examination and are not available for public inspection (§ 50-14-1(e)(2)(C)). If someone initiates an unauthorized discussion in executive session, the presiding officer must immediately rule it out of order and, if it continues, adjourn the session (§ 50-14-4(b)(2)).
+An agency may close a meeting only under a specific statutory exception (§ 50-14-3) and only by majority vote of the members present, taken in a properly noticed open meeting. The portion of the meeting before that vote is open. The specific reasons for closure and the names of those voting for closure go in the official minutes, and that portion of the minutes is public. The presiding officer, or each attending member if agency policy so provides, must execute and file a notarized affidavit stating under oath that the closed portion was devoted to matters within the exceptions and identifying the specific exception (§ 50-14-4(b)(1)). Executive-session minutes must be kept in writing for possible court examination and are not available for public inspection (§ 50-14-1(e)(2)(C)). If someone initiates an unauthorized discussion in executive session, the presiding officer must immediately rule it out of order and, if it continues, adjourn the session (§ 50-14-4(b)(2)).
 
 Commonly used exceptions include personnel matters (discussion and deliberation only, not votes); attorney-client discussion of actual or potential litigation; and real estate. In a closed meeting an agency may take preliminary votes on real estate, but a transaction does not become binding until a public vote is taken.
 
@@ -114,6 +116,9 @@ Each item in [what still needs to be verified](07-verification-notes.md) corresp
 | Air permit application and generator equipment schedule | Georgia EPD Air Protection Branch; county | Generator count, fuel, and hours |
 | Acoustic studies and any noise complaint logs | Applicant submittals held by planning; code enforcement | Sound at nearby homes |
 | Correspondence between officials and the developer, its agents, and site selectors | Each agency; individual officials' agency accounts | Timeline and commitments made |
+| Complete minutes of the Development Authority, including March 9, 2026 | Development Authority | How and when the county's land reached the Authority. [One page of the March minutes](/research/pda-minutes-2026-03-09-excerpt.pdf) is published here; the rest is not |
+| Section 404 permit application, jurisdictional determination request, and Corps correspondence for parcel 64-17 | U.S. Army Corps of Engineers, Savannah District; Development Authority | Whether [the 59% of the tract that is wetland](14-what-can-actually-be-built.md) can be built on, and when |
+| Executed purchase and sale agreement, the ¶16 assignment notice, and closing statement | Development Authority; Gatewood, Skipper, Rambo & Moore as escrow agent | Which Liberty entity contracted, and on what date |
 
 Because § 50-18-71(f) allows the requester to specify format, correspondence can be requested with headers and attachments intact rather than as printed copies.
 
