@@ -63,7 +63,7 @@ test('refuses paths outside the public allowlist', async () => {
 // Regression: percent-encoded separators must not smuggle a "../" past the
 // public-root allowlist. new URL() collapses literal "../" but leaves "%2f"
 // intact, so decoding before normalizing exposed every file under the project
-// directory — including the deployed server.env.
+// directory, including the deployed server.env.
 test('refuses percent-encoded path traversal', async () => {
   const attacks = [
     '/website/..%2fserver.env',
@@ -169,7 +169,7 @@ test('board preflight advertises DELETE for moderation', async () => {
 
 // The petition is the one API surface that must answer a signed-out caller:
 // requiring an account to sign would lose more real residents than it stops
-// bots. These tests pin that door open — and pin shut the ones next to it.
+// bots. These tests pin that door open, and pin shut the ones next to it.
 test('petition read and sign routes are reachable without a token', async () => {
   const read = await fetch(`${base}/api/petition/moratorium`);
   // 501 without a database configured; 200 once there is one. Never 401.
@@ -221,7 +221,7 @@ test('a failed Turnstile check refuses the signature', async () => {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({name: 'Gate Case', email: 'gate@example.com', city: 'Americus', state: 'GA', postalCode: '31709', consent: true, turnstileToken: 'XXXX.DUMMY.TOKEN.XXXX'}),
     });
-    // 403 before the database is ever consulted — never 501 (no database) or 202.
+    // 403 before the database is ever consulted, never 501 (no database) or 202.
     assert.equal(response.status, 403, 'a failed challenge must refuse the signature');
     assert.match((await response.json()).error, /anti-bot check/);
   } finally {
@@ -230,7 +230,7 @@ test('a failed Turnstile check refuses the signature', async () => {
 });
 
 // A token that sat too long on an open form, or that a double-click spent
-// twice, is not a failed challenge — and telling a real signer they look like a
+// twice, is not a failed challenge, and telling a real signer they look like a
 // bot is how the petition loses them. Refused either way, worded differently.
 test('an expired Turnstile token is refused as expired, not as a failure', async () => {
   const gatePort = port + 2;
@@ -260,7 +260,7 @@ test('an expired Turnstile token is refused as expired, not as a failure', async
 
 // A browser that blocks challenges.cloudflare.com sends no token at all. That
 // is not a verdict on the signer, so it must not be refused the way a rejected
-// token is — the row is flagged and an organizer confirms it instead.
+// token is. The row is flagged and an organizer confirms it instead.
 test('a missing Turnstile token is accepted and flagged, not refused', async () => {
   const gatePort = port + 3;
   const gate = spawn(process.execPath, [fileURLToPath(new URL('server.mjs', import.meta.url))], {
@@ -275,7 +275,7 @@ test('a missing Turnstile token is accepted and flagged, not refused', async () 
     const response = await fetch(`http://localhost:${gatePort}/api/petition/moratorium/sign`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      // No turnstileToken at all — the same shape a blocked browser sends.
+      // No turnstileToken at all, the same shape a blocked browser sends.
       body: JSON.stringify({name: 'No Token', email: 'notoken@example.com', city: 'Americus', state: 'GA', postalCode: '31709', consent: true}),
     });
     // Past the anti-bot gate: it gets as far as the database, which this test
@@ -341,7 +341,7 @@ test('petition confirmation refuses a junk token', async () => {
 });
 
 // Mail clients and security scanners follow links in email on their own, so
-// withdrawal has to take a POST — a GET shows a confirmation button instead.
+// withdrawal has to take a POST, a GET shows a confirmation button instead.
 test('petition withdrawal does not act on a bare GET', async () => {
   const response = await fetch(`${base}/api/petition/withdraw?token=aaaaaaaaaaaa`);
   assert.ok([200, 501].includes(response.status), `unexpected status ${response.status}`);

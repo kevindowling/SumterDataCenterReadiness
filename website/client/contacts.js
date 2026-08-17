@@ -13,7 +13,7 @@
 // they were heard and never was.
 
 // The group behind the field desk. Deliberately one shared mailbox rather than
-// personal addresses — either organizer can answer it, it survives someone
+// personal addresses, either organizer can answer it, it survives someone
 // stepping back, and it does not put a private inbox on a public page that
 // scrapers read.
 //
@@ -22,7 +22,7 @@
 export const organizers = {
   group: 'Sumter County Citizens for Transparency',
   email: 'contact@scc4t.com',
-  blurb: 'Two neighbors keep this desk. Write to us about anything on the site — a correction, a document you think we should have, a question about the petition, or an offer to help.',
+  blurb: 'Two neighbors keep this desk. Write to us about anything on the site: a correction, a document you think we should have, a question about the petition, or an offer to help.',
   // Names as they appear on the group's own event flyer.
   people: [
     {name: 'Kirk Lyman-Barner', role: 'Organizer'},
@@ -43,7 +43,7 @@ export const bodies = [
     name: 'Sumter County Board of Commissioners',
     short: 'Sumter County',
     // Why a resident would write to this body rather than the other one.
-    jurisdiction: 'Unincorporated Sumter County — everything outside the Americus city limits. The county votes on the moratorium for that ground, and on county zoning and permitting.',
+    jurisdiction: 'Unincorporated Sumter County: everything outside the Americus city limits. The county votes on the moratorium for that ground, and on county zoning and permitting.',
     address: '500 West Lamar Street, Suite 100, Americus, GA 31709',
     mailing: 'P.O. Box 295, Americus, GA 31709',
     phone: '(229) 928-4500',
@@ -122,24 +122,24 @@ export const approach = [
     summary: 'One e-mail, to your own district member first, in your own words.',
     steps: [
       'Write to the member who represents where you live, and copy the chairman or the mayor. A district member counts letters from their own district differently from a mass e-mail to everyone.',
-      'Put the ask in the first sentence — "please vote to adopt the 18-month data center moratorium" — then say who you are and where you live. Many officials read no further than the first line.',
+      'Put the ask in the first sentence ("please vote to adopt the 18-month data center moratorium"), then say who you are and where you live. Many officials read no further than the first line.',
       'Give one concrete reason of your own: your well, your road, your power bill, your view. A reason nobody else can write for you is the one that gets quoted in a meeting.',
       'Ask a direct question you want answered. A question obliges a reply in a way a statement does not.',
       'Be civil and be brief. The people you are writing to are neighbors, and a letter that insults them gets forwarded as proof the opposition is unreasonable.',
     ],
-    fineprint: 'Correspondence about county or city business held in an official\'s account is itself a public record under O.C.G.A. § 50-18-70(b)(2) — including yours.',
+    fineprint: 'Correspondence about county or city business held in an official\'s account is itself a public record under O.C.G.A. § 50-18-70(b)(2), including yours.',
   },
   {
     key: 'speak',
     title: 'Speak at a meeting',
     time: 'An evening',
-    summary: 'Five minutes at the podium, five speakers a night — sign up the same day.',
+    summary: 'Five minutes at the podium, five speakers a night; sign up the same day.',
     steps: [
       'Decide which body you are addressing. The city and the county meet separately, on different nights, and each votes only for the ground it governs.',
       'Get on the list early: only five people speak at a city meeting, and the sign-up sheet opens 30 minutes before.',
       'Write out what you will say and read it aloud once against a clock. Five minutes is about 600 words.',
       'Bring a printed copy for the clerk. What is handed up becomes part of the record; what is only spoken can be summarized in the minutes.',
-      'Say your name and district at the start. The minutes have to identify who made and seconded each motion and how each member voted — your name in the record is the same kind of fact.',
+      'Say your name and district at the start. The minutes have to identify who made and seconded each motion and how each member voted; your name in the record is the same kind of fact.',
     ],
   },
   {
@@ -150,7 +150,7 @@ export const approach = [
     steps: [
       'Send a written request to the agency\'s records custodian. Writing is not legally required, but only a written request carries the Act\'s enforcement provisions (§ 50-18-71(b)(3)).',
       'You do not have to say why you want it. Purpose is irrelevant to the right of access, and the right extends to requesters outside Georgia (§ 50-18-71(a)).',
-      'The agency has three business days to produce the records for inspection — or, in the same three days, to describe what exists and give a timetable (§ 50-18-71(b)(1)(A)).',
+      'The agency has three business days to produce the records for inspection, or, in the same three days, to describe what exists and give a timetable (§ 50-18-71(b)(1)(A)).',
       'Ask for electronic records in the format the agency keeps them in, including message headers and attachments (§ 50-18-71(f)).',
       'If any part is denied, the agency must cite the specific code section, subsection and paragraph in writing, and must still produce the parts that are not exempt (§§ 50-18-71(d), 50-18-72(b)).',
     ],
@@ -164,7 +164,7 @@ export const approach = [
 export const rights = [
   {
     title: 'Every meeting is open',
-    detail: 'O.C.G.A. § 50-14-1(b)(1): "all meetings shall be open to the public." That covers the county commission, the city council, and their boards and authorities — including planning and zoning.',
+    detail: 'O.C.G.A. § 50-14-1(b)(1): "all meetings shall be open to the public." That covers the county commission, the city council, and their boards and authorities, including planning and zoning.',
   },
   {
     title: 'Records are open by default',
@@ -176,7 +176,7 @@ export const rights = [
   },
   {
     title: 'A private company\'s records can still be public',
-    detail: 'Records a private entity prepares or holds for or on behalf of an agency — or in cooperation with public officials, or contemplating the use of public funds — are public records (§ 50-18-70(b)(2); Cent. Atlanta Progress, Inc. v. Baker, 278 Ga. App. 733 (2006)).',
+    detail: 'Records a private entity prepares or holds for or on behalf of an agency, or in cooperation with public officials, or contemplating the use of public funds, are public records (§ 50-18-70(b)(2); Cent. Atlanta Progress, Inc. v. Baker, 278 Ga. App. 733 (2006)).',
   },
   {
     title: 'An agenda on request',
@@ -193,7 +193,7 @@ export const documents = [
   {
     href: '/research/georgia-sunshine-laws-6th-edition.pdf',
     label: 'Georgia\'s Sunshine Laws: A Citizen\'s Guide to Open Government',
-    detail: 'Sixth edition. The Attorney General\'s own handbook on the Open Records and Open Meetings Acts — what you may ask for, what may be withheld, and what to do when an agency says no.',
+    detail: 'Sixth edition. The Attorney General\'s own handbook on the Open Records and Open Meetings Acts: what you may ask for, what may be withheld, and what to do when an agency says no.',
   },
   {
     href: '/research/moratorium-resolution.pdf',
@@ -245,7 +245,7 @@ function bodyCard(body) {
       <p class="body-jurisdiction">${escapeHtml(body.jurisdiction)}</p>
     </header>
     <table class="roster">
-      <caption class="visually-hidden">${escapeHtml(body.name)} — members and e-mail addresses</caption>
+      <caption class="visually-hidden">${escapeHtml(body.name)} - members and e-mail addresses</caption>
       <thead><tr><th scope="col">Seat</th><th scope="col">Member</th><th scope="col">E-mail</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -323,7 +323,7 @@ export function contactSections() {
     <section class="contact-bodies">
       <p class="eyebrow"><span></span> YOUR ELECTED OFFICIALS</p>
       <h2>Two bodies decide this.</h2>
-      <p class="lede">Write to the one that governs where you live — and to both if you want the moratorium adopted on both sides of the city line.</p>
+      <p class="lede">Write to the one that governs where you live, and to both if you want the moratorium adopted on both sides of the city line.</p>
       <div class="bodies-grid">${bodies.map((body) => bodyCard(body)).join('')}</div>
     </section>
     ${approachBlock()}

@@ -44,7 +44,7 @@ Low frequencies have long wavelengths, about 56 feet at 20 Hz and 18 feet at 63 
 
 The [signed development agreement](09-development-agreement.md) requires noise to be measured at the property line with industry-standard meters against federal, state, EPD and City of Americus limits, and requires corrective measures if a governmental entity finds an exceedance (§9). It separately preserves the city's power to enforce its own ordinances on sound, vibration, buffers, and outdoor lighting (§5(B)).
 
-Both provisions point at limits the city has not yet written, and neither states a decibel figure. That is what makes the list below the operative question rather than a wish list — it is what those ordinances would need to contain. Sessions where an ordinance could be taken up are on the [public meeting calendar](/meetings/).
+Both provisions point at limits the city has not yet written, and neither states a decibel figure. That is what makes the list below the operative question rather than a wish list. It is what those ordinances would need to contain. Sessions where an ordinance could be taken up are on the [public meeting calendar](/meetings/).
 
 - No exemption for cooling or HVAC equipment
 - Cumulative limits covering every phase and generator

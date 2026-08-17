@@ -4,7 +4,7 @@
 // app shell are worth having offline; live data is not. Anything the desk
 // reports must be current, so GIS queries, Auth0, and every /api/* call go to
 // the network and are never stored.
-// Bump this on ANY change to app.js, sw.js, or the shell list — not only when
+// Bump this on ANY change to app.js, sw.js, or the shell list, not only when
 // URLs move. The shell is served cache-first, so without a bump a returning
 // reader runs the previous app.js for one more visit. That is invisible for a
 // wording change and badly wrong for a new route: the deploy that added
@@ -31,7 +31,7 @@ const SHELL = [
   // Both of these are imported but were missing here, which made the offline
   // promise false in the one case it matters: a reader who has visited exactly
   // once. app.js imports install.js at the top, so offline that import failed
-  // and the whole module died — shell served from cache, #app empty, blank
+  // and the whole module died, shell served from cache, #app empty, blank
   // page. It went unnoticed because a second visit caches them at runtime, and
   // every manual test had made more than one. Keep this list in step with the
   // imports; check.mjs already lists both files.
@@ -78,7 +78,7 @@ self.addEventListener('activate', (event) => {
 });
 
 // Never cache here: anything that belongs to someone's session, plus the GIS
-// and tile services. The GIS is not uncached — map.js keeps those responses in
+// and tile services. The GIS is not uncached, map.js keeps those responses in
 // its own store with a 24-hour expiry, so it owns that policy rather than
 // splitting it across two files.
 const isLive = (url) =>
@@ -92,7 +92,7 @@ const isLive = (url) =>
 
 // What a deploy can change the meaning of: the pages, the router, and the
 // stylesheet that lays them out. These go to the network first, because
-// cache-first served them one deploy behind — harmless for a wording change,
+// cache-first served them one deploy behind, harmless for a wording change,
 // wrong for anything structural. A reader whose cached app.js predated the
 // /meetings/ route was handed the new prerendered page and rendered the home
 // view over it, at the /meetings/ URL. Icons, fonts and the vendored Leaflet

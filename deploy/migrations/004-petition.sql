@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS petition_signatures (
   -- Published as separate totals rather than merged into one headline number.
   tier          text NOT NULL CHECK (tier IN ('sumter', 'georgia', 'elsewhere')),
 
-  -- 'web' — signed on the site and confirmed by email.
-  -- 'paper' — signed in person on a paper sheet and keyed in by an organizer,
+  -- 'web': signed on the site and confirmed by email.
+  -- 'paper': signed in person on a paper sheet and keyed in by an organizer,
   --           who is recorded in entered_by. Counted, but reported separately.
   source        text NOT NULL DEFAULT 'web' CHECK (source IN ('web', 'paper')),
   entered_by    text,                       -- Auth0 `sub` of the organizer, paper only

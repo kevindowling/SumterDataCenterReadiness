@@ -1,4 +1,4 @@
-// The public meeting calendar — the data, and nothing else.
+// The public meeting calendar: the data, and nothing else.
 //
 // The point of this site is that decisions about the data center get made in
 // rooms residents are allowed to sit in. This file is the list of those rooms
@@ -10,7 +10,7 @@
 //
 // Every date here was read off the body's own posted calendar and checked in
 // by hand, with the source recorded beside it. Nothing is computed from a rule
-// like "third Tuesday". The rules are real — the county publishes one — but
+// like "third Tuesday". The rules are real, and the county publishes one, but
 // they are not reliable: the city's September 2026 meetings fall on the third
 // and fourth Thursday, while February's and March's fell on the second and
 // third. Publishing a computed date as though it were confirmed would send
@@ -24,10 +24,10 @@
 // TO ADD A MEETING: append an official(...) line to MEETING_ROWS at the bottom
 // in date order, then move CONFIRMED_ON to the day you checked. The arguments
 // are date, body, what the body calls the meeting, and whether that body has
-// published its public-comment rules ('published' or 'unknown' — say 'unknown'
+// published its public-comment rules ('published' or 'unknown': say 'unknown'
 // unless you have read the rules yourself). A meeting at other than 6:00 p.m.
 // takes a fifth argument in 24-hour time. Trailing commas are fine. If you get
-// something wrong, the build fails and tells you which line — it will not
+// something wrong, the build fails and tells you which line. It will not
 // quietly publish a half-formed meeting.
 
 // The bodies that decide, and how a resident actually reaches them.
@@ -49,13 +49,13 @@ export const BODIES = {
     venue: 'Council Chambers, Russell Thomas Jr. Public Safety Building',
     address: '119 South Lee Street, Americus, GA 31709',
     phone: '(229) 924-4411',
-    rhythm: 'An agenda-setting meeting and a council meeting each month, both at 6:00 p.m. The weeks move — check the date.',
+    rhythm: 'An agenda-setting meeting and a council meeting each month, both at 6:00 p.m. The weeks move; check the date.',
     calendar: 'https://americuscityga.iqm2.com/Citizens/Calendar.aspx',
     agendas: 'https://americuscityga.iqm2.com/Citizens/Calendar.aspx',
     remote: 'The city offers a teleconference option.',
   },
-  // The authority that would actually do a data-center deal — bonds, a PILOT,
-  // an abatement — and the only body here with no standing schedule. It posts
+  // The authority that would actually do a data-center deal (bonds, a PILOT,
+  // an abatement) and the only body here with no standing schedule. It posts
   // one date at a time, so an empty stretch on this calendar means nothing has
   // been posted, not that nothing is happening. Watch its calendar directly.
   //
@@ -96,7 +96,7 @@ export const COMMENT = {
   },
   unknown: {
     label: 'Public comment not confirmed',
-    body: 'This body has not published how public comment works at this meeting. The meeting is open to the public either way — Georgia law requires that — but whether you may address it, and how to get on the list, is unconfirmed.',
+    body: 'This body has not published how public comment works at this meeting. The meeting is open to the public either way (Georgia law requires that), but whether you may address it, and how to get on the list, is unconfirmed.',
   },
 };
 
@@ -112,7 +112,7 @@ export const STALE_AFTER = '2026-12-31';
 // The page a date was read off, derived from the date itself. Written out per
 // row it silently carried a hardcoded year, so the first 2027 meeting added
 // would have linked to the 2026 calendar and quietly undercut the one claim
-// this list makes — that somebody checked.
+// this list makes: that somebody checked.
 const SOURCE = {
   commission: (date) =>
     `https://www.sumtercountyga.us/calendar.aspx?view=list&year=${date.slice(0, 4)}&month=${Number(date.slice(5, 7))}`,
@@ -124,12 +124,12 @@ const SOURCE = {
 // 6:00 p.m. both governments keep; the authority meets at 4:00, in working
 // hours, which is worth seeing on the page rather than smoothing over.
 // `extra` carries anything the posting gives for that one date and the body
-// does not publish as a standing fact — in practice the authority's room.
+// does not publish as a standing fact; in practice the authority's room.
 const official = (date, body, kind, speak, time = '18:00', extra = {}) => {
   // Without this a mistyped body name dies on "SOURCE[body] is not a function"
   // several frames from the line that is actually wrong.
   if (!SOURCE[body]) {
-    throw new Error(`${date}: no calendar known for body '${body}' — expected one of ${Object.keys(SOURCE).join(', ')}`);
+    throw new Error(`${date}: no calendar known for body '${body}': expected one of ${Object.keys(SOURCE).join(', ')}`);
   }
   return {date, body, kind, speak, time, status: 'confirmed', source: SOURCE[body](date), ...extra};
 };
@@ -144,7 +144,7 @@ export const MEETING_ROWS = [
     time: '18:00',
     status: 'confirmed',
     speak: 'open',
-    summary: 'A company is proposing to build a large-scale data center in Americus. Before decisions get made, our community deserves to understand what that means for us — our water, our power bills, our land, and our future.',
+    summary: 'A company is proposing to build a large-scale data center in Americus. Before decisions get made, our community deserves to understand what that means for us: our water, our power bills, our land, and our future.',
     topics: [
       'Water usage & local supply impacts',
       'Electricity demand & utility rates',
@@ -161,7 +161,7 @@ export const MEETING_ROWS = [
     signups: 'Sign up at the door: moratorium petition, volunteers, T-shirts.',
     flyer: {
       src: '/assets/images/event_flyer.jpg',
-      alt: 'Flyer: Community Meeting About Data Centers, Tuesday August 4 2026 at 6:00 p.m., Lake Blackshear Regional Library. Everyone welcome — bring your questions.',
+      alt: 'Flyer: Community Meeting About Data Centers, Tuesday August 4 2026 at 6:00 p.m., Lake Blackshear Regional Library. Everyone welcome. Bring your questions.',
     },
     recap: {
       video: {id: 'qYPjHDAbO9k', length: '1 hr 14 min'},

@@ -12,7 +12,7 @@
 # It replicates deploy/setup-vps.sh: deploy user (restricted sudo), Node 22,
 # the systemd service, Caddy with automatic HTTPS, and a basic firewall.
 # First boot takes a few minutes; verify with: curl https://api.scc4t.com/api/health
-# (it returns 502 from Caddy until GitHub Actions ships the code — that's fine).
+# (it returns 502 from Caddy until GitHub Actions ships the code, that's fine).
 
 users:
   - name: deploy

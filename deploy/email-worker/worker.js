@@ -6,8 +6,8 @@
 //
 // The addresses are NOT in this file. They live in the FORWARD_TO Worker
 // variable, because this repository is public and the whole point of a group
-// address is that no organizer's personal mailbox ends up on a page — or in a
-// source file — that a scraper reads.
+// address is that no organizer's personal mailbox ends up on a page, or in a
+// source file, that a scraper reads.
 //
 // Every address in FORWARD_TO must first be a verified *destination address*
 // in Email Routing (Email → Email Routing → Destination addresses). Forwarding
@@ -27,7 +27,7 @@ export default {
     // find another way in, and a neighbor with something to report is exactly
     // the message that must not vanish.
     if (!targets.length) {
-      console.error('FORWARD_TO is empty — no organizer addresses configured');
+      console.error('FORWARD_TO is empty: no organizer addresses configured');
       message.setReject('This address is not accepting mail right now');
       return;
     }

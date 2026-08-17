@@ -1,4 +1,4 @@
-// The public meeting calendar — how the list behaves.
+// The public meeting calendar: how the list behaves.
 //
 // The list itself is in meetings-data.js, which is the file to edit to refresh
 // the calendar. This one turns those rows into what the pages render: it joins
@@ -31,7 +31,7 @@ function validate(meeting, index) {
     if (!meeting[field]) throw new Error(`${where}: missing ${field}`);
   }
   if (!BODIES[meeting.body]) {
-    throw new Error(`${where}: unknown body '${meeting.body}' — expected one of ${Object.keys(BODIES).join(', ')}`);
+    throw new Error(`${where}: unknown body '${meeting.body}': expected one of ${Object.keys(BODIES).join(', ')}`);
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(meeting.date)) {
     throw new Error(`${where}: date must be YYYY-MM-DD, got '${meeting.date}'`);
@@ -39,7 +39,7 @@ function validate(meeting, index) {
   if (!/^\d{2}:\d{2}$/.test(meeting.time)) {
     throw new Error(`${where}: time must be 24-hour HH:MM, got '${meeting.time}'`);
   }
-  // A date that does not exist — 2026-09-31, or February 30th — survives the
+  // A date that does not exist, 2026-09-31, or February 30th, survives the
   // pattern above and then renders as a real-looking day in the wrong month.
   const [year, month, day] = meeting.date.split('-').map(Number);
   const asDate = new Date(Date.UTC(year, month - 1, day));
@@ -54,21 +54,21 @@ function validate(meeting, index) {
 
 export const MEETINGS = MEETING_ROWS.map(validate).map((meeting) => ({
   // Body first, meeting second: a meeting inherits how to reach the body, and
-  // anything the posting states for that one date — its room, its own headline
-  // — wins over the body's standing default.
+  // anything the posting states for that one date, its room, its own headline,
+  // wins over the body's standing default.
   ...BODIES[meeting.body],
   ...meeting,
   id: `${meeting.date}-${meeting.slug || meeting.body}`,
 }));
 
-// The id is the page URL. Two meetings of one body on one day — a work session
-// and a called meeting, which happens — would otherwise collide, and the
+// The id is the page URL. Two meetings of one body on one day, a work session
+// and a called meeting, which happens, would otherwise collide, and the
 // second would silently overwrite the first's page while both still showed on
 // the calendar. Give one of them a `slug` to separate them.
 const seen = new Set();
 for (const meeting of MEETINGS) {
   if (seen.has(meeting.id)) {
-    throw new Error(`meetings-data.js: two meetings share the id '${meeting.id}' — add a slug to one`);
+    throw new Error(`meetings-data.js: two meetings share the id '${meeting.id}': add a slug to one`);
   }
   seen.add(meeting.id);
 }
@@ -167,15 +167,15 @@ export const clockTime = (time) => {
 // An organiser's event carries its own headline; an official meeting is named
 // by the body holding it, which is what a reader scanning a calendar needs.
 // Shared with the build so a prerendered <title> and the in-app one match.
-export const meetingLabel = (meeting) => meeting.title || `${meeting.short} — ${meeting.kind.toLowerCase()}`;
+export const meetingLabel = (meeting) => meeting.title || `${meeting.short} - ${meeting.kind.toLowerCase()}`;
 export const meetingWhen = (meeting) => `${longDate(meeting.date)} · ${clockTime(meeting.time)}`;
 export const meetingSeoTitle = (meeting) =>
-  `${meetingLabel(meeting)} — ${longDate(meeting.date)}, ${meeting.date.slice(0, 4)} — Sumter Field Desk`;
+  `${meetingLabel(meeting)} - ${longDate(meeting.date)}, ${meeting.date.slice(0, 4)} - Sumter Field Desk`;
 
 export function meetingDescription(meeting) {
   if (meeting.summary) return meeting.summary;
   const where = meeting.venuePosted === false
-    ? `${meetingWhen(meeting)}. The location was not posted with the date — confirm before you go.`
+    ? `${meetingWhen(meeting)}. The location was not posted with the date; confirm before you go.`
     : `${meetingWhen(meeting)} at ${meeting.venue}, ${meeting.address}.`;
   return meeting.speak === 'published'
     ? `${meeting.name}. ${where} Five speakers, five minutes each; the sign-up sheet opens 30 minutes before.`

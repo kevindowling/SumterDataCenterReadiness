@@ -4,7 +4,7 @@
 -- ArcGIS service directly, so the county paid for a fresh set of queries per
 -- visitor, and a reader who arrived during an outage saw an empty map because
 -- their own browser cache was empty. One stored copy here serves everyone, and
--- keeps serving while the county's service is down — which it has been, for
+-- keeps serving while the county's service is down, which it has been, for
 -- longer than a day at a time ("Error: Service Public/Public/MapServer not
 -- started").
 --

@@ -110,7 +110,7 @@ function readRoute() {
 }
 
 // In-app anchors (the ones markdown links produce) must route rather than
-// reload. Everything else — external links, new-tab clicks, downloads — is
+// reload. Everything else, external links, new-tab clicks, downloads, is
 // left to the browser.
 function interceptLinks() {
   addEventListener('click', (event) => {
@@ -171,7 +171,7 @@ function calendarFile(meeting) {
   const note = meeting.speak === 'published'
     ? `${meeting.name}\n\n${COMMENT.published.signup} ${COMMENT.published.how}`
     : meeting.summary ? `${meeting.summary}\n\nHosted by ${meeting.name}.`
-    : `${meeting.name} — ${meeting.kind.toLowerCase()}.`;
+    : `${meeting.name} - ${meeting.kind.toLowerCase()}.`;
   const body = [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Sumter Field Desk//EN', 'BEGIN:VEVENT',
     `UID:${meeting.id}@sumter-field-desk`,
@@ -186,7 +186,7 @@ function calendarFile(meeting) {
 
 function eventBanner() {
   // The organisers' own events lead the home page; the official calendar is a
-  // list, not a hero — nobody needs a full-bleed banner for a work session.
+  // list, not a hero, nobody needs a full-bleed banner for a work session.
   const [event] = upcomingMeetings().filter((meeting) => meeting.body === 'citizens');
   if (!event) return '';
   return `<section class="event-banner" aria-label="Upcoming public meeting">
@@ -223,11 +223,11 @@ function recapBanner() {
   const {video, deck} = event.recap;
   // Nothing is fetched from YouTube until the reader asks for it. The poster is
   // the site's own card rather than an i.ytimg.com thumbnail, so the home page
-  // makes no third-party request for a recording most visitors will not play —
+  // makes no third-party request for a recording most visitors will not play:
   // the same bargain the vendored Leaflet copy makes for the map.
   const player = videoPlaying
     ? `<iframe class="recap-frame" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&amp;rel=0"
-        title="${escapeHtml(event.title)} — full meeting recording"
+        title="${escapeHtml(event.title)}, full meeting recording"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`
     : `<button class="recap-play" data-play>
@@ -242,7 +242,7 @@ function recapBanner() {
     <div class="event-copy recap-head">
       <p class="eyebrow"><span></span> WATCH THE MEETING</p>
       <h2>${escapeHtml(event.title)}</h2>
-      <p class="event-summary">Recorded ${escapeHtml(meetingWhen(event))} at the ${escapeHtml(event.venue)}. If you could not be in the room, the whole meeting is here — nothing trimmed.</p>
+      <p class="event-summary">Recorded ${escapeHtml(meetingWhen(event))} at the ${escapeHtml(event.venue)}. If you could not be in the room, the whole meeting is here, nothing trimmed.</p>
     </div>
     <div class="recap-detail">
       ${event.program ? `<p class="event-topics-label">WHO SPOKE</p>
@@ -270,7 +270,7 @@ function videoWell(meeting) {
   const {video} = meeting.recap;
   const player = videoPlaying
     ? `<iframe class="recap-frame" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&amp;rel=0"
-        title="${escapeHtml(meetingLabel(meeting))} — full meeting recording"
+        title="${escapeHtml(meetingLabel(meeting))}, full meeting recording"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`
     : `<button class="recap-play" data-play>
@@ -350,7 +350,7 @@ const meetingMonths = (list, today) => byMonth(list).map(([key, group]) => `
   </div>`).join('');
 
 function meetingsPage() {
-  document.title = `Public meetings — ${HOME_TITLE}`;
+  document.title = `Public meetings - ${HOME_TITLE}`;
   const today = americusToday();
   const upcoming = upcomingMeetings(today);
   const past = pastMeetings(today);
@@ -358,9 +358,9 @@ function meetingsPage() {
     <section class="meetings-head">
       <p class="eyebrow"><span></span> PUBLIC MEETINGS</p>
       <h1>The decisions get made <em>in these rooms.</em></h1>
-      <p class="lede">Both the county and the city meet in public, monthly, and both are required by Georgia law to let you in. This is when and where. Where a body publishes how to get on the speakers' list, that is here too — for the city, the list opens thirty minutes before the meeting and closes when it starts.</p>
-      <p class="meetings-provenance">Every date below was read off the body's own posted calendar and checked in by hand on ${escapeHtml(longDate(CONFIRMED_ON))}, ${CONFIRMED_ON.slice(0, 4)} — not computed from a rule like "third Tuesday", because the weeks move. Agendas are published closer to the date; confirm before you travel.</p>
-      <p class="meetings-note">The <a href="${BODIES.authority.calendar}" target="_blank" rel="noreferrer">Development Authority</a> — the body that would handle bonds, a PILOT, or an abatement — publishes no standing schedule and posts single dates, sometimes only days ahead. A gap here means nothing has been posted yet, not that nothing is happening.</p>
+      <p class="lede">Both the county and the city meet in public, monthly, and both are required by Georgia law to let you in. This is when and where. Where a body publishes how to get on the speakers' list, that is here too: for the city, the list opens thirty minutes before the meeting and closes when it starts.</p>
+      <p class="meetings-provenance">Every date below was read off the body's own posted calendar and checked in by hand on ${escapeHtml(longDate(CONFIRMED_ON))}, ${CONFIRMED_ON.slice(0, 4)}, not computed from a rule like "third Tuesday", because the weeks move. Agendas are published closer to the date; confirm before you travel.</p>
+      <p class="meetings-note">The <a href="${BODIES.authority.calendar}" target="_blank" rel="noreferrer">Development Authority</a>, the body that would handle bonds, a PILOT, or an abatement, publishes no standing schedule and posts single dates, sometimes only days ahead. A gap here means nothing has been posted yet, not that nothing is happening.</p>
       ${calendarIsStale(today) ? `<p class="meetings-stale">This calendar has not been refreshed since ${escapeHtml(monthLabel(STALE_AFTER.slice(0, 7)))}. Check the <a href="${BODIES.commission.calendar}" target="_blank" rel="noreferrer">county calendar</a> and the <a href="${BODIES.council.calendar}" target="_blank" rel="noreferrer">city agenda portal</a> directly.</p>` : ''}
     </section>
     <section class="meetings-list">
@@ -389,7 +389,7 @@ function speakBlock(meeting) {
     </section>`;
   }
   if (meeting.speak === 'open') return '';
-  // Not a gap in the page — a finding. The room is open either way, and the
+  // Not a gap in the page, a finding. The room is open either way, and the
   // phone number to settle the rest of the question is the useful part.
   return `<section class="speak-rules speak-unknown">
     <p class="eyebrow"><span></span> ${escapeHtml(COMMENT.unknown.label)}</p>
@@ -401,7 +401,7 @@ function speakBlock(meeting) {
 function meetingPage(id) {
   const meeting = findMeeting(id);
   if (!meeting) return meetingsPage();
-  document.title = `${meetingLabel(meeting)} — ${meetingWhen(meeting)}`;
+  document.title = `${meetingLabel(meeting)} - ${meetingWhen(meeting)}`;
   const today = americusToday();
   const past = meeting.date < today;
   return `${topbar()}<main class="meeting">
@@ -487,7 +487,7 @@ function mapSection() {
       <div>
         <p class="eyebrow"><span></span> SITE MAP · PARCEL 64-17</p>
         <h1>What is <em>around</em> it.</h1>
-        <p class="lede">301 Brady Road — 125.1 acres, zoned Industrial. Every layer is queried live from the City of Americus &amp; Sumter County public GIS service, so it shows the county's current record. Toggle layers at the top right; click anything for details.</p>
+        <p class="lede">301 Brady Road, 125.1 acres, zoned Industrial. Every layer is queried live from the City of Americus &amp; Sumter County public GIS service, so it shows the county's current record. Toggle layers at the top right; click anything for details.</p>
       </div>
       <form class="map-locate" data-locate>
         <label for="map-address">FIND YOUR ADDRESS</label>
@@ -532,7 +532,7 @@ async function mountSiteMap() {
       result.textContent = 'Looking up that address…';
       try {
         const {miles, label} = await view.locateAddress(query);
-        result.textContent = `${miles.toFixed(2)} miles from the parcel — ${label}.`;
+        result.textContent = `${miles.toFixed(2)} miles from the parcel - ${label}.`;
       } catch (error) { result.textContent = error.message; }
     });
   } catch (error) {
@@ -565,7 +565,7 @@ const postBody = (text) => escapeHtml(text || '').replace(/\n{2,}/g, '</p><p>').
 // gets here, so the session really is spent. "Server returned 401" tells a
 // neighbour nothing they can act on; the sign-out is what actually fixes it.
 const serverError = (status) => (status === 401
-  ? 'your sign-in has expired — sign out and sign in again'
+  ? 'your sign-in has expired, sign out and sign in again'
   : `Server returned ${status}`);
 
 async function loadBoard(threadId) {
@@ -662,14 +662,14 @@ function boardView() {
     : `<div class="thread-list">${board.threads.map((thread) => `
         <button class="thread-row" data-thread="${thread.id}">
           <b>${thread.deleted ? 'Removed thread' : escapeHtml(thread.title || 'Untitled')}</b>
-          <span>${thread.deleted ? '—' : escapeHtml(thread.author || 'Neighbor')} · ${relativeTime(thread.createdAt)}</span>
+          <span>${thread.deleted ? 'Removed' : escapeHtml(thread.author || 'Neighbor')} · ${relativeTime(thread.createdAt)}</span>
           <em>${thread.replies} ${thread.replies === 1 ? 'reply' : 'replies'}</em>
         </button>`).join('')}</div>`;
 
   return `${topbar()}<main class="board">
     <p class="eyebrow"><span></span> MESSAGE BOARD${board.admin ? ' · MODERATOR' : ''}</p>
     <h1>What neighbors are <em>saying.</em></h1>
-    <p class="lede">Threads on the proposal, the meetings, and what people are hearing. Posts show your account name. Be accurate — the research desk is only useful if what gets repeated from it is true.</p>
+    <p class="lede">Threads on the proposal, the meetings, and what people are hearing. Posts show your account name. Be accurate. The research desk is only useful if what gets repeated from it is true.</p>
     ${notice}
     <form class="board-form new-thread" data-new-thread>
       <label for="thread-title">START A THREAD</label>
@@ -725,7 +725,7 @@ function resetTurnstile() {
 const siteKey = () => authConfig.turnstileSiteKey && !authConfig.turnstileSiteKey.startsWith('YOUR_')
   ? authConfig.turnstileSiteKey : '';
 
-// Loaded only on this route, and only when a site key is configured — a reader
+// Loaded only on this route, and only when a site key is configured, a reader
 // who never opens the petition never touches Cloudflare.
 //
 // Readiness is the script's own onload callback, not the load event and not the
@@ -746,7 +746,7 @@ function loadTurnstile() {
       script.onerror = () => {
         // An extension blocking the request and a connection dropping look
         // identical from here. Clear the cached failure so the next mount tries
-        // again — pressing the button once more is a fair thing to ask, but
+        // again, pressing the button once more is a fair thing to ask, but
         // reloading the page to recover from a dead moment of wifi is not.
         window.__turnstilePromise = null;
         script.remove();
@@ -763,11 +763,11 @@ function loadTurnstile() {
 // dropped or the ids accumulate against detached containers.
 //
 // A token already in hand deliberately survives the rebuild. It is a bare
-// string the server checks against Cloudflare — it is not tied to the widget
+// string the server checks against Cloudflare. It is not tied to the widget
 // that issued it or to the DOM, and it stays valid for five minutes. Clearing
 // it here used to throw away a solved challenge every time anything re-rendered
 // the page (the petition load settling, Auth0 resolving, the survey panel
-// opening), which left the form submittable with an empty token — a guaranteed
+// opening), which left the form submittable with an empty token, a guaranteed
 // server-side 'fail' that read as a failed anti-bot check.
 async function mountTurnstile() {
   const holder = document.querySelector('#turnstile');
@@ -783,7 +783,7 @@ async function mountTurnstile() {
       sitekey: siteKey(),
       // Mirrors data-action on the div. The widget is rendered explicitly (the
       // API script is loaded with render=explicit), so the attribute alone would
-      // not reach Cloudflare — these render options are what the widget actually
+      // not reach Cloudflare, these render options are what the widget actually
       // uses, and the attribute is what a reader of the markup sees.
       action: 'turnstile-spin-v2',
       callback: (token) => { turnstileToken = token; turnstileIssuedAt = Date.now(); turnstileFault = ''; },
@@ -846,9 +846,9 @@ async function submitSignature(form) {
     resetTurnstile();                          // ask for a fresh one before the signer tries again
     if (unavailable) turnstileRetries += 1;
     petitionView = {...petitionView, draft, formError:
-      turnstileFault === 'blocked' ? 'The anti-bot check could not load. Press the button once more — it will try again, and your signature will go through either way.'
-      : turnstileFault === 'error' ? 'The anti-bot check would not run in this browser. Press the button once more — your signature will go through either way.'
-      : expired ? 'The anti-bot check expired while the form was open. It is running again — press the button once more.'
+      turnstileFault === 'blocked' ? 'The anti-bot check could not load. Press the button once more. It will try again, and your signature will go through either way.'
+      : turnstileFault === 'error' ? 'The anti-bot check would not run in this browser. Press the button once more, your signature will go through either way.'
+      : expired ? 'The anti-bot check expired while the form was open. It is running again, press the button once more.'
       : 'The anti-bot check has not finished yet. Give it a moment and press the button again.'};
     render();
     return;
@@ -874,8 +874,8 @@ async function submitSignature(form) {
     render();
   } catch (error) {
     petitionView = {...petitionView, submitting: false, formError: error.message};
-    // The token was spent on the attempt that just failed — Cloudflare refuses
-    // a second use of it — so the retry needs a new one.
+    // The token was spent on the attempt that just failed, Cloudflare refuses
+    // a second use of it, so the retry needs a new one.
     resetTurnstile();
     render();
   }
@@ -911,7 +911,7 @@ async function recordSnapshot() {
     const response = await apiFetch(`/api/petition/${PETITION.id}/snapshot`, {method: 'POST'});
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(body.error || `Server returned ${response.status}`);
-    petitionView = {...petitionView, paperDone: `Snapshot recorded — SHA-256 ${body.snapshot.sha256.slice(0, 16)}…`};
+    petitionView = {...petitionView, paperDone: `Snapshot recorded, SHA-256 ${body.snapshot.sha256.slice(0, 16)}…`};
   } catch (error) {
     petitionView = {...petitionView, paperError: error.message};
   }
@@ -1030,14 +1030,14 @@ function petitionForm() {
       <label>STATE<input name="state" maxlength="2" autocomplete="address-level1" required${value('state', 'GA')} /></label>
       <label>ZIP<input name="postalCode" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" autocomplete="postal-code" required${value('postalCode')} /></label>
     </div>
-    <label class="form-comment">COMMENT (OPTIONAL) — WHY THIS MATTERS TO YOU
+    <label class="form-comment">COMMENT (OPTIONAL), WHY THIS MATTERS TO YOU
       <textarea name="comment" rows="3" maxlength="${LIMITS.comment}" placeholder="One or two sentences the council will read.">${escapeHtml(d.comment || '')}</textarea>
     </label>
     <label class="form-check"><input type="checkbox" name="consent" required${ticked('consent')} /> <span>I am a real person, I live at the address I gave, and I am signing this petition only once.</span></label>
-    <label class="form-check"><input type="checkbox" name="publicDisplay"${ticked('publicDisplay')} /> <span>Show my name, town and comment on this page. Leave unticked to be counted without being listed — your signature counts either way.</span></label>
+    <label class="form-check"><input type="checkbox" name="publicDisplay"${ticked('publicDisplay')} /> <span>Show my name, town and comment on this page. Leave unticked to be counted without being listed, your signature counts either way.</span></label>
     <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off" /></label></div>
     ${siteKey() ? `<div id="turnstile" class="cf-turnstile turnstile" data-sitekey="${escapeHtml(siteKey())}" data-action="turnstile-spin-v2"></div>` : ''}
-    ${siteKey() && turnstileFault ? '<p class="form-fineprint">The anti-bot check will not run in this browser. You can still sign — an organizer will confirm this one by hand.</p>' : ''}
+    ${siteKey() && turnstileFault ? '<p class="form-fineprint">The anti-bot check will not run in this browser. You can still sign. An organizer will confirm this one by hand.</p>' : ''}
     ${petitionView.formError ? `<p class="board-notice error">${escapeHtml(petitionView.formError)}</p>` : ''}
     <button type="submit" ${disabled}>${petitionView.submitting ? 'Sending the confirmation…' : 'Sign the petition'}</button>
     <p class="form-fineprint">Your signature is not counted until you open the confirmation link we email you. Your email address and ZIP are never published, and every signature can be withdrawn from a link in that same email. <a href="/doc/petition/">How signatures are verified and counted →</a></p>
@@ -1084,7 +1084,7 @@ function organizerTools() {
       <button class="quiet" data-snapshot>Record an audit snapshot</button>
       <button class="quiet" data-export>Download the full CSV</button>
     </div>
-    <p class="form-fineprint">A snapshot writes the current totals and the SHA-256 of the canonical export into the append-only audit log, so a later change to the signature table is detectable. The CSV contains email addresses — it is the copy that must never be posted anywhere public.</p>
+    <p class="form-fineprint">A snapshot writes the current totals and the SHA-256 of the canonical export into the append-only audit log, so a later change to the signature table is detectable. The CSV contains email addresses. It is the copy that must never be posted anywhere public.</p>
   </section>`;
 }
 
@@ -1110,7 +1110,7 @@ async function sharePetition(button) {
     try {
       await navigator.share({title: PETITION.title, text: PETITION.ask, url});
       return;
-    } catch { /* user cancelled or share failed — fall through to menu */ }
+    } catch { /* user cancelled or share failed, fall through to menu */ }
   }
   shareMenuOpen = !shareMenuOpen;
   render();
@@ -1127,7 +1127,7 @@ async function sharePetition(button) {
 function petitionPage() {
   const notice = petitionView.state === 'unavailable'
     ? '<p class="board-notice">The community server is online but its petition database is not configured yet, so signatures cannot be recorded.</p>'
-    : petitionView.state === 'error' ? `<p class="board-notice error">Could not reach the petition server: ${escapeHtml(petitionView.error)}. The petition is still open — try again in a moment.</p>` : '';
+    : petitionView.state === 'error' ? `<p class="board-notice error">Could not reach the petition server: ${escapeHtml(petitionView.error)}. The petition is still open, try again in a moment.</p>` : '';
 
   return `${topbar()}<main class="petition">
     <header class="petition-head">
@@ -1185,7 +1185,7 @@ function community() {
     <div class="community-grid">
       <button class="community-card live" data-map><i>C0</i><b>Site map</b><span>The proposed parcel, the ½ / 1 / 3 mile rings, and the homes, schools, churches, waterways and flood zones around it.</span><em>OPEN THE MAP →</em></button>
       <button class="community-card live" data-petition><i>C3</i><b>Petition</b><span>Ask the county commissioners and the Americus city council to adopt the 18-month data center moratorium. One signature to both. Open to everyone, signed in or not.</span><em>SIGN THE PETITION →</em></button>
-      <button class="community-card live" data-contact><i>C4</i><b>Contact</b><span>Your commissioner and council member by name, with e-mail addresses — plus how to write, how to speak at a meeting, and what records you can demand.</span><em>OPEN THE CONTACT DESK →</em></button>
+      <button class="community-card live" data-contact><i>C4</i><b>Contact</b><span>Your commissioner and council member by name, with e-mail addresses, plus how to write, how to speak at a meeting, and what records you can demand.</span><em>OPEN THE CONTACT DESK →</em></button>
       <button class="community-card live" data-board><i>C1</i><b>Message board</b><span>Neighbor-to-neighbor threads on the proposal, meetings, and what people are hearing.</span><em>OPEN THE BOARD →</em></button>
       ${communityFeatures.map((feature) => `<div class="community-card"><i>${feature.number}</i><b>${feature.title}</b><span>${feature.text}</span><em>COMING SOON</em></div>`).join('')}
     </div>
@@ -1238,10 +1238,10 @@ async function probeServer() {
     if (!health.ok) throw new Error(String(health.status));
     const me = await apiFetch('/api/me');
     if (me.ok) status.textContent = 'COMMUNITY SERVER: CONNECTED';
-    else if (me.status === 501) status.textContent = 'COMMUNITY SERVER: ONLINE — ACCOUNT FEATURES NOT YET ENABLED';
-    else status.textContent = `COMMUNITY SERVER: ONLINE — SIGN-IN NOT ACCEPTED (${me.status})`;
+    else if (me.status === 501) status.textContent = 'COMMUNITY SERVER: ONLINE, ACCOUNT FEATURES NOT YET ENABLED';
+    else status.textContent = `COMMUNITY SERVER: ONLINE, SIGN-IN NOT ACCEPTED (${me.status})`;
   } catch {
-    status.textContent = 'COMMUNITY SERVER: OFFLINE — THE RESEARCH DESK STAYS AVAILABLE';
+    status.textContent = 'COMMUNITY SERVER: OFFLINE, THE RESEARCH DESK STAYS AVAILABLE';
   }
 }
 
@@ -1288,12 +1288,12 @@ function updateHead() {
   // Matches the prerendered <title> exactly, so a note reads the same in the
   // tab whether it was landed on directly or navigated to in-app.
   document.title = doc ? seoTitle(doc)
-    : route.view === 'community' ? 'Community desk — Sumter Field Desk'
-    : route.view === 'petition' ? `${PETITION.title} — Sumter Field Desk`
-    : route.view === 'map' ? 'Site map — Sumter Field Desk'
-    : route.view === 'board' ? 'Message board — Sumter Field Desk'
-    : route.view === 'contact' ? 'Contact your officials — Sumter Field Desk'
-    : route.view === 'meetings' ? 'Public meetings — Sumter Field Desk'
+    : route.view === 'community' ? 'Community desk, Sumter Field Desk'
+    : route.view === 'petition' ? `${PETITION.title} - Sumter Field Desk`
+    : route.view === 'map' ? 'Site map, Sumter Field Desk'
+    : route.view === 'board' ? 'Message board, Sumter Field Desk'
+    : route.view === 'contact' ? 'Contact your officials, Sumter Field Desk'
+    : route.view === 'meetings' ? 'Public meetings, Sumter Field Desk'
     : route.view === 'meeting' ? meetingSeoTitle(findMeeting(route.id))
     : HOME_TITLE;
   const canonical = document.querySelector('link[rel="canonical"]');
