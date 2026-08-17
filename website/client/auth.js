@@ -56,7 +56,7 @@ async function getClient() {
         // desk from here.
         redirect_uri: `${location.origin}/`,
         // `profile` and `email` are what let the server resolve a poster's name
-        // from Auth0 /userinfo — an access token for a custom API audience does
+        // from Auth0 /userinfo, an access token for a custom API audience does
         // not carry them itself.
         scope: 'openid profile email',
         ...(authConfig.audience ? {audience: authConfig.audience} : {}),
@@ -108,7 +108,7 @@ async function bearerToken({optional = false, fresh = false} = {}) {
   } catch (error) {
     if (optional) return null;
     if (SESSION_LOST.test(error.message || '')) {
-      throw new Error('your sign-in could not be renewed — sign out and sign in again');
+      throw new Error('your sign-in could not be renewed: sign out and sign in again');
     }
     throw error;
   }
@@ -121,13 +121,13 @@ export async function authHeader() {
 
 // Where /api/* lives: the VPS in production, but always the local server when
 // the page itself is served from localhost. Without this, `npm run dev` would
-// silently exercise the deployed API — so a route added locally looks like a
+// silently exercise the deployed API, so a route added locally looks like a
 // 404 until it ships.
 const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
 export const apiOrigin = () => (isLocal ? '' : authConfig.apiBase || '');
 
 // Calls the API server (same origin locally, the VPS from GitHub Pages) with auth.
-// Pass {optionalAuth: true} for a route that answers signed-out readers too —
+// Pass {optionalAuth: true} for a route that answers signed-out readers too:
 // the call then goes out unauthenticated when no token can be had.
 export async function apiFetch(path, options = {}) {
   const {optionalAuth = false, ...init} = options;
@@ -139,8 +139,8 @@ export async function apiFetch(path, options = {}) {
   const token = await bearerToken({optional: optionalAuth});
   const response = await send(token);
   // The SDK hands back its cached access token until that token's own expiry,
-  // so a token the server refuses for any other reason — a rotated signing key,
-  // a changed audience — gets resent on every call and the page looks broken
+  // so a token the server refuses for any other reason, a rotated signing key,
+  // a changed audience, gets resent on every call and the page looks broken
   // until the reader signs out by hand. One forced renewal costs a round trip
   // and clears that whole class of stall. The rejected request never reached
   // the handler, so replaying it changes nothing on the server.

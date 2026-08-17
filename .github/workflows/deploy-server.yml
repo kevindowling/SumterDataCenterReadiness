@@ -66,7 +66,7 @@ jobs:
         # The failure that costs an outage is a unit naming a path the repo has
         # since moved. Everything deploys green, the restart execs a file that
         # is no longer there, and the service crash-loops. So drift is caught
-        # here — before the sync and before the restart, while the running
+        # here, before the sync and before the restart, while the running
         # process is still serving happily from the code it already loaded.
         run: |
           scp deploy/sumter-field-desk.service "deploy@${{ secrets.VPS_HOST }}:/tmp/unit.expected"
@@ -99,13 +99,13 @@ jobs:
 
       - name: Write server environment file
         # The systemd unit loads /opt/sumter-field-desk/server.env (optional
-        # EnvironmentFile), so database credentials are fully CI-managed —
+        # EnvironmentFile), so database credentials are fully CI-managed:
         # update the GitHub secrets and redeploy to rotate. Values travel
         # over ssh stdin, never argv. PG* vars avoid URL-encoding issues.
         env:
           # Passed as environment variables, never interpolated into the script
           # text. `${{ }}` substitution happens before bash parses the line, so
-          # a "|" in an Auth0 sub — or a quote, space or "$" in a password —
+          # a "|" in an Auth0 sub, or a quote, space or "$" in a password,
           # would otherwise become shell syntax on the runner.
           DB_HOST: ${{ secrets.DATABASE_HOST }}
           DB_USER: ${{ secrets.DATABASE_USER }}

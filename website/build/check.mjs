@@ -7,7 +7,7 @@ const docs = [
   '04-air-and-generators.md', '05-electricity-and-resilience.md',
   '06-decision-checklist.md', '07-verification-notes.md', '08-source-desk.md',
   '09-development-agreement.md', '10-liberty-data-centers.md', '11-open-government.md', '12-velocity-trap.md',
-  '13-petition-integrity.md',
+  '13-petition-integrity.md', '14-what-can-actually-be-built.md',
 ];
 const required = [
   'website/index.html', 'website/sw.js', 'website/package.json',
@@ -27,6 +27,13 @@ const required = [
   'research/better-government-2026-08-04.pdf',
   'research/pda-liberty-development-agreement.pdf',
   'research/petition-signatures-redacted.pdf',
+  'research/liberty-limited-warranty-deed-2026-07-22.pdf',
+  'research/liberty-purchase-agreement-unexecuted.pdf',
+  'research/wetlands-determination-2023-02-10.pdf',
+  'research/wetland-delineation-map-2023.jpg',
+  'research/swett-avenue-retracement-survey-2026-06-02.jpg',
+  'research/americus-tech-campus-rendering.jpg',
+  'research/pda-minutes-2026-03-09-excerpt.pdf',
   ...docs.map((name) => `research/${name}`),
 ];
 const errors = [];

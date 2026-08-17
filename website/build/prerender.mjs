@@ -1,7 +1,7 @@
 // Build step: turn the single-page app into one real HTML file per route.
 //
 // Two problems this solves. Search engines only index URLs, and a fragment
-// (#/doc/records) is not a URL — without this every note shared one entry in
+// (#/doc/records) is not a URL, without this every note shared one entry in
 // the index. And the scrapers behind Facebook, iMessage, Slack, and the rest
 // do not run JavaScript at all, so a shared link had no title, summary, or
 // image to show.
@@ -203,12 +203,12 @@ for (const doc of [...documents, ...unlistedDocuments]) {
 }
 
 // The petition is the one interactive surface built to be found and shared, so
-// unlike the signed-in views it is indexable and ships its text in the HTML —
+// unlike the signed-in views it is indexable and ships its text in the HTML:
 // the scrapers behind Facebook and iMessage never run the app, and a link with
 // no visible ask is a link nobody clicks.
 const petition = livePetition();
 written.push(await emit(join('petition', 'index.html'), withHead(shell, {
-  title: `${petition.title} — Americus, Georgia`,
+  title: `${petition.title} - Americus, Georgia`,
   description: petition.summary,
   url: `${SITE_ORIGIN}/petition/`,
 }, [{
@@ -244,8 +244,8 @@ written.push(await emit(join('petition', 'index.html'), withHead(shell, {
 // does, and for one more: a resident searching for "americus city council
 // email" should land on a page that answers it without waiting for a script.
 written.push(await emit(join('contact', 'index.html'), withHead(shell, {
-  title: `Contact your officials — ${SITE_NAME}`,
-  description: 'Sumter County commissioners and Americus mayor and council by name, district and e-mail — plus how to write to them, how to speak at a meeting, and what records Georgia law entitles you to.',
+  title: `Contact your officials - ${SITE_NAME}`,
+  description: 'Sumter County commissioners and Americus mayor and council by name, district and e-mail, plus how to write to them, how to speak at a meeting, and what records Georgia law entitles you to.',
   url: `${SITE_ORIGIN}/contact/`,
 }).replace(
   '<div id="app"><noscript>This research desk requires JavaScript.</noscript></div>',
@@ -259,7 +259,7 @@ for (const [path, title, description] of [
   ['board', 'Message board', 'Neighbors comparing notes on the proposed Sumter County data center.'],
 ]) {
   written.push(await emit(join(path, 'index.html'), withHead(shell, {
-    title: `${title} — ${SITE_NAME}`,
+    title: `${title} - ${SITE_NAME}`,
     description,
     url: `${SITE_ORIGIN}/${path}/`,
     noindex: true, // signed-in and interactive surfaces; nothing to index
@@ -270,7 +270,7 @@ for (const [path, title, description] of [
 // purpose: someone searching "Americus city council August 20" should be able
 // to land on a page that tells them the sign-up sheet opens at 5:30.
 written.push(await emit(join('meetings', 'index.html'), withHead(shell, {
-  title: `Public meetings — ${SITE_NAME}`,
+  title: `Public meetings - ${SITE_NAME}`,
   description: 'When and where the Sumter County commission and the Americus city council meet, and how to get on the speakers\' list.',
   url: `${SITE_ORIGIN}/meetings/`,
 })));
@@ -290,8 +290,8 @@ written.push(await emit('index.html', withHead(shell, {
   url: `${SITE_ORIGIN}/`,
 }, homeLd())));
 
-// GitHub Pages has no rewrite rules, so an unknown path — including a board
-// thread, which is generated per post and cannot be prerendered — is served
+// GitHub Pages has no rewrite rules, so an unknown path, including a board
+// thread, which is generated per post and cannot be prerendered, is served
 // 404.html. Handing it the shell lets the router resolve the path client-side.
 written.push(await emit('404.html', withHead(shell, {
   title: SITE_NAME,
@@ -326,10 +326,10 @@ ${urls.map(({loc, lastmod}) => `  <url><loc>${loc}</loc><lastmod>${lastmod}</las
 // /research/ holds the markdown each note is rendered from. Those files are
 // served, so without this every note has a second crawlable copy competing
 // with the page built from it. Blocking them here does not affect the app,
-// which fetches them at runtime — robots.txt governs crawlers, not fetch.
+// which fetches them at runtime, robots.txt governs crawlers, not fetch.
 //
 // Unlisted notes are kept out of this file on purpose. robots.txt is public, so
-// a Disallow line would publish the very URL it is meant to keep quiet — and it
+// a Disallow line would publish the very URL it is meant to keep quiet, and it
 // would stop crawlers from fetching the page and reading its noindex tag, which
 // is what actually keeps it out of the index.
 written.push(await emit('robots.txt', `User-agent: *

@@ -21,6 +21,11 @@ const NHD_FLOWLINES = 'https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlu
 export const OVERPASS = 'https://overpass-api.de/api/interpreter';
 
 // Parcel 64-17: 301 Brady Rd, 125.1 acres, zoned I (Industrial).
+//
+// 125.1 is the county's tax-record acreage. The 2026 retracement survey and the
+// recorded deed both describe 102 acres; the March 2026 Authority minutes call
+// it "125/103 Acres". The map shows the county's parcel geometry, so its figure
+// is the one quoted here. See research/09-development-agreement.md.
 export const SUBJECT_PARCEL_ID = ' 64     17';
 export const SITE = [32.04854, -84.20729]; // centroid of the parcel geometry
 
@@ -33,7 +38,7 @@ export const AREA = (() => {
 })();
 
 // `clip: true` limits the query to AREA. Districts are county-wide and few, so
-// they are never clipped — a resident may live outside the rings and still need
+// they are never clipped, a resident may live outside the rings and still need
 // to find theirs.
 export const GIS_SOURCES = {
   parcel: {
@@ -79,7 +84,7 @@ export function overpassQuery(filters) {
 
 // ArcGIS answers a failed query with HTTP 200 and an error in the body, and
 // Overpass can return an HTML error page with the same status. Storing either
-// as if it were data poisons the cache for as long as the entry is kept — so
+// as if it were data poisons the cache for as long as the entry is kept, so
 // both sides check the parsed body before writing it anywhere.
 export function gisPayloadError(source, body) {
   if (!body || typeof body !== 'object') return 'response was not a JSON object';

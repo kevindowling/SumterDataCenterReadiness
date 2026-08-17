@@ -8,7 +8,7 @@ This is not a reason to dismiss the questions. It is the reason commissioners sh
 
 ## Where the meetings are tracked
 
-The county and city meetings of July 2026 have taken place, as has the community meeting of August 4, whose [recording and summary](/meetings/2026-08-04-data-centers-are-coming/) are on this site — read as what speakers said, not as verified fact.
+The county and city meetings of July 2026 have taken place, as has the community meeting of August 4, whose [recording and summary](/meetings/2026-08-04-data-centers-are-coming/) are on this site, to be read as what speakers said, not as verified fact.
 
 Dates from here forward are on this desk's [public meeting calendar](/meetings/), each one read off the body's own posted calendar by hand and linked back to it. Agendas are published closer to the date, so residents should still check the [county calendar](https://www.sumtercountyga.us/calendar.aspx) and the posted agenda before travelling. County meetings are open to the public.
 
@@ -21,6 +21,14 @@ Dates from here forward are on this desk's [public meeting calendar](/meetings/)
 ### Who is behind the company
 
 **Largely answered.** Tony and Paul Di Benedetto, of Toronto, answered for Liberty at the [community meeting of August 4](/meetings/2026-08-04-data-centers-are-coming/). Tony Di Benedetto's firm, Launch Capital Inc., lists Liberty first in its published portfolio: see [who is behind the proposal](10-liberty-data-centers.md). Still missing, and obtainable: a corporate filing naming the officers, directors, and owners of Liberty GA USA LLC, the state and date of its registration, and who signed the agreement for it on July 1. The company itself publishes no name.
+
+### Whether the site can be permitted
+
+**Newly documented.** A 2023 field delineation found [61.47 of the tract's 103.91 acres are wetland](14-what-can-actually-be-built.md), and the consultant's opinion is that they are jurisdictional. Building on them needs a Section 404 permit from the U.S. Army Corps of Engineers. Still missing: any jurisdictional determination request, pre-application correspondence, or permit application for parcel 64-17, and a current delineation. The one on file is three years old.
+
+### Who owns the land, and under what contract
+
+**Answered for the deed.** The land was conveyed to Liberty GA USA LLC on July 22, 2026 and recorded July 23, Deed Book 1806, Pages 746-748: see [the agreement note](09-development-agreement.md). Still missing: the executed purchase and sale agreement (the copy published here is unsigned), the ¶16 assignment notice by which the Ontario buyer's rights reached the Georgia LLC, the plat as revised June 15, 2026, and whether a corrective deed will be filed for the deed's reference to Gwinnett County.
 
 ### Water demand and cooling design
 

@@ -8,6 +8,19 @@ Not enough has been made public to calculate this project's environmental footpr
 
 **What that document does not contain:** a megawatt figure, a water demand figure, a decibel limit, a generator schedule, or a utility will-serve letter. The contract commits Liberty to standards; it does not disclose the engineering. The gap below is therefore narrower than it was, and still decisive.
 
+## What the developer has drawn
+
+```html
+<figure class="plate">
+  <a href="/research/americus-tech-campus-rendering.jpg">
+    <img src="/research/americus-tech-campus-rendering.jpg" alt="Aerial rendering of the Americus Tech Campus: four long data center buildings labelled Phase 1 through Phase 4 in a row, a substation and switchyard to their right, a tech innovation center and a warehouse and logistics building below them with parking, all surrounded by woods and ponds, fronting County Road 236." loading="lazy">
+  </a>
+  <figcaption>Exhibit C to the purchase and sale agreement, labelled "Preliminary DRAFT Renderings, Americus Tech Campus." Four data halls, a substation and switchyard, a tech innovation center, a warehouse and logistics building. No dimensions or scale are given, and the agreement it is attached to is unsigned.</figcaption>
+</figure>
+```
+
+This is the only picture of the project in any document on this desk. It matches the four phases in the signed agreement, and it shows a substation on site. It is a marketing rendering, not a site plan: there is no layout, no elevation, no acreage, and nothing that can be measured against [the 59% of the tract that is wetland](14-what-can-actually-be-built.md).
+
 ## The decision officials are really making
 
 A land-use approval can authorize a category of development long before the operator selects equipment. If the approval does not define full buildout, later phases may be much larger than the version discussed at the first meeting.
@@ -40,7 +53,7 @@ The enforceable project description should include:
 
 - Application, concept plan, staff report, and draft ordinance
 - Parcel and ownership records
-- Development and tax agreements — the [economic development agreement](09-development-agreement.md) is now in hand; the purchase and sale agreement it references, and any tax abatement or bond agreement, are not
+- Development and tax agreements. The [economic development agreement](09-development-agreement.md) is now in hand; the purchase and sale agreement it references, and any tax abatement or bond agreement, are not
 - Water, sewer, electric, and gas will-serve letters
 - Full-buildout power and water schedules
 - Cooling schematic and equipment list

@@ -30,16 +30,16 @@ A cooling tower rejects heat by evaporating water. It continuously needs makeup 
 
 The [signed development agreement](09-development-agreement.md) prohibits open-loop and once-through cooling and requires closed-loop cooling or other technology “designed to minimize water consumption” (§11). It also bars private water wells and private sanitary sewer, requiring Liberty to apply to the City of Americus for service (§5(C)). That rules out the most water-hungry design and puts the demand on the city system rather than on private wells.
 
-It does not cap consumption. “Closed-loop” describes the circuit, not the water use, and a closed circuit can still reject its heat by evaporation — exactly the case described above. The number that would settle this is the water balance, which the agreement does not contain.
+It does not cap consumption. “Closed-loop” describes the circuit, not the water use, and a closed circuit can still reject its heat by evaporation, exactly the case described above. The number that would settle this is the water balance, which the agreement does not contain.
 
 ## Scale scenario, not a project forecast
 
-The [Department of Energy publishes](https://www.energy.gov/cmei/femp/estimating-methods-determining-end-use-water-consumption) a full-load table of cooling-tower water use in gallons per day, indexed by chiller tonnage and by **cycles of concentration** — how many times water goes around the loop before it is discharged as blowdown. Fewer cycles means more blowdown and more makeup water. The table runs from 3 cycles to 8.
+The [Department of Energy publishes](https://www.energy.gov/cmei/femp/estimating-methods-determining-end-use-water-consumption) a full-load table of cooling-tower water use in gallons per day, indexed by chiller tonnage and by **cycles of concentration**: how many times water goes around the loop before it is discharged as blowdown. Fewer cycles means more blowdown and more makeup water. The table runs from 3 cycles to 8.
 
 That table is indexed by tons, and a data center is described in megawatts, so getting from one to the other takes three steps. Each can be checked with a calculator:
 
 1. **Megawatts to tons.** One megawatt of IT heat is 3.412 million Btu per hour; one ton of cooling is 12,000 Btu per hour. So 1 MW ≈ 284 tons, and a 25 MW load is about 7,100 tons.
-2. **Tons to gallons.** The DOE table, at 24-hour operation, works out to about **54.8 gallons per ton per day at 3 cycles** (its 100-ton entry is 5,480 gal/day) and about **43.8 at 6 cycles** — consistent with its 5-cycle and 8-cycle entries, which come to 45.9 and 41.9 gallons per ton per day.
+2. **Tons to gallons.** The DOE table, at 24-hour operation, works out to about **54.8 gallons per ton per day at 3 cycles** (its 100-ton entry is 5,480 gal/day) and about **43.8 at 6 cycles**, consistent with its 5-cycle and 8-cycle entries, which come to 45.9 and 41.9 gallons per ton per day.
 3. **Cycles set the width of the band.** The range below is that table read from 6 cycles at the efficient end down to 3 at the water-hungry end.
 
 | Constant IT heat load | Evaporative makeup water | Annual amount |
@@ -51,7 +51,7 @@ That table is indexed by tons, and a data center is described in megawatts, so g
 
 Worked example, so the whole row can be checked: 25 MW × 284 tons/MW = 7,108 tons; at 43.8 gal/ton/day that is 311,000 gallons a day, and at 54.8 it is 389,000. The annual column is simply the daily figure times 365.
 
-These figures assume full load around the clock and assume every watt of IT heat is rejected through the tower. Weather, utilization, economizers, auxiliary heat, and hybrid or partly dry designs all change the result — a design that rejects part of its heat to air uses correspondingly less water.
+These figures assume full load around the clock and assume every watt of IT heat is rejected through the tower. Weather, utilization, economizers, auxiliary heat, and hybrid or partly dry designs all change the result. A design that rejects part of its heat to air uses correspondingly less water.
 
 ## Other water risks
 

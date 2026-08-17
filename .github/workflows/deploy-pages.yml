@@ -33,7 +33,7 @@ jobs:
           mkdir -p _site/research
           # website/ is laid out the way the site is served: client/ and assets/
           # keep their names in the URL, and index.html and sw.js sit at the
-          # root — sw.js has to, or the worker cannot claim scope "/".
+          # root, sw.js has to, or the worker cannot claim scope "/".
           # Copying whole directories means a new module ships without anyone
           # having to remember a list; app.js imports petition.js, and an
           # omission here breaks the whole app, not just one feature.

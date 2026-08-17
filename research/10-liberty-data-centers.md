@@ -4,6 +4,22 @@
 
 This note addresses one of the gaps named in the [report README](README.md): who is behind the proposal. As of August 4, 2026 that gap is largely closed: Tony and Paul Di Benedetto, of Toronto, answered for Liberty at a public meeting in Americus, and Tony Di Benedetto's firm is the investor named in the documentary trail below. What remains open is narrower and more specific - the company itself still publishes no officer, no project, and no corporate registration that could be located.
 
+## Three companies, one project
+
+The contracts name different entities, and the difference is on the record.
+
+| Entity | Where it appears | Form |
+|---|---|---|
+| **Liberty GA USA LLC** | Signed the [development agreement](09-development-agreement.md) July 1, 2026; took title by [deed](/research/liberty-limited-warranty-deed-2026-07-22.pdf) July 22, 2026 | A Georgia limited liability company, per the deed |
+| **Liberty Data Centers Corp.** | The buyer in the [purchase and sale agreement](/research/liberty-purchase-agreement-unexecuted.pdf) | A corporation organized in **Ontario, Canada**, per ¶8(a) |
+| **Liberty Data Centers** | The public brand: website, LinkedIn, press releases | No legal form stated anywhere |
+
+The purchase agreement sends notices to **Tony Di Benedetto** at 76 Creedmore Court, Kleinburg, Ontario, with Krevolin & Horst of Atlanta as counsel. That is the first primary document naming him as the contact for a Liberty contract, rather than as a speaker at a meeting or a name on an investor's portfolio page.
+
+Paragraph 16 of that agreement permits assignment to an affiliate on 30 days' written notice, which is the ordinary way an Ontario buyer's rights become a Georgia LLC's title. The assignment notice itself has not been located.
+
+Still not published by the company: officers, directors, owners, or a corporate registration for any of the three.
+
 ## Identity at a glance
 
 | Item | Record |
@@ -32,7 +48,7 @@ This note addresses one of the gaps named in the [report README](README.md): who
 <figure class="chart">
   <div class="chart-scroll">
     <svg viewBox="0 0 720 240" role="img" aria-labelledby="tl-title">
-      <title id="tl-title">Every documented event in Liberty Data Centers' public record, January to July 2026. Five events: seed funding announced January 15, domain registered January 27, consultancy engaged February 12, website published June 24, and the Americus council meeting July 23 — with a 132-day gap between February 12 and June 24.</title>
+      <title id="tl-title">Every documented event in Liberty Data Centers' public record, January to July 2026. Five events: seed funding announced January 15, domain registered January 27, consultancy engaged February 12, website published June 24, and the Americus council meeting July 23, with a 132-day gap between February 12 and June 24.</title>
       <text class="chart-head" x="0" y="14">EVERY DOCUMENTED EVENT IN THE PUBLIC RECORD · 2026</text>
 
       <line class="chart-lead" x1="102.3" y1="54" x2="102.3" y2="144" />
@@ -79,7 +95,7 @@ This note addresses one of the gaps named in the [report README](README.md): who
 | Jan 15 | Press release: seed funding round completed (Miami dateline) | Company `/news` page |
 | Jan 27 | Domain `libertydatacenters.com` registered | Verisign RDAP |
 | Feb 12 | Press release: real-estate consultancy engaged (Miami dateline) | Company `/news` page |
-| — | **No further public announcements of any kind** | — |
+| | **No further public announcements of any kind** | |
 | Jun 24 | Current website published | `bundleCreationDate` in the page's own source |
 | Jul 23-24 | Flyers circulating in Americus; City Council meeting; Times-Recorder report | Americus Times-Recorder |
 | Aug 4 | Tony and Paul Di Benedetto answer for Liberty at the community meeting - the company's first public appearance in Americus | [The meeting recording](/meetings/2026-08-04-data-centers-are-coming/) |
@@ -161,7 +177,7 @@ Launch Capital Inc. (Toronto) lists Liberty Data Centers as the first entry in i
 |---|---|
 | Portfolio listing | `launchcapital.ca/portfolio` names Liberty Data Centers |
 | Shared text | Launch Capital's description of Liberty is a **word-for-word match** to a string in libertydatacenters.com's own JavaScript bundle: "Liberty Data Centers is a leading data center development firm specializing in state-of-the-art facilities from concept to completion. From site selection and power procurement to greenfield construction and brownfield redevelopment, Liberty delivers turnkey solutions that meet the evolving needs of hyperscalers, enterprises, and colocation providers." |
-| Page title | The portfolio page's HTML title is "Portfolio - Tony Di Benedetto — Launch Capital" |
+| Page title | The portfolio page's HTML title is "Portfolio - Tony Di Benedetto - Launch Capital" |
 | Firm's self-description | "A Toronto based advisory services firm which provides strategic growth capital and advisory services" |
 | Domain registered | launchcapital.ca, 2017-11-30 |
 | Internet Archive captures of the portfolio page | **Zero** - so the date Liberty was added to it cannot be established |
@@ -185,10 +201,10 @@ All descriptions are the firm's own. Entries marked ● are data-center business
 | 2009 | ● Data Centers Canada | Toronto colocation & disaster recovery | Divested to Terago Networks (TSX:TGO), May 2013; "ROI of ~1900% in 3.5 years" |
 | 2013 | ● Data Centre Realty | Data centre design/build, Canada | "Assisted in the development of several data centre projects globally" |
 | 2014 | Drone Delivery Canada (TSX.V: FLT) | Drone logistics | Reached $500M+ market cap; raised $90M+; Air Canada partnership |
-| — | NuGen Medical Devices (TSX.V: NGMD) | Medical devices | Taken public via RTO, raised $6M+ |
-| — | Syntheia | Conversational AI | Di Benedetto is CEO and Chairman |
-| — | ● BOLT | Data center operator | "Transforms under utilized, energy-enabled assets into high-performance compute hubs for AI, crypto, and quantum" |
-| — | Corsa Media Group | Automotive media | — |
+| | NuGen Medical Devices (TSX.V: NGMD) | Medical devices | Taken public via RTO, raised $6M+ |
+| | Syntheia | Conversational AI | Di Benedetto is CEO and Chairman |
+| | ● BOLT | Data center operator | "Transforms under utilized, energy-enabled assets into high-performance compute hubs for AI, crypto, and quantum" |
+| | Corsa Media Group | Automotive media | |
 | 2026 | ● **Liberty Data Centers** | Data center development | No outcome stated |
 
 ### Documented durations, in years

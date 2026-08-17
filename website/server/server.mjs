@@ -124,7 +124,7 @@ const isAdmin = (claims) => boardAdmins.has(claims.sub);
 const TITLE_MAX = 140;
 const BODY_MAX = 4000;
 
-// Small in-memory throttle, keyed by whatever the caller wants to limit — an
+// Small in-memory throttle, keyed by whatever the caller wants to limit, an
 // account for the board, a hashed network prefix or mailbox for the petition.
 // Not a substitute for real moderation, but it stops one source from flooding
 // faster than anyone can respond. Resets when the service restarts.
@@ -149,7 +149,7 @@ setInterval(() => {
 }, 60 * 60 * 1000).unref();
 
 // An Auth0 access token issued for a custom API audience carries sub/iss/aud/
-// exp/scope and nothing else — name and email live on the ID token and
+// exp/scope and nothing else, name and email live on the ID token and
 // /userinfo. So the display name is resolved server-side and cached: token
 // claims (in case the tenant adds them via an Action), then the profiles table,
 // then one /userinfo call per user.
@@ -316,7 +316,7 @@ async function handleBoard(pathname, request, response, claims) {
 //      for a human to review. Nothing is silently rejected, because dropping a
 //      real resident is worse than counting a fake one and then removing it.
 //
-// The threat that actually matters here is not padding but poisoning — one
+// The threat that actually matters here is not padding but poisoning: one
 // forged signature in a neighbour's name discredits the whole list. That is
 // what the confirmation step and the withdrawal link are for.
 
@@ -332,7 +332,7 @@ const sha256 = (value) => createHash('sha256').update(value).digest('hex');
 const newToken = () => randomBytes(32).toString('base64url');
 
 // Behind Caddy the socket address is always the proxy, so the real client is
-// the last hop in X-Forwarded-For — but only when the deployment says it is
+// the last hop in X-Forwarded-For, but only when the deployment says it is
 // actually behind a proxy. Trusting the header unconditionally would let any
 // caller pick their own rate-limit bucket.
 function clientIp(request) {
@@ -346,7 +346,7 @@ function clientIp(request) {
 // A /24 (v4) or /48 (v6) rather than the address itself: enough to notice one
 // source submitting in bulk, not enough to be a record of who visited. An
 // apartment block, a library and a phone carrier all share addresses, so the
-// prefix is a rate-limit bucket and a review signal — never a rejection on its
+// prefix is a rate-limit bucket and a review signal, never a rejection on its
 // own.
 function ipPrefix(ip) {
   const address = String(ip).replace(/^::ffff:/, '');
@@ -355,7 +355,7 @@ function ipPrefix(ip) {
   return parts.length === 4 ? `${parts[0]}.${parts[1]}.${parts[2]}.0/24` : address;
 }
 
-// Cloudflare Turnstile, checked server-side — never trusted from the browser.
+// Cloudflare Turnstile, checked server-side, never trusted from the browser.
 // The widget token is single-use and expires after five minutes, so a replayed
 // one fails here even though it looked fine when the widget issued it.
 //
@@ -369,7 +369,7 @@ function ipPrefix(ip) {
 //                 failed a test.
 //   'unavailable' no token arrived, or siteverify could not be reached. Nobody
 //                 can tell a blocked widget from an omitted field here, so this
-//                 is recorded rather than refused — see the gate below.
+//                 is recorded rather than refused, see the gate below.
 //   'skipped'     no TURNSTILE_SECRET, so the check is not configured on this
 //                 deployment (local dev and CI). Recorded, so its absence is
 //                 visible in review rather than looking like a pass.
@@ -392,7 +392,7 @@ async function verifyTurnstile(token, ip) {
     // look identical to a site full of failed challenges.
     console.error(`Turnstile rejected a submission: ${codes.join(', ') || 'no error codes'}`);
     // A token that expired on an open form, or that a double-submit spent
-    // twice. Neither is a bot, and both are fixed by trying again — so they are
+    // twice. Neither is a bot, and both are fixed by trying again, so they are
     // worth telling apart from a challenge that was actually failed.
     return codes.includes('timeout-or-duplicate') ? 'expired' : 'fail';
   } catch (error) {
@@ -425,8 +425,8 @@ async function sendMail({to, subject, text}) {
       body: JSON.stringify({from, to, subject, text, ...(replyTo ? {reply_to: replyTo} : {})}),
       signal: AbortSignal.timeout(15_000),
     });
-    // Resend's body names the cause — unverified domain, bad key, invalid from
-    // — and without it a failure is indistinguishable from a bad address.
+    // Resend's body names the cause (unverified domain, bad key, invalid from),
+    // and without it a failure is indistinguishable from a bad address.
     if (!result.ok) console.error(`Mail send failed (${result.status}): ${await result.text()}`);
     return result.ok;
   } catch (error) {
@@ -447,7 +447,7 @@ function sendPage(response, status, {heading, body, action = ''}) {
   response.writeHead(status, {'Content-Type': 'text/html; charset=utf-8'});
   response.end(`<!doctype html>
 <html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="robots" content="noindex, nofollow" /><title>${escapeHtml(heading)} — Sumter Field Desk</title>
+<meta name="robots" content="noindex, nofollow" /><title>${escapeHtml(heading)}, Sumter Field Desk</title>
 <style>
   body{margin:0;padding:9vh 20px;background:#eee8d9;color:#171a18;font:18px/1.5 Georgia,serif}
   main{max-width:620px;margin:auto;padding:36px;border:1px solid #171a18;background:#f8f4e9}
@@ -483,7 +483,7 @@ async function petitionCounts(database, petitionId) {
 
 // Public, but a signed-in organizer gets one extra field so the page can show
 // the paper-entry and audit tools without a second round trip. A bad or absent
-// token is not an error here — it just means "not an organizer".
+// token is not an error here; it just means "not an organizer".
 async function handlePetitionRead(request, response, petition) {
   const database = await getPool();
   if (!database) { sendJson(response, 501, {error: 'Database not configured'}); return; }
@@ -536,7 +536,7 @@ async function handlePetitionSign(request, response, petition) {
   // Cloudflare actively rejected is refused here and never stored.
   const turnstile = await verifyTurnstile(input.turnstileToken, ip);
   if (turnstile === 'expired') {
-    sendJson(response, 403, {error: 'The anti-bot check expired before this reached us. Press the button once more — the check has already restarted.'});
+    sendJson(response, 403, {error: 'The anti-bot check expired before this reached us. Press the button once more. The check has already restarted.'});
     return;
   }
   if (turnstile === 'fail') {
@@ -546,7 +546,7 @@ async function handlePetitionSign(request, response, petition) {
 
   // No token at all is the one case that is not a verdict. It is a browser that
   // blocks challenges.cloudflare.com, a network that dropped the script, a
-  // Cloudflare outage — or a bot that simply left the field out. Refusing it
+  // Cloudflare outage, or a bot that simply left the field out. Refusing it
   // meant a resident whose browser is stricter than most could not sign at all,
   // on a petition where every name is the point.
   //
@@ -618,8 +618,8 @@ async function handlePetitionSign(request, response, petition) {
     sendTo = {token, withdrawToken};
   } else if (!inserted.length) {
     // Address already on file. A pending or withdrawn signature can be
-    // confirmed again — the link only ever reaches the mailbox that owns the
-    // address — but a verified one is left alone and no mail goes out.
+    // confirmed again. The link only ever reaches the mailbox that owns the
+    // address, but a verified one is left alone and no mail goes out.
     const {rows: existing} = await database.query(
       'SELECT id, status FROM petition_signatures WHERE petition_id = $1 AND email_key = $2', [petition.id, emailKey]);
     const row = existing[0];
@@ -640,20 +640,20 @@ async function handlePetitionSign(request, response, petition) {
     const confirmUrl = `${apiOrigin(request)}/api/petition/verify?token=${sendTo.token}`;
     sent = await sendMail({
       to: signature.email,
-      subject: 'Confirm your signature — data center moratorium petition',
+      subject: 'Confirm your signature, data center moratorium petition',
       text: [
         `${signature.name},`,
         '',
         'You (or someone using this address) asked to sign the petition asking the Sumter County Board of Commissioners and the Mayor and City Council of Americus to adopt the joint 18-month data center moratorium.',
         '',
-        'It is one signature to both bodies — there is no second petition to sign.',
+        'It is one signature to both bodies. There is no second petition to sign.',
         '',
         'Your signature is NOT counted until you open this link:',
         confirmUrl,
         '',
         'The link works once and expires in 24 hours.',
         '',
-        'If you did not sign, ignore this message — nothing has been counted and nothing else will be sent.',
+        'If you did not sign, ignore this message. Nothing has been counted and nothing else will be sent.',
         '',
         'You can remove your signature at any time here:',
         `${apiOrigin(request)}/api/petition/withdraw?token=${sendTo.withdrawToken}`,
@@ -665,11 +665,11 @@ async function handlePetitionSign(request, response, petition) {
   }
 
   // A send failure is the server's fault, not a fact about the address, so
-  // saying so leaks nothing — and "check your email" for a mail that never left
+  // saying so leaks nothing, and "check your email" for a mail that never left
   // would leave the signer waiting on a link that is not coming. The row stays
   // pending, so signing again resends rather than duplicating.
   if (!sent) {
-    sendJson(response, 502, {error: 'We could not send the confirmation email just now. Please try again in a few minutes — your signature has not been counted yet.'});
+    sendJson(response, 502, {error: 'We could not send the confirmation email just now. Please try again in a few minutes, your signature has not been counted yet.'});
     return;
   }
 
@@ -689,7 +689,7 @@ async function handlePetitionVerify(request, response, url) {
   if (!token) { sendPage(response, 400, {heading: 'Link incomplete', body: '<p>That confirmation link is missing its token. Copy the whole link out of the email.</p>'}); return; }
 
   // Single-use and atomic: the token is cleared in the same statement that
-  // flips the status, so a replayed link — or two clicks racing each other —
+  // flips the status, so a replayed link, or two clicks racing each other,
   // updates nothing the second time.
   const {rows} = await database.query(
     `UPDATE petition_signatures
@@ -712,7 +712,7 @@ async function handlePetitionVerify(request, response, url) {
   sendPage(response, 200, {
     heading: 'Signature confirmed',
     body: `<p>Thank you, ${escapeHtml(row.name.split(' ')[0])}. Your signature is now counted${local ? ' as a verified Sumter County resident' : ''}.</p>
-      <p>Keep the email — it has a link that removes your signature at any time.</p>
+      <p>Keep the email. It has a link that removes your signature at any time.</p>
       <p>The one thing that helps more than signing is getting a neighbour to sign, and showing up when the council meets.</p>`,
   });
 }
@@ -753,7 +753,7 @@ async function handlePetitionWithdraw(request, response, url) {
 
 // Paper signatures, keyed in by an organizer from the sheets at the in-person
 // signing table. Verified on the spot by the person who watched it signed, so
-// there is no email step — but recorded as source 'paper' and reported on its
+// there is no email step, but recorded as source 'paper' and reported on its
 // own line, because "we watched them sign" and "they clicked a link in their
 // own mailbox" are different kinds of evidence and the totals should say so.
 async function handlePetitionPaper(request, response, petition, claims) {
@@ -894,14 +894,14 @@ async function handlePetition(pathname, request, response, url) {
 
 // --- Server-side copy of the county GIS layers -----------------------------
 // One stored copy serves every reader, so the county's ArcGIS service sees a
-// handful of queries a day instead of a fresh set per visitor — and a reader
+// handful of queries a day instead of a fresh set per visitor, and a reader
 // arriving during an outage gets a map instead of a blank one, which a
 // browser-only cache could never do for a first-time visitor.
 //
 // Public on purpose (see the note above handlePetition): the layers are public
 // record, and the map is the reason anyone signs in at all. What keeps a public
 // cache from being an open proxy is that the route accepts a short id from
-// GIS_SOURCES and builds the upstream URL itself — no caller-supplied URL ever
+// GIS_SOURCES and builds the upstream URL itself, no caller-supplied URL ever
 // reaches fetch().
 const gzip = promisify(gzipCb);
 const gunzip = promisify(gunzipCb);
@@ -1001,7 +1001,7 @@ async function handleGis(request, response, url) {
   if (!Object.hasOwn(GIS_SOURCES, id)) { sendJson(response, 404, {error: 'Unknown layer'}); return; }
 
   // A map load asks for thirteen layers, and a household or library shares one
-  // prefix, so this is set well above normal use — it is here to stop a script
+  // prefix, so this is set well above normal use. It is here to stop a script
   // hammering the route, not to ration readers.
   if (throttled(`gis:${ipPrefix(clientIp(request))}`, 120, 60_000)) {
     sendJson(response, 429, {error: 'Too many requests'});
@@ -1058,13 +1058,13 @@ async function handleApi(pathname, request, response, url) {
   sendJson(response, 404, {error: 'Unknown API route'});
 }
 
-// Public document roots. Everything else under the project directory —
-// server.env, deploy/, ignore/, .git — must stay unreachable.
+// Public document roots. Everything else under the project directory,
+// server.env, deploy/, ignore/, .git, must stay unreachable.
 const publicRoots = ['/website/', '/research/'];
 
 // The built site puts website/ at the root: the browser asks for
 // /client/app.js, not /website/client/app.js. In dev nothing is copied, so the
-// same two directories are aliased into place — a prefix each rather than a
+// same two directories are aliased into place, a prefix each rather than a
 // file list, so adding a module does not mean remembering to come back here.
 const aliasedDirs = ['/client/', '/assets/'];
 // Two files the build also leaves at the root. index.html is the shell; sw.js
@@ -1129,7 +1129,7 @@ createServer((request, response) => {
   try {
     const resolved = statSync(file).isDirectory() ? join(file, 'index.html') : file;
     // The shell's "./client/…" paths are only correct at the site root, so a
-    // route one or more directories deep — /petition/, /meetings/<id>/ —
+    // route one or more directories deep (/petition/, /meetings/<id>/)
     // resolved them against its own directory and 403'd on every module. The
     // build fixes this with the same substitution when it writes _site; doing
     // it here too is what makes the two environments serve identical URLs

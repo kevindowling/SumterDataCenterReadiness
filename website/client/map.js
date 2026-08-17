@@ -1,7 +1,7 @@
 // Interactive site map for the proposed data center at 301 Brady Road.
 //
 // Every layer below comes from the City of Americus & Sumter County public
-// ArcGIS service — the same service behind the county's own public viewer — so
+// ArcGIS service, the same service behind the county's own public viewer, so
 // the map shows the county's current record rather than a snapshot traced from
 // a PDF exhibit. Nothing here is hand-drawn.
 //
@@ -65,7 +65,7 @@ function loadLeaflet() {
 //
 // Step 2 is what stops the county's server paying for a fresh set of queries
 // per visitor, and it is the only step that can help a reader who has never
-// opened the map before — steps 1 and 4 need a copy this device already has.
+// opened the map before, steps 1 and 4 need a copy this device already has.
 // Step 3 stays because the research desk is on GitHub Pages and must not go
 // down with the API server.
 //
@@ -74,7 +74,7 @@ function loadLeaflet() {
 //
 // v2: v1 could hold a poisoned entry. ArcGIS answers a failed query with HTTP
 // 200 and an error in the body, and the old code cached anything with an ok
-// status — so a bad moment upstream could be stored and then served for as long
+// status, so a bad moment upstream could be stored and then served for as long
 // as the entry was kept. The name change evicts those without the reader
 // needing to clear anything by hand.
 const GIS_CACHE = 'field-desk-gis-v2';
@@ -93,7 +93,7 @@ const cacheStore = async () => {
 
 const freshness = (response) => Date.now() - Number(response?.headers.get(CACHED_AT) || 0);
 
-// Both upstreams fail transiently — Overpass returns a 504 under load often
+// Both upstreams fail transiently: Overpass returns a 504 under load often
 // enough to lose a layer on any given page load, and the county's ArcGIS box
 // drops connections. One stumble should not cost the reader a layer, so try a
 // few times with a widening pause. A 404 or a bad query will not fix itself on
@@ -116,7 +116,7 @@ async function fetchWithRetry(url, init, attempts = 3) {
 
 // Keyed on the layer id, not the upstream URL, so a copy fetched through the
 // field desk server and one fetched straight from the county occupy the same
-// slot — and an Overpass POST, which Cache Storage will not key on at all, gets
+// slot, and an Overpass POST, which Cache Storage will not key on at all, gets
 // a slot like everything else.
 const cacheKey = (id) => `https://field-desk.invalid/gis/${id}`;
 
@@ -243,7 +243,7 @@ const districtPopup = (config) => (p) => {
 const RECREATION = ['Park', 'Community / Recreation Center', 'Sports Complex', 'Sports Arena / Stadium', 'Public Pool', 'Golf Course'];
 
 // The county POI layer carries exactly one "House of Worship" countywide and
-// almost no care homes, so those two categories come from OpenStreetMap — the
+// almost no care homes, so those two categories come from OpenStreetMap, the
 // same source the county's own May 2025 exhibit credits for them. Both are
 // listed in gis-sources.js like everything else.
 
@@ -260,11 +260,11 @@ const PANES = {
 // The county creek layer has FLOWDIR null on all 1,883 records, so direction
 // comes from the USGS NHDPlus High Resolution flowlines instead. Every feature
 // there reports flowdir = 1, "with digitized direction", which means the
-// geometry's vertex order *is* downstream — so the arrows below follow the
+// geometry's vertex order *is* downstream, so the arrows below follow the
 // vertices rather than guessing from terrain.
 
 // Web Mercator is conformal, so a bearing measured in projected space holds at
-// every zoom — the arrows can be rotated once and never recomputed.
+// every zoom. The arrows can be rotated once and never recomputed.
 const MERCATOR_STRETCH = 1 / Math.cos((SITE[0] * Math.PI) / 180);
 const COMPASS = ['north', 'north-east', 'east', 'south-east', 'south', 'south-west', 'west', 'north-west'];
 
@@ -416,7 +416,7 @@ const LAYERS = [
     ])}`,
   },
   // Districts are county-wide and few, so they are never clipped to the ring
-  // area — a resident may live outside it and still need to find theirs.
+  // area, a resident may live outside it and still need to find theirs.
   {name: 'Americus council districts', source: 'councilDistricts', pane: 'districts', district: COUNCIL, popup: districtPopup(COUNCIL)},
   {name: 'County commission districts', source: 'commissionDistricts', pane: 'districts', district: COMMISSION, popup: districtPopup(COMMISSION)},
 ];
@@ -437,7 +437,7 @@ export async function renderSiteMap(container, onStatus) {
 
   // Fourteen overlays make an always-open panel taller than a phone screen.
   // Leaflet's own `collapsed` mode expands on hover, which never reads as a
-  // real toggle and cannot be closed again on a wide screen — so the list is
+  // real toggle and cannot be closed again on a wide screen, so the list is
   // always built open and driven by an explicit button instead. It starts
   // closed on narrow screens and open where there is room, and after that it
   // does what the reader last told it to.

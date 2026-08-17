@@ -3,7 +3,7 @@
 export const authConfig = {
   domain: 'scc4t.us.auth0.com',
   clientId: 'YEELbmsY27hdZqTLxVd6b6uZ7r8cyvou',
-  // The Identifier of the Auth0 API (Applications → APIs) — must match it
+  // The Identifier of the Auth0 API (Applications → APIs), must match it
   // exactly. Required for the server to verify access tokens.
   audience: 'https://api.scc4t.com',
   // Where the API server lives. Empty = same origin (local dev with server.mjs).
@@ -15,7 +15,7 @@ export const authConfig = {
   // Cloudflare Turnstile site key for the petition form (dash.cloudflare.com →
   // Turnstile → Add site). Public by design; the matching secret lives only in
   // TURNSTILE_SECRET on the server. Leave as-is to run the form without a
-  // challenge — signatures are still gated on email confirmation, and each row
+  // challenge, signatures are still gated on email confirmation, and each row
   // records that the check was skipped.
   turnstileSiteKey: '0x4AAAAAAD-uyOsygTqldEvZ',
 };
