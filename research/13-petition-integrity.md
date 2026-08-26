@@ -38,7 +38,7 @@ Signatures caught by the hidden-field check are recorded as rejected and never c
 
 Paper signatures collected in person are counted the same as online ones and are reported on their own line. They are keyed in by a named organizer and marked as paper, because "an organizer watched this person sign" and "this person opened a link in their own mailbox" are different kinds of evidence, and a total that merges them is quietly overstating one of them.
 
-The sheets themselves are published, so that line can be checked rather than trusted: [the signed paper sheets](/research/petition-signatures-redacted.pdf) (PDF, 18 pages). Street addresses are painted out; names, signatures, town, ZIP, and the circulator who certified each page are as signed.
+The sheets themselves are published, so that line can be checked rather than trusted: [the signed paper sheets](/research/petition-signatures-redacted.pdf) (PDF, 19 pages). Street addresses are painted out; names, signatures, town, ZIP, and the circulator who certified each page are as signed.
 
 ## What is published and what is not
 
