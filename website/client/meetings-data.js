@@ -74,6 +74,15 @@ export const BODIES = {
     calendar: 'https://www.selectsumter.com/resources-incentives/calendar',
     agendas: 'https://www.selectsumter.com/resources-incentives/calendar',
   },
+  pda: {
+    name: 'Americus-Sumter Payroll Development Authority',
+    short: 'Payroll Development Authority',
+    venue: 'Rees Park Economic Development Building',
+    venuePosted: true,
+    address: '409 Elm Avenue, Americus, GA 31709',
+    phone: '(229) 924-7007',
+    rhythm: 'Regular meetings the second Monday of the month at 4:00 p.m. October 2026 moves to Tuesday the 13th, the second Monday being Columbus Day. 4:00 p.m. is inside working hours.',
+  },
   citizens: {
     name: 'Sumter County Citizens for Transparency',
     short: 'Community meeting',
@@ -134,6 +143,16 @@ const official = (date, body, kind, speak, time = '18:00', extra = {}) => {
   return {date, body, kind, speak, time, status: 'confirmed', source: SOURCE[body](date), ...extra};
 };
 
+const scheduled = (date) => ({
+  date,
+  body: 'pda',
+  kind: 'Regular meeting',
+  speak: 'unknown',
+  time: '16:00',
+  status: 'confirmed',
+  sourceNote: 'Read off the Authority\'s "2026 Regular Meetings Schedule" as posted on the door of its building at 409 Elm Avenue: one sheet listing all twelve dates, every one of them in that building at 4:00 p.m.',
+});
+
 export const MEETING_ROWS = [
   {
     date: '2026-08-04',
@@ -163,6 +182,7 @@ export const MEETING_ROWS = [
       src: '/assets/images/event_flyer.jpg',
       alt: 'Flyer: Community Meeting About Data Centers, Tuesday August 4 2026 at 6:00 p.m., Lake Blackshear Regional Library. Everyone welcome. Bring your questions.',
     },
+    sourceNote: 'Taken from the organisers\' own flyer for the meeting.',
     recap: {
       video: {id: 'qYPjHDAbO9k', length: '1 hr 14 min'},
       deck: {
@@ -240,20 +260,43 @@ export const MEETING_ROWS = [
   official('2026-08-13', 'council', 'Agenda-setting meeting', 'unknown'),
   official('2026-08-18', 'commission', 'Regular meeting', 'unknown'),
   official('2026-08-20', 'council', 'Regular meeting', 'published'),
+  {
+    date: '2026-09-08',
+    slug: 'what-we-know-about-the-data-center',
+    body: 'citizens',
+    kind: 'Public community meeting',
+    title: 'What we know about the data center.',
+    time: '18:00',
+    status: 'confirmed',
+    speak: 'open',
+    venue: 'Magnolia Manor Nursing Auditorium',
+    address: 'Rosalynn Carter Health and Human Sciences Complex, Georgia Southwestern State University, 800 GSW State University Drive, Americus, GA 31709',
+    summary: 'A follow-up to the August 4 meeting that filled the library. This one is about what has come back since: what is known so far about the wetlands on the site, what the group\'s open records request turned up, and what residents can do with both.',
+    topics: [
+      'What we know so far about the wetlands',
+      'Findings from our open records request',
+      'What residents can do next',
+    ],
+    sourceNote: 'Taken from the organisers\' own flyer for the meeting.',
+  },
   official('2026-09-08', 'commission', 'Work session', 'unknown'),
+  scheduled('2026-09-14'),
   official('2026-09-15', 'commission', 'Regular meeting', 'unknown'),
   official('2026-09-17', 'council', 'Agenda-setting meeting', 'unknown'),
   official('2026-09-24', 'council', 'Regular meeting', 'published'),
+  scheduled('2026-10-13'),
   official('2026-10-13', 'commission', 'Work session', 'unknown'),
   official('2026-10-15', 'council', 'Agenda-setting meeting', 'unknown'),
   official('2026-10-20', 'commission', 'Regular meeting', 'unknown'),
   official('2026-10-22', 'council', 'Regular meeting', 'published'),
+  scheduled('2026-11-09'),
   official('2026-11-10', 'commission', 'Work session', 'unknown'),
   official('2026-11-12', 'council', 'Agenda-setting meeting', 'unknown'),
   official('2026-11-17', 'commission', 'Regular meeting', 'unknown'),
   official('2026-11-19', 'council', 'Regular meeting', 'published'),
   official('2026-12-08', 'commission', 'Work session', 'unknown'),
   official('2026-12-10', 'council', 'Agenda-setting meeting', 'unknown'),
+  scheduled('2026-12-14'),
   official('2026-12-15', 'commission', 'Regular meeting', 'unknown'),
   official('2026-12-17', 'council', 'Regular meeting', 'published'),
 ];
