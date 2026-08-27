@@ -135,6 +135,7 @@ const topbar = () => `
     <div class="top-actions">
       <span class="edition">COMMUNITY RESEARCH EDITION</span>
       <button class="search-button" data-search><kbd>/</kbd> Search the desk</button>
+      <button class="source-link" data-petition>Sign the petition ↗</button>
       <button class="source-link" data-doc="start">Research notes ↗</button>
       <button class="source-link" data-meetings>Calendar ↗</button>
       <button class="source-link" data-contact>Contact officials ↗</button>
