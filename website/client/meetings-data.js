@@ -163,6 +163,7 @@ export const MEETING_ROWS = [
       src: '/assets/images/event_flyer.jpg',
       alt: 'Flyer: Community Meeting About Data Centers, Tuesday August 4 2026 at 6:00 p.m., Lake Blackshear Regional Library. Everyone welcome. Bring your questions.',
     },
+    sourceNote: 'Taken from the organisers\' own flyer for the meeting.',
     recap: {
       video: {id: 'qYPjHDAbO9k', length: '1 hr 14 min'},
       deck: {
@@ -240,6 +241,25 @@ export const MEETING_ROWS = [
   official('2026-08-13', 'council', 'Agenda-setting meeting', 'unknown'),
   official('2026-08-18', 'commission', 'Regular meeting', 'unknown'),
   official('2026-08-20', 'council', 'Regular meeting', 'published'),
+  {
+    date: '2026-09-08',
+    slug: 'what-we-know-about-the-data-center',
+    body: 'citizens',
+    kind: 'Public community meeting',
+    title: 'What we know about the data center.',
+    time: '18:00',
+    status: 'confirmed',
+    speak: 'open',
+    venue: 'Magnolia Manor Nursing Auditorium',
+    address: 'Rosalynn Carter Health and Human Sciences Complex, Georgia Southwestern State University, 800 GSW State University Drive, Americus, GA 31709',
+    summary: 'A follow-up to the August 4 meeting that filled the library. This one is about what has come back since: what is known so far about the wetlands on the site, what the group\'s open records request turned up, and what residents can do with both.',
+    topics: [
+      'What we know so far about the wetlands',
+      'Findings from our open records request',
+      'What residents can do next',
+    ],
+    sourceNote: 'Taken from the organisers\' own flyer for the meeting.',
+  },
   official('2026-09-08', 'commission', 'Work session', 'unknown'),
   official('2026-09-15', 'commission', 'Regular meeting', 'unknown'),
   official('2026-09-17', 'council', 'Agenda-setting meeting', 'unknown'),

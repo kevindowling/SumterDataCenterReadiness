@@ -436,9 +436,11 @@ function meetingPage(id) {
     </section>` : ''}
     <section class="meeting-source">
       <p class="event-topics-label">WHERE THIS DATE COMES FROM</p>
-      <p>${meeting.status === 'confirmed'
-        ? `Read off ${escapeHtml(meeting.name)}'s own posted calendar and checked in by hand on ${escapeHtml(longDate(CONFIRMED_ON))}, ${CONFIRMED_ON.slice(0, 4)}.`
-        : 'This date has not been confirmed against a posted calendar.'}</p>
+      <p>${meeting.sourceNote
+        ? escapeHtml(meeting.sourceNote)
+        : meeting.status === 'confirmed'
+          ? `Read off ${escapeHtml(meeting.name)}'s own posted calendar and checked in by hand on ${escapeHtml(longDate(CONFIRMED_ON))}, ${CONFIRMED_ON.slice(0, 4)}.`
+          : 'This date has not been confirmed against a posted calendar.'}</p>
       <p class="meeting-source-links">
         ${meeting.source ? `<a href="${meeting.source}" target="_blank" rel="noreferrer">The posted calendar ↗</a>` : ''}
         ${meeting.agendas ? `<a href="${meeting.agendas}" target="_blank" rel="noreferrer">Agendas and minutes ↗</a>` : ''}
