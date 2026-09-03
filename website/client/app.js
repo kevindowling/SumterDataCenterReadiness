@@ -466,7 +466,7 @@ function home() {
         <a class="env-banner" href="/research/ordinance-draft-zoning-committee-2026-08-18.pdf" target="_blank" rel="noreferrer">
           <div class="env-banner-eyebrow"><i></i> PRIMARY SOURCE</div>
           <div class="env-banner-title">Ordinance Draft <em>↓</em></div>
-          <p class="env-banner-sub">The draft passed by the Zoning Committee, August 18, 2026, 4 p.m.</p>
+          <p class="env-banner-sub">The draft passed by the Zoning Committee, August 18, 2026, 4 p.m. It says nothing about water use or running generators all day.</p>
         </a>
       </div>
     </section>
