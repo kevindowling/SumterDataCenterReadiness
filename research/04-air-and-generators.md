@@ -46,6 +46,8 @@ The [car comparison](https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-
 
 The [signed development agreement](09-development-agreement.md) states that backup generators “shall be used only in emergency situations” and limits routine testing to 8:00 a.m. through 6:00 p.m., Monday through Friday (§10). It does not define “emergency,” does not cap how many days testing may occur, and does not name a single engine, fuel, or emission control. That is the gap the questions below are written to close.
 
+The [draft ordinance passed by the Zoning Committee](/research/ordinance-draft-zoning-committee-2026-08-18.pdf) on August 18, 2026 says nothing about on-site generation either: no emergency definition, no hour limits, and nothing addressing "bring your own generation," a data center building or contracting its own dedicated generating capacity instead of waiting on utility interconnection. If the project goes that route, this draft would not regulate it as the power plant it would be.
+
 - List every engine and turbine by model, rating, fuel, controls, and location.
 - Separate hours for testing, outages, demand response, peak shaving, and delayed grid connection.
 - Define “emergency” narrowly.

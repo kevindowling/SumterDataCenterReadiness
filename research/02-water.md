@@ -32,6 +32,8 @@ The [signed development agreement](09-development-agreement.md) prohibits open-l
 
 It does not cap consumption. “Closed-loop” describes the circuit, not the water use, and a closed circuit can still reject its heat by evaporation, exactly the case described above. The number that would settle this is the water balance, which the agreement does not contain.
 
+The [draft ordinance passed by the Zoning Committee](/research/ordinance-draft-zoning-committee-2026-08-18.pdf) on August 18, 2026 does not mention water use at all: no cooling technology, no source, no balance, no capacity certification. Whatever protection exists on water currently comes only from §11 of the development agreement above, not from zoning.
+
 ## Scale scenario, not a project forecast
 
 The [Department of Energy publishes](https://www.energy.gov/cmei/femp/estimating-methods-determining-end-use-water-consumption) a full-load table of cooling-tower water use in gallons per day, indexed by chiller tonnage and by **cycles of concentration**: how many times water goes around the loop before it is discharged as blowdown. Fewer cycles means more blowdown and more makeup water. The table runs from 3 cycles to 8.

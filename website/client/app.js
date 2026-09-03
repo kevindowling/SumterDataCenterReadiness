@@ -457,11 +457,18 @@ function home() {
   // reach me?" before a visitor has read a word.
   return `${topbar()}<main class="home">
     <section class="map-page landing-map">${mapSection()}
-      <a class="env-banner" href="/research/terracon-phase-i-environmental-site-assessment-2022-06-30.pdf" target="_blank" rel="noreferrer">
-        <div class="env-banner-eyebrow"><i></i> PRIMARY SOURCE · 424 PAGES</div>
-        <div class="env-banner-title">Environmental Survey <em>↓</em></div>
-        <p class="env-banner-sub">The full inspection of the tract, June 2022 - two contamination sites flagged nearby.</p>
-      </a>
+      <div class="env-banners">
+        <a class="env-banner" href="/research/terracon-phase-i-environmental-site-assessment-2022-06-30.pdf" target="_blank" rel="noreferrer">
+          <div class="env-banner-eyebrow"><i></i> PRIMARY SOURCE · 424 PAGES</div>
+          <div class="env-banner-title">Environmental Survey <em>↓</em></div>
+          <p class="env-banner-sub">The full inspection of the tract, June 2022 - two contamination sites flagged nearby.</p>
+        </a>
+        <a class="env-banner" href="/research/ordinance-draft-zoning-committee-2026-08-18.pdf" target="_blank" rel="noreferrer">
+          <div class="env-banner-eyebrow"><i></i> PRIMARY SOURCE</div>
+          <div class="env-banner-title">Ordinance Draft <em>↓</em></div>
+          <p class="env-banner-sub">The draft passed by the Zoning Committee, August 18, 2026, 4 p.m.</p>
+        </a>
+      </div>
     </section>
     <section class="hero hero-wide">
       <div class="hero-copy">

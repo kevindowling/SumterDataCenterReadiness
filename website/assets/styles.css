@@ -98,7 +98,8 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 
 /* Map as the landing section */
 .landing-map{max-width:1500px;margin:auto;padding:clamp(28px,3.5vw,52px) clamp(20px,4vw,64px) clamp(40px,5vw,72px);border-bottom:1px solid var(--ink)}
-.env-banner{display:block;max-width:640px;margin-top:24px;padding:28px 32px;border:1px solid var(--ink);background:var(--ink);color:var(--light);text-decoration:none;box-shadow:8px 8px 0 #171a1814;transition:.15s}
+.env-banner{display:block;flex:1 1 300px;max-width:640px;padding:28px 32px;border:1px solid var(--ink);background:var(--ink);color:var(--light);text-decoration:none;box-shadow:8px 8px 0 #171a1814;transition:.15s}
+.env-banners{display:flex;flex-wrap:wrap;gap:20px;margin-top:24px}
 .env-banner-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;color:#bebfb8;font:500 10px/1 var(--mono);letter-spacing:.13em}
 .env-banner-eyebrow i{width:7px;height:7px;background:var(--orange)}
 .env-banner-title{font-size:clamp(28px,3vw,40px);font-weight:600;line-height:1;letter-spacing:-.03em}
