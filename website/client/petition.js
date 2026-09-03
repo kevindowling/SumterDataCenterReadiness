@@ -55,7 +55,7 @@ export const petitions = [
     paperSheets: {
       href: '/research/petition-signatures-redacted.pdf',
       label: 'See the signed paper sheets',
-      note: 'PDF, 20 pages. Street addresses removed; names, signatures, town and ZIP are as signed.',
+      note: 'PDF, 21 pages. Street addresses removed; names, signatures, town and ZIP are as signed.',
     },
     // Where the paper copy can be signed in person. Signing on paper counts the
     // same as signing online; it is reported separately so the totals stay
