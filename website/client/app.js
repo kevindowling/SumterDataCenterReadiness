@@ -457,10 +457,10 @@ function home() {
   // reach me?" before a visitor has read a word.
   return `${topbar()}<main class="home">
     <section class="map-page landing-map">${mapSection()}
-      <a class="recap-deck map-exhibit-link" href="/research/terracon-phase-i-environmental-site-assessment-2022-06-30.pdf" target="_blank" rel="noreferrer">
-        <small>PHASE I ENVIRONMENTAL SITE ASSESSMENT</small>
-        <b>Terracon, June 30, 2022 · 424-page inspection packet</b>
-        <span>Full report for the 125.1-acre tract, EPA brownfield-funded ↓</span>
+      <a class="env-banner" href="/research/terracon-phase-i-environmental-site-assessment-2022-06-30.pdf" target="_blank" rel="noreferrer">
+        <div class="env-banner-eyebrow"><i></i> PRIMARY SOURCE · 424 PAGES</div>
+        <div class="env-banner-title">Environmental Survey <em>↓</em></div>
+        <p class="env-banner-sub">The full inspection of the tract, June 2022 - two contamination sites flagged nearby.</p>
       </a>
     </section>
     <section class="hero hero-wide">

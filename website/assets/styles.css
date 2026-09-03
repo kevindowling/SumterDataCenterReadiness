@@ -98,7 +98,16 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 
 /* Map as the landing section */
 .landing-map{max-width:1500px;margin:auto;padding:clamp(28px,3.5vw,52px) clamp(20px,4vw,64px) clamp(40px,5vw,72px);border-bottom:1px solid var(--ink)}
-.map-exhibit-link{max-width:420px;margin-top:24px}
+.env-banner{display:block;max-width:640px;margin-top:24px;padding:28px 32px;border:1px solid var(--ink);background:var(--ink);color:var(--light);text-decoration:none;box-shadow:8px 8px 0 #171a1814;transition:.15s}
+.env-banner-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:14px;color:#bebfb8;font:500 10px/1 var(--mono);letter-spacing:.13em}
+.env-banner-eyebrow i{width:7px;height:7px;background:var(--orange)}
+.env-banner-title{font-size:clamp(28px,3vw,40px);font-weight:600;line-height:1;letter-spacing:-.03em}
+.env-banner-title em{margin-left:14px;color:var(--orange);font-style:normal}
+.env-banner-sub{margin:12px 0 0;color:#bebfb8;font-size:15px;line-height:1.4}
+.env-banner:hover{background:var(--orange)}
+.env-banner:hover .env-banner-eyebrow,.env-banner:hover .env-banner-sub{color:#171a18b3}
+.env-banner:hover .env-banner-title em{color:var(--ink)}
+@media(max-width:720px){.env-banner{max-width:none;padding:22px 20px}}
 .hero-wide{grid-template-columns:minmax(0,1fr);min-height:0}
 .hero-wide .hero-copy{max-width:900px;padding-right:0}
 
