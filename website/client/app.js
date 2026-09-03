@@ -461,7 +461,7 @@ function home() {
         <a class="env-banner" href="/research/terracon-phase-i-environmental-site-assessment-2022-06-30.pdf" target="_blank" rel="noreferrer">
           <div class="env-banner-eyebrow"><i></i> PRIMARY SOURCE · 424 PAGES</div>
           <div class="env-banner-title">Environmental Survey <em>↓</em></div>
-          <p class="env-banner-sub">The full inspection of the tract, June 2022 - two contamination sites flagged nearby.</p>
+          <p class="env-banner-sub">The full inspection of the tract, June 2022 - they discovered the site was once a dumping ground.</p>
         </a>
         <a class="env-banner" href="/research/ordinance-draft-zoning-committee-2026-08-18.pdf" target="_blank" rel="noreferrer">
           <div class="env-banner-eyebrow"><i></i> PRIMARY SOURCE</div>
