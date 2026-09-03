@@ -98,6 +98,7 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 
 /* Map as the landing section */
 .landing-map{max-width:1500px;margin:auto;padding:clamp(28px,3.5vw,52px) clamp(20px,4vw,64px) clamp(40px,5vw,72px);border-bottom:1px solid var(--ink)}
+.map-exhibit-link{max-width:420px;margin-top:24px}
 .hero-wide{grid-template-columns:minmax(0,1fr);min-height:0}
 .hero-wide .hero-copy{max-width:900px;padding-right:0}
 

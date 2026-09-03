@@ -456,7 +456,13 @@ function home() {
   // The map leads: it is the one thing that answers "where is this and does it
   // reach me?" before a visitor has read a word.
   return `${topbar()}<main class="home">
-    <section class="map-page landing-map">${mapSection()}</section>
+    <section class="map-page landing-map">${mapSection()}
+      <a class="recap-deck map-exhibit-link" href="/research/terracon-phase-i-environmental-site-assessment-2022-06-30.pdf" target="_blank" rel="noreferrer">
+        <small>PHASE I ENVIRONMENTAL SITE ASSESSMENT</small>
+        <b>Terracon, June 30, 2022 · 424-page inspection packet</b>
+        <span>Full report for the 125.1-acre tract, EPA brownfield-funded ↓</span>
+      </a>
+    </section>
     <section class="hero hero-wide">
       <div class="hero-copy">
         <p class="eyebrow"><span></span> CITIZEN RESEARCH FOR SUMTER COUNTY</p>
