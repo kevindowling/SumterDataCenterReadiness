@@ -237,7 +237,7 @@ function recapBanner() {
     <div class="event-copy recap-head">
       <p class="eyebrow"><span></span> WATCH THE MEETING</p>
       <h2>${escapeHtml(event.title)}</h2>
-      <p class="event-summary">Recorded ${escapeHtml(meetingWhen(event))} at the ${escapeHtml(event.venue)}. If you could not be in the room, the whole meeting is here, nothing trimmed.</p>
+      <p class="event-summary">The full, unedited meeting recorded ${escapeHtml(meetingWhen(event))} at the ${escapeHtml(event.venue)}.</p>
     </div>
     <div class="recap-detail">
       ${event.program ? `<p class="event-topics-label">WHO SPOKE</p>
@@ -357,7 +357,7 @@ function slidesPage() {
         <b>Download the slides ↓</b>
         <span>${escapeHtml(DECK.pdf.meta)}. The ${clips} clips do not play in a PDF; they are on this page.</span>
       </a>
-      <p class="deck-note">This is the speaker's deck, reproduced. The argument and every figure in it are his, not this desk's, and nothing in it has been checked here. ${escapeHtml(DECK.source)}</p>
+      <p class="deck-note">Reproduced from the speaker's deck. The argument and figures are his and have not been independently checked by the Field Desk. ${escapeHtml(DECK.source)}</p>
     </header>
     <ol class="deck-slides">${DECK.slides.map(deckSlide).join('')}</ol>
     <p class="deck-foot"><a href="${meetingPath(DECK.meeting)}">Back to the ${escapeHtml(longDate(DECK.date))} meeting, and the recording →</a></p>
@@ -418,9 +418,9 @@ function meetingsPage() {
     <section class="meetings-head">
       <p class="eyebrow"><span></span> PUBLIC MEETINGS</p>
       <h1>The decisions get made <em>in these rooms.</em></h1>
-      <p class="lede">Both the county and the city meet in public, monthly, and both are required by Georgia law to let you in. This is when and where. Where a body publishes how to get on the speakers' list, that is here too: for the city, the list opens thirty minutes before the meeting and closes when it starts.</p>
-      <p class="meetings-provenance">Every date below was read off the body's own posted calendar and checked in by hand on ${escapeHtml(longDate(CONFIRMED_ON))}, ${CONFIRMED_ON.slice(0, 4)}, not computed from a rule like "third Tuesday", because the weeks move. Agendas are published closer to the date; confirm before you travel.</p>
-      <p class="meetings-note">The <strong>${escapeHtml(BODIES.pda.name)}</strong>, the body that signed the development agreement and conveyed the land, has posted a schedule for all of 2026: the second Monday of the month at 4:00 p.m., at 409 Elm Avenue. Those dates are below. They sit in the working day, which is a good deal harder to attend than an evening meeting. The <a href="${BODIES.authority.calendar}" target="_blank" rel="noreferrer">Development Authority</a> calendar still posts single dates, sometimes only days ahead, so a gap there means nothing has been posted yet, not that nothing is happening.</p>
+      <p class="lede">The county and city hold public meetings each month. Find the dates, locations and published speaker sign-up rules here. For city meetings, the list opens thirty minutes before the meeting and closes when it starts.</p>
+      <p class="meetings-provenance">Dates were copied by hand from each body's posted calendar and last checked ${escapeHtml(longDate(CONFIRMED_ON))}, ${CONFIRMED_ON.slice(0, 4)}. Agendas are published closer to the meeting; confirm the details before you travel.</p>
+      <p class="meetings-note">The <strong>${escapeHtml(BODIES.pda.name)}</strong>, which signed the development agreement and conveyed the land, has posted its full 2026 schedule: the second Monday of each month at 4:00 p.m., at 409 Elm Avenue. The <a href="${BODIES.authority.calendar}" target="_blank" rel="noreferrer">Development Authority</a> posts individual dates, sometimes only days ahead. If no date appears here, none had been posted when this calendar was last checked.</p>
       ${calendarIsStale(today) ? `<p class="meetings-stale">This calendar has not been refreshed since ${escapeHtml(monthLabel(STALE_AFTER.slice(0, 7)))}. Check the <a href="${BODIES.commission.calendar}" target="_blank" rel="noreferrer">county calendar</a> and the <a href="${BODIES.council.calendar}" target="_blank" rel="noreferrer">city agenda portal</a> directly.</p>` : ''}
     </section>
     <section class="meetings-list">
@@ -525,7 +525,7 @@ function home() {
         <a class="env-banner" href="/research/ordinance-draft-zoning-committee-2026-08-18.pdf" target="_blank" rel="noreferrer">
           <div class="env-banner-eyebrow"><i></i> PRIMARY SOURCE</div>
           <div class="env-banner-title">Ordinance Draft <em>↓</em></div>
-          <p class="env-banner-sub">The draft passed by the Zoning Committee, August 18, 2026, 4 p.m. It says nothing about water use.</p>
+          <p class="env-banner-sub">The August 18 draft has no water-use limit. The PDA agreement's cooling terms are not enforceable by the city through this ordinance.</p>
         </a>
       </div>
     </section>
@@ -533,7 +533,7 @@ function home() {
       <div class="hero-copy">
         <p class="eyebrow"><span></span> CITIZEN RESEARCH FOR SUMTER COUNTY</p>
         <h1>Bring facts.<br />Ask for <em>answers.</em></h1>
-        <p class="lede">This is the community's research report on the proposed Sumter County data center. It separates verified local facts from planning scenarios and unresolved project details, so residents can press commissioners for precise answers, in public, before decisions are made.</p>
+        <p class="lede">The planned four-building campus has a 400 MW IT load. This community report separates documented local facts from planning scenarios and unanswered project questions.</p>
         <div class="hero-actions"><button data-petition>Sign the moratorium petition <span>→</span></button><button class="quiet" data-doc="start">Start with what is known</button></div>
         <div class="evidence-legend"><span class="verified">Verified fact</span><span class="scenario">Scale scenario</span><span class="unknown">Project unknown</span><span class="recommendation">Recommendation</span></div>
       </div>
@@ -562,7 +562,7 @@ function mapSection() {
       <div>
         <p class="eyebrow"><span></span> SITE MAP · PARCEL 64-17</p>
         <h1>What is <em>around</em> it.</h1>
-        <p class="lede">301 Brady Road, 125.1 acres, zoned Industrial. Every layer is queried live from the City of Americus &amp; Sumter County public GIS service, so it shows the county's current record. Toggle layers at the top right; click anything for details.</p>
+        <p class="lede">301 Brady Road: 125.1 acres zoned Industrial. The map queries the City of Americus &amp; Sumter County public GIS service for the county's current records. Use the controls at top right to choose layers, and click the map for details.</p>
       </div>
       <form class="map-locate" data-locate>
         <label for="map-address">FIND YOUR ADDRESS</label>
@@ -707,7 +707,7 @@ function boardView() {
     return `${topbar()}<main class="community"><section class="community-gate">
       <p class="eyebrow"><span></span> MESSAGE BOARD</p>
       <h1>Sign in to <em>post.</em></h1>
-      <p class="lede">The message board is for neighbour-to-neighbour threads on the proposal, the meetings, and what people are hearing. Reading and posting both need an account.</p>
+      <p class="lede">Discuss the proposal, public meetings and local reports with other residents. An account is required to read or post.</p>
       <div class="hero-actions">${isConfigured() ? '<button data-login>Sign in or create an account <span>→</span></button>' : '<button disabled>Sign-in not configured yet</button>'}<button class="quiet" data-home>Back to the research desk</button></div>
     </section></main>${searchPanel()}`;
   }
@@ -744,7 +744,7 @@ function boardView() {
   return `${topbar()}<main class="board">
     <p class="eyebrow"><span></span> MESSAGE BOARD${board.admin ? ' · MODERATOR' : ''}</p>
     <h1>What neighbors are <em>saying.</em></h1>
-    <p class="lede">Threads on the proposal, the meetings, and what people are hearing. Posts show your account name. Be accurate. The research desk is only useful if what gets repeated from it is true.</p>
+    <p class="lede">Discuss the proposal, public meetings and local reports. Posts display your account name. Keep claims accurate and sources clear.</p>
     ${notice}
     <form class="board-form new-thread" data-new-thread>
       <label for="thread-title">START A THREAD</label>
@@ -921,10 +921,10 @@ async function submitSignature(form) {
     resetTurnstile();                          // ask for a fresh one before the signer tries again
     if (unavailable) turnstileRetries += 1;
     petitionView = {...petitionView, draft, formError:
-      turnstileFault === 'blocked' ? 'The anti-bot check could not load. Press the button once more. It will try again, and your signature will go through either way.'
-      : turnstileFault === 'error' ? 'The anti-bot check would not run in this browser. Press the button once more, your signature will go through either way.'
-      : expired ? 'The anti-bot check expired while the form was open. It is running again, press the button once more.'
-      : 'The anti-bot check has not finished yet. Give it a moment and press the button again.'};
+      turnstileFault === 'blocked' ? 'The anti-bot check could not load. Press the button again to retry; you can still submit the signature if the check remains unavailable.'
+      : turnstileFault === 'error' ? 'The anti-bot check did not run in this browser. Press the button again; you can still submit the signature if the check remains unavailable.'
+      : expired ? 'The anti-bot check expired. It has restarted; press the button again.'
+      : 'The anti-bot check is still running. Wait a moment, then press the button again.'};
     render();
     return;
   }
@@ -1245,14 +1245,14 @@ function community() {
     return `${topbar()}<main class="community"><section class="community-gate">
       <p class="eyebrow"><span></span> COMMUNITY DESK</p>
       <h1>Sign in to <em>join.</em></h1>
-      <p class="lede">The community desk is where the message board, surveys, and petitions will live. The research notes stay open to everyone; an account connects you to the community side.</p>
+      <p class="lede">Sign in for the message board and surveys. Research notes and the petition are open to everyone.</p>
       <div class="hero-actions">${isConfigured() ? '<button data-login>Sign in or create an account <span>→</span></button>' : '<button disabled>Sign-in not configured yet</button>'}<button class="quiet" data-home>Back to the research desk</button></div>
     </section></main>${searchPanel()}`;
   }
   return `${topbar()}<main class="community"><section class="community-home">
     <p class="eyebrow"><span></span> COMMUNITY DESK</p>
     <h1>Welcome, <em>${escapeHtml((user.given_name || user.name || 'neighbor').split(' ')[0])}.</em></h1>
-    <p class="lede">This is the community side of the field desk. The features below are being built; the research notes remain open to everyone whether or not the community server is up.</p>
+    <p class="lede">Use the community tools below. Features marked “coming soon” are still in development; the public research notes remain available if the community server is offline.</p>
     <p class="server-status" id="server-status">CHECKING THE COMMUNITY SERVER…</p>
     <p class="stance-line">${stance
       ? `YOUR STANCE: ${stanceOptions.find((option) => option.key === stance)?.title.toUpperCase() || stance} · <button class="strip-link" data-survey-open>CHANGE</button>`
@@ -1274,7 +1274,7 @@ const surveyMandatory = () => !stance;
 function surveyPanel() {
   if (!surveyOpen) return '';
   const body = surveyState === 'thanks'
-    ? '<p class="survey-thanks">Thank you. Your answer helps the desk report where the community actually stands.</p>'
+    ? '<p class="survey-thanks">Thank you. Your answer helps the desk report community opinion.</p>'
     : `<div class="survey-options">${stanceOptions.map((option) => `<button data-stance="${option.key}" ${surveyState === 'saving' ? 'disabled' : ''} class="${option.key === stance ? 'current' : ''}"><b>${option.title}</b><span>${option.text}</span></button>`).join('')}</div>
        ${surveyState === 'error' ? '<p class="survey-error">Could not save your answer. Please try again.</p>' : ''}
        ${surveyState === 'saving' ? '<p class="survey-hint">SAVING…</p>' : surveyMandatory() ? '<p class="survey-hint">One tap, one time · required to use the desk while signed in · you can change your answer later</p>' : '<p class="survey-hint">One tap · you can change your answer any time from the community desk</p>'}`;

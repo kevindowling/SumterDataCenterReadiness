@@ -1,10 +1,10 @@
 # What still needs to be verified?
 
-## An honest note about the evidence
+## Limits of the evidence
 
-This report is built from the best public sources located so far. It does not have the complete project application, engineering package, utility commitments, or draft approval conditions. That means it can identify credible risks and show their possible scale, but it cannot honestly predict the final facility's impacts.
+This report draws from the public sources located so far. The complete project application, engineering package, utility commitments and draft approval conditions have not been found. The available evidence identifies risks and possible scale but cannot predict the final facility's impacts.
 
-This is not a reason to dismiss the questions. It is the reason commissioners should require answers before granting rights or approvals.
+Commissioners should obtain those answers before granting rights or approvals.
 
 ## Where the meetings are tracked
 
@@ -36,9 +36,9 @@ The [city permit limits](https://epd.georgia.gov/watershed-protection-branch-lis
 
 ### Electric load and utility upgrades
 
-[Statewide growth figures](https://psc.ga.gov/site/downloads/datacenterfactsheet.pdf) are documented. The project's IT load, total meter load, service date, transmission path, upgrade cost, and financial guarantees are not. Obtain the utility will-serve letter and full-buildout load schedule.
+[Statewide growth figures](https://psc.ga.gov/site/downloads/datacenterfactsheet.pdf) are documented. Planning materials identify a **400 MW IT load**, including a 100 MW Phase 1. Total meter load, service date, transmission path, upgrade cost and financial guarantees remain unknown. Obtain the utility will-serve letter and full-buildout load schedule.
 
-**Partly spoken to, not documented.** At the [August 4 community meeting](/meetings/2026-08-04-data-centers-are-coming/) a Georgia Power representative said from the floor that the utility had met with the developer and does have the ability to serve the load. Nothing in that statement is a substitute for a will-serve letter, and it supplies none of the figures listed above.
+**Addressed orally, but not documented.** At the [August 4 community meeting](/meetings/2026-08-04-data-centers-are-coming/), a Georgia Power representative said the utility had met with the developer and could serve the load. The statement gave none of the figures listed above and was not accompanied by a will-serve letter.
 
 ### Generators, fuel, and operating hours
 
@@ -54,7 +54,7 @@ The number, model, fuel, capacity, emission controls, and permitted hours of the
 
 ### Cooling, wells and sewer
 
-**Partly answered.** The agreement bars private water wells and private sanitary sewer, requires city water and sewer service, and prohibits open-loop and once-through cooling. It does not name the cooling equipment, and a closed circuit can still reject heat by evaporation. Obtain the equipment schedule and the water balance before treating §11 as a limit on consumption.
+**Partly answered.** The PDA agreement bars private water wells and private sanitary sewer, requires city water and sewer service, and prohibits open-loop and once-through cooling. It does not name the cooling equipment or cap consumption, and a closed circuit can still reject heat by evaporation. The city ordinance contains no water-use provision, so §11 is not enforceable by the city as a zoning standard. Obtain the equipment schedule, water balance and a city ordinance with measurable water requirements.
 
 ## Numbers that remain planning scenarios
 
@@ -64,11 +64,11 @@ The number, model, fuel, capacity, emission controls, and permitted hours of the
 - Facility electricity compared with provisional county consumption
 - Household solar and battery program totals
 
-These scenarios help residents understand scale and ask better questions. None is a forecast for Sumter County until the developer discloses the facility's actual design and operating plan.
+These scenarios illustrate scale. None is a Sumter County forecast without the facility's design and operating plan.
 
 ## How to use this note at the meeting
 
-Do not let an unanswered question be reframed as proof that there is no risk. Ask:
+For each unanswered question, ask:
 
 1. Who has the missing document?
 2. When will it be public?
@@ -77,4 +77,4 @@ Do not let an unanswered question be reframed as proof that there is no risk. As
 
 Each record listed above sits with an identifiable custodian and can be requested in writing under the Georgia Open Records Act, which sets a three-business-day response deadline. See [how to obtain the records and reach the officials](11-open-government.md), and the [contact page](/contact/) for the same roster with each official's published e-mail address.
 
-The honest conclusion today is not that every harm will occur. It is that the public record is not complete enough to know, and approval should not outrun the evidence.
+The public record is not complete enough to predict the project's effects. Approval should wait for the evidence needed to assess them.

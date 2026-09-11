@@ -22,7 +22,7 @@ export const petitions = [
     // bodies are listed: a reader who thinks a second signature is owed
     // somewhere else is a reader who leaves the page unsure they finished.
     signingNote:
-      'One signature, presented to both. Sign once here, or once on the paper copy; your name goes to the county and to the city. There is no second petition to sign.',
+      'One signature goes to both governments. Sign online or on paper, but not both.',
     // One sentence, used in link previews and the meta description.
     summary:
       'A petition asking the Sumter County Board of Commissioners and the Mayor and City Council of Americus each to adopt the joint 18-month moratorium on the zoning, rezoning, permitting and construction of data centers, so both governments can write an ordinance before either has to answer an application.',
@@ -31,10 +31,10 @@ export const petitions = [
     // repo and any change to it is visible in the file history.
     body: [
       'We, the undersigned residents of Americus and Sumter County, ask the Sumter County Board of Commissioners and the Mayor and City Council of the City of Americus each to adopt the joint resolution now in draft before them: an 18-month temporary moratorium on the zoning, rezoning, development, permitting and construction of data centers within their respective jurisdictions.',
-      'This is one petition to two governments. The draft is a single joint resolution, but each body adopts it for the ground it governs: the county for unincorporated Sumter County, the city for Americus. A data center refused on one side of that line and permitted on the other would draw on the same water, the same roads and the same power, so we are asking both, together. One signature is presented to both; nobody is asked to sign twice.',
+      'The joint resolution requires separate approval from both governments: the county for unincorporated Sumter County and the city for Americus. A data center permitted on either side of that boundary would use the same water, roads and power system. Each signature will be presented to both governments.',
       'Neither the State of Georgia, Sumter County, nor the City of Americus has any ordinance governing where data centers may be sited or how they must operate. Neither code of ordinances defines the term at all. Until they do, any application that arrives has to be judged under a zoning code written for something else.',
-      'The draft resolution asks for time, not a refusal. It would pause zoning, permitting and construction of data centers for 18 months from the day it is adopted, and directs the Planning and Zoning staff of both governments, the City Council, the Board of Commissioners, and outside experts to study the effects and draft the ordinance amendments the county and the city currently lack.',
-      'We are asking our elected officials to use that time before a decision has to be made, rather than after.',
+      'The draft resolution would pause data center zoning, permitting and construction for 18 months from the date of adoption. During that period, the planning and zoning staff, City Council, Board of Commissioners and outside experts would study the effects and draft ordinance amendments.',
+      'We ask our elected officials to complete that work before deciding an application.',
     ],
     // Local shorthand for the "what am I signing?" line above the form.
     ask: 'Pause data center zoning and permitting in the county and the city for 18 months, until both have an ordinance.',

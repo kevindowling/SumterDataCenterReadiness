@@ -22,7 +22,7 @@
 export const organizers = {
   group: 'Sumter County Citizens for Transparency',
   email: 'contact@scc4t.com',
-  blurb: 'Two neighbors keep this desk. Write to us about anything on the site: a correction, a document you think we should have, a question about the petition, or an offer to help.',
+  blurb: 'Two neighbors maintain this site. Send corrections, documents, petition questions or offers to help.',
   // Names as they appear on the group's own event flyer.
   people: [
     {name: 'Kirk Lyman-Barner', role: 'Organizer'},
@@ -30,7 +30,7 @@ export const organizers = {
   ],
   // What the group will and will not do with a message. Stated plainly because
   // the people most worth hearing from are the ones with the most to lose.
-  privacy: 'Messages come to the organizers, not to any government office. We do not publish a message, or your name, without asking you first.',
+  privacy: 'Messages go to the organizers, not a government office. We will ask before publishing your name or message.',
 };
 
 // --- The two governing bodies ------------------------------------------------
@@ -119,13 +119,13 @@ export const approach = [
     key: 'write',
     title: 'Write to them',
     time: '15 minutes',
-    summary: 'One e-mail, to your own district member first, in your own words.',
+    summary: 'Start with your district representative and write in your own words.',
     steps: [
-      'Write to the member who represents where you live, and copy the chairman or the mayor. A district member counts letters from their own district differently from a mass e-mail to everyone.',
-      'Put the ask in the first sentence ("please vote to adopt the 18-month data center moratorium"), then say who you are and where you live. Many officials read no further than the first line.',
-      'Give one concrete reason of your own: your well, your road, your power bill, your view. A reason nobody else can write for you is the one that gets quoted in a meeting.',
-      'Ask a direct question you want answered. A question obliges a reply in a way a statement does not.',
-      'Be civil and be brief. The people you are writing to are neighbors, and a letter that insults them gets forwarded as proof the opposition is unreasonable.',
+      'Write to the member who represents where you live, and copy the chairman or mayor. Identify your district so the official knows you are a constituent.',
+      'Put your request in the first sentence ("please vote to adopt the 18-month data center moratorium"), then give your name and where you live.',
+      'Give one concrete reason for your position, such as your well, road, power bill or view.',
+      'Ask a direct question that you want the official to answer.',
+      'Keep the message brief, civil and specific.',
     ],
     fineprint: 'Correspondence about county or city business held in an official\'s account is itself a public record under O.C.G.A. § 50-18-70(b)(2), including yours.',
   },
@@ -133,20 +133,20 @@ export const approach = [
     key: 'speak',
     title: 'Speak at a meeting',
     time: 'An evening',
-    summary: 'Five minutes at the podium, five speakers a night; sign up the same day.',
+    summary: 'City meetings allow five speakers for five minutes each; sign up the same day.',
     steps: [
       'Decide which body you are addressing. The city and the county meet separately, on different nights, and each votes only for the ground it governs.',
       'Get on the list early: only five people speak at a city meeting, and the sign-up sheet opens 30 minutes before.',
       'Write out what you will say and read it aloud once against a clock. Five minutes is about 600 words.',
-      'Bring a printed copy for the clerk. What is handed up becomes part of the record; what is only spoken can be summarized in the minutes.',
-      'Say your name and district at the start. The minutes have to identify who made and seconded each motion and how each member voted; your name in the record is the same kind of fact.',
+      'Bring a printed copy for the clerk so the full text can be retained with the meeting record.',
+      'State your name and district at the beginning.',
     ],
   },
   {
     key: 'ask',
     title: 'Ask for the records',
     time: 'Three business days',
-    summary: 'Any resident can demand the documents behind a decision, in writing, and get an answer on a clock.',
+    summary: 'Request the documents behind a decision and track the three-business-day response period.',
     steps: [
       'Send a written request to the agency\'s records custodian. Writing is not legally required, but only a written request carries the Act\'s enforcement provisions (§ 50-18-71(b)(3)).',
       'You do not have to say why you want it. Purpose is irrelevant to the right of access, and the right extends to requesters outside Georgia (§ 50-18-71(a)).',
@@ -183,7 +183,7 @@ export const rights = [
     detail: 'A meeting agenda must be made available on request under § 50-14-1(e)(1). That takes an e-mail, not a formal records request.',
   },
   {
-    title: 'Somewhere to complain',
+    title: 'Help with a denial',
     detail: 'The Attorney General runs an Open Government Mediation Program for records denials and closed meetings: (404) 656-7298. A filed complaint is itself an open record and may be shared with the agency it names.',
   },
 ];
@@ -317,7 +317,7 @@ export function contactSections() {
   return `<header class="contact-head">
       <p class="eyebrow"><span></span> CONTACT</p>
       <h1>Who to reach, <em>and how.</em></h1>
-      <p class="lede">Every vote on this project is cast by someone with a name, a district and a published e-mail address. This page is the shortest route from a concern to the person who can act on it.</p>
+      <p class="lede">Find your commissioner or council member, their published contact information, meeting rules and instructions for requesting public records.</p>
     </header>
     ${organizerBlock()}
     <section class="contact-bodies">

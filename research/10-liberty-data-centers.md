@@ -1,12 +1,12 @@
 # Liberty Data Centers - what the public record shows
 
-**Compiled:** July 26, 2026. **Updated:** August 8, 2026, with the company's first public appearance in Americus. **Method:** primary sources only - domain registration records (RDAP), the company's own website source code, the Internet Archive, DNS records, the published pages of a third-party investor, and the recording of a public meeting. Every finding below is reproducible by anyone with a browser. Items that could not be verified are listed separately under "Not established" and "Blocked".
+**Compiled:** July 26, 2026. **Updated:** August 8, 2026, after the company's first public appearance in Americus. **Method:** primary sources only - domain registration records (RDAP), the company's website source code, the Internet Archive, DNS records, a third-party investor's published pages and a public-meeting recording. Unverified items are listed under "Not established" and "Blocked."
 
-This note addresses one of the gaps named in the [report README](README.md): who is behind the proposal. As of August 4, 2026 that gap is largely closed: Tony and Paul Di Benedetto, of Toronto, answered for Liberty at a public meeting in Americus, and Tony Di Benedetto's firm is the investor named in the documentary trail below. What remains open is narrower and more specific - the company itself still publishes no officer, no project, and no corporate registration that could be located.
+Tony and Paul Di Benedetto, of Toronto, answered for Liberty at an Americus public meeting on August 4, 2026. Tony Di Benedetto's firm is also the investor named in the records below. Liberty still publishes no officers or projects, and no corporate registration has been located.
 
 ## Three companies, one project
 
-The contracts name different entities, and the difference is on the record.
+The available contracts name three different entities.
 
 | Entity | Where it appears | Form |
 |---|---|---|
@@ -14,7 +14,7 @@ The contracts name different entities, and the difference is on the record.
 | **Liberty Data Centers Corp.** | The buyer in the [purchase and sale agreement](/research/liberty-purchase-agreement-unexecuted.pdf) | A corporation organized in **Ontario, Canada**, per ¶8(a) |
 | **Liberty Data Centers** | The public brand: website, LinkedIn, press releases | No legal form stated anywhere |
 
-The purchase agreement sends notices to **Tony Di Benedetto** at 76 Creedmore Court, Kleinburg, Ontario, with Krevolin & Horst of Atlanta as counsel. That is the first primary document naming him as the contact for a Liberty contract, rather than as a speaker at a meeting or a name on an investor's portfolio page.
+The purchase agreement sends notices to **Tony Di Benedetto** at 76 Creedmore Court, Kleinburg, Ontario, with Krevolin & Horst of Atlanta as counsel. It is the first primary document located that names him as the contact for a Liberty contract.
 
 Paragraph 16 of that agreement permits assignment to an affiliate on 30 days' written notice, which is the ordinary way an Ontario buyer's rights become a Georgia LLC's title. The assignment notice itself has not been located.
 
@@ -273,7 +273,7 @@ Two things it does not settle. It does not establish what office, if any, either
 | They have made ten to fifteen trips to Americus since | Not independently checked |
 | Conversations with local economic development turned into this proposal | The [agreement](09-development-agreement.md) with the Payroll Development Authority is dated July 1, 2026 |
 | The build is about $5 billion, with perhaps $10 billion of customer equipment inside it | No investment figure of any size appears in the agreement, which commits four phases, a 30-year operating covenant, and 150 jobs |
-| It is small by industry standards, not a 400 MW Meta or Google campus | No megawatt figure has been published anywhere, by the company or in the agreement |
+| It is small by industry standards, not a 400 MW Meta or Google campus | Later planning material presented on September 8 identifies the Liberty campus as a 400 MW IT load. The signed agreement contains no megawatt figure |
 | They are not using water | No cooling design has been published. §11 of the agreement bars open-loop cooling but does not cap consumption, and a closed circuit can still evaporate - see [note 02](02-water.md) |
 | They have a customer | The customer was not named. The end user of the compute remains the largest open question in this report |
 | If they do not spend what they said and create the jobs they said, they give the land back and pay a substantial premium over what they paid | They paid $1.00. The agreement's only monetary remedy for default is reimbursement of the land's agreed $469,000 value, in two halves - see [note 09](09-development-agreement.md) |

@@ -105,7 +105,7 @@ export const COMMENT = {
   },
   unknown: {
     label: 'Public comment not confirmed',
-    body: 'This body has not published how public comment works at this meeting. The meeting is open to the public either way (Georgia law requires that), but whether you may address it, and how to get on the list, is unconfirmed.',
+    body: 'This body has not published public-comment rules for this meeting. The meeting is open to the public, but the right to address the body and the sign-up procedure are unconfirmed.',
   },
 };
 
@@ -163,7 +163,7 @@ export const MEETING_ROWS = [
     time: '18:00',
     status: 'confirmed',
     speak: 'open',
-    summary: 'A company is proposing to build a large-scale data center in Americus. Before decisions get made, our community deserves to understand what that means for us: our water, our power bills, our land, and our future.',
+    summary: 'A community meeting on the proposed large-scale data center in Americus and its possible effects on water, power bills, land and local government.',
     topics: [
       'Water usage & local supply impacts',
       'Electricity demand & utility rates',
@@ -271,7 +271,7 @@ export const MEETING_ROWS = [
     speak: 'open',
     venue: 'Magnolia Manor Nursing Auditorium',
     address: 'Rosalynn Carter Health and Human Sciences Complex, Georgia Southwestern State University, 800 GSW State University Drive, Americus, GA 31709',
-    summary: 'A follow-up to the August 4 meeting that filled the library. This one is about what has come back since: what is known so far about the wetlands on the site, what the group\'s open records request turned up, and what residents can do with both.',
+    summary: 'A follow-up to the August 4 meeting, covering the site wetlands, records obtained through an open records request and possible next steps for residents.',
     topics: [
       'What we know so far about the wetlands',
       'Findings from our open records request',

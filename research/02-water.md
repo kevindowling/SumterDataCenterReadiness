@@ -2,7 +2,7 @@
 
 ## Short answer
 
-Possibly, but the outcome depends almost entirely on the cooling design and full-buildout load. A dry-cooled campus and an evaporatively cooled campus can have radically different water demands.
+Yes, if the planned 400 MW IT load uses evaporative heat rejection. Dry and evaporative cooling have very different water requirements, and the final cooling design has not been published.
 
 ## The local baseline
 
@@ -14,9 +14,9 @@ Possibly, but the outcome depends almost entirely on the cooling design and full
 | City withdrawal in 2020 | 2.22 MGD | [Historical USGS figure](https://www.usgs.gov/data/estimate-georgia-water-use-data-county-2020), not current 2026 demand |
 | Advertised water-plant capacity | 7 MGD | Treatment rating; not the same as permitted or sustainable withdrawal |
 
-Using the advertised 2.5 MGD demand, the simple difference below the annual permit limit is about **1.25 MGD**. That is only arithmetic. It does not prove that 1.25 MGD is available after peak demand, leakage, fire flow, drought, existing commitments, or well limitations.
+The advertised 2.5 MGD demand is about **1.25 MGD** below the annual permit limit. That arithmetic does not account for peak demand, leakage, fire flow, drought, existing commitments or well limitations.
 
-## Cooling designs in plain language
+## Cooling designs
 
 ### Dry cooling
 
@@ -28,11 +28,11 @@ A cooling tower rejects heat by evaporating water. It continuously needs makeup 
 
 ### What the agreement already settles, and what it does not
 
-The [signed development agreement](09-development-agreement.md) prohibits open-loop and once-through cooling and requires closed-loop cooling or other technology “designed to minimize water consumption” (§11). It also bars private water wells and private sanitary sewer, requiring Liberty to apply to the City of Americus for service (§5(C)). That rules out the most water-hungry design and puts the demand on the city system rather than on private wells.
+The [signed development agreement](09-development-agreement.md) prohibits open-loop and once-through cooling and requires closed-loop cooling or other technology “designed to minimize water consumption” (§11). It also bars private water wells and private sanitary sewer, requiring Liberty to apply to the City of Americus for service (§5(C)). These terms rule out once-through cooling and place demand on the city system instead of private wells.
 
-It does not cap consumption. “Closed-loop” describes the circuit, not the water use, and a closed circuit can still reject its heat by evaporation, exactly the case described above. The number that would settle this is the water balance, which the agreement does not contain.
+The agreement does not cap consumption. “Closed-loop” describes the circuit, and a closed circuit may still reject heat through evaporation. The agreement contains no water balance.
 
-The [draft ordinance passed by the Zoning Committee](/research/ordinance-draft-zoning-committee-2026-08-18.pdf) on August 18, 2026 does not mention water use at all: no cooling technology, no source, no balance, no capacity certification. Whatever protection exists on water currently comes only from §11 of the development agreement above, not from zoning.
+The [draft ordinance passed by the Zoning Committee](/research/ordinance-draft-zoning-committee-2026-08-18.pdf) on August 18, 2026 does not mention water use: no cooling technology, source, water balance, consumption limit or capacity certification. Section 11 of the PDA agreement is a contract term, not a city zoning standard. The city therefore cannot enforce it through this ordinance. Any contractual enforcement available to the PDA is separate from city code enforcement.
 
 ## Scale scenario, not a project forecast
 
@@ -50,10 +50,11 @@ That table is indexed by tons, and a data center is described in megawatts, so g
 | 50 MW | 0.62–0.78 MGD | 227–284 million gal. |
 | 100 MW | 1.25–1.56 MGD | 455–569 million gal. |
 | 200 MW | 2.49–3.12 MGD | 0.91–1.14 billion gal. |
+| 400 MW | 4.98–6.24 MGD | 1.82–2.28 billion gal. |
 
-Worked example, so the whole row can be checked: 25 MW × 284 tons/MW = 7,108 tons; at 43.8 gal/ton/day that is 311,000 gallons a day, and at 54.8 it is 389,000. The annual column is simply the daily figure times 365.
+For the 25 MW row: 25 MW × 284 tons/MW = 7,108 tons. At 43.8 gal/ton/day, that is 311,000 gallons a day; at 54.8, it is 389,000. The annual column multiplies the daily figure by 365.
 
-These figures assume full load around the clock and assume every watt of IT heat is rejected through the tower. Weather, utilization, economizers, auxiliary heat, and hybrid or partly dry designs all change the result. A design that rejects part of its heat to air uses correspondingly less water.
+These figures assume full load around the clock and that every watt of IT heat is rejected through the tower. The 400 MW row applies the published project IT load to the same DOE method; it is a cooling-tower scenario, not a water forecast. Weather, utilization, economizers, auxiliary heat, and hybrid or partly dry designs all change the result. A design that rejects part of its heat to air uses correspondingly less water.
 
 ## Other water risks
 

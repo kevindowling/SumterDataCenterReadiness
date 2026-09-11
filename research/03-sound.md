@@ -2,7 +2,7 @@
 
 ## Short answer
 
-Yes, depending on equipment, distance, terrain, weather, and mitigation. The most defensible concern is persistent audible or near-audible low-frequency hum, not a claim that inaudible infrasound has been proven to cause a broad list of diseases.
+Yes, depending on the equipment, distance, terrain, weather and mitigation. Evidence supports concern about persistent low-frequency hum. It does not establish that inaudible data-center infrasound causes a broad range of diseases.
 
 ## Why one dBA number is not enough
 
@@ -44,7 +44,7 @@ Low frequencies have long wavelengths, about 56 feet at 20 Hz and 18 feet at 63 
 
 The [signed development agreement](09-development-agreement.md) requires noise to be measured at the property line with industry-standard meters against federal, state, EPD and City of Americus limits, and requires corrective measures if a governmental entity finds an exceedance (§9). It separately preserves the city's power to enforce its own ordinances on sound, vibration, buffers, and outdoor lighting (§5(B)).
 
-Both provisions point at limits the city has not yet written, and neither states a decibel figure. That is what makes the list below the operative question rather than a wish list. It is what those ordinances would need to contain. Sessions where an ordinance could be taken up are on the [public meeting calendar](/meetings/).
+Neither provision states a decibel limit, and the city has not yet adopted one for data centers. An effective ordinance would need the protections below. Possible meeting dates are on the [public meeting calendar](/meetings/).
 
 - No exemption for cooling or HVAC equipment
 - Cumulative limits covering every phase and generator

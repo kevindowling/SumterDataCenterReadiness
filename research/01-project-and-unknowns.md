@@ -1,12 +1,12 @@
-# What is actually proposed?
+# What is proposed?
 
 ## Short answer
 
-Not enough has been made public to calculate this project's environmental footprint.
+The project is planned as a **400 MW IT load** across four buildings, but not enough engineering information has been made public to calculate its environmental footprint.
 
 **What is documented:** the [signed development agreement](09-development-agreement.md) of July 1, 2026 identifies the developer as **Liberty GA USA LLC**, the site as about 102 acres on Swett Avenue (tax parcel 64-17), and the buildout as four phases running through December 2033, with a "Data Center Campus" defined as approximately 400,000 square feet or more of gross floor area.
 
-**What that document does not contain:** a megawatt figure, a water demand figure, a decibel limit, a generator schedule, or a utility will-serve letter. The contract commits Liberty to standards; it does not disclose the engineering. The gap below is therefore narrower than it was, and still decisive.
+**What that document does not contain:** a megawatt figure, water-demand figure, decibel limit, generator schedule or utility will-serve letter. A separate, unexecuted purchase agreement identifies Phase 1 as 100 MW, and the September 8 community presentation identifies the four-building plan as a 400 MW IT load.
 
 ## What the developer has drawn
 
@@ -19,9 +19,9 @@ Not enough has been made public to calculate this project's environmental footpr
 </figure>
 ```
 
-This is the only picture of the project in any document on this desk. It matches the four phases in the signed agreement, and it shows a substation on site. It is a marketing rendering, not a site plan: there is no layout, no elevation, no acreage, and nothing that can be measured against [the 59% of the tract that is wetland](14-what-can-actually-be-built.md).
+This is the only project image found in the available documents. It shows the agreement's four phases and an on-site substation. As a marketing rendering, it provides no dimensions, elevations or acreage that can be compared with [the 59% of the tract delineated as wetland](14-what-can-actually-be-built.md).
 
-## The decision officials are really making
+## What an approval would cover
 
 A land-use approval can authorize a category of development long before the operator selects equipment. If the approval does not define full buildout, later phases may be much larger than the version discussed at the first meeting.
 
@@ -35,7 +35,7 @@ The enforceable project description should include:
 | Final heat-rejection design | Determines whether cooling is dry, wet, or hybrid |
 | Average-day and peak-day water demand | Tests ordinary and drought capacity |
 | Generator inventory and operating hours | Distinguishes backup equipment from a power plant |
-| Utility will-serve letters | Shows whether water, sewer, power, and gas capacity actually exist |
+| Utility will-serve letters | Shows whether water, sewer, power, and gas capacity exist |
 
 ## Do not confuse these quantities
 
@@ -48,6 +48,8 @@ The enforceable project description should include:
 ## Safe public statement
 
 > The available public information is insufficient to predict this project's water use, noise, emissions, or electricity demand. Those impacts depend on full-buildout load, cooling design, utility commitments, and generator operation, all of which should be disclosed before approval.
+
+The published planning figure is 400 MW of IT load. The additional power required for cooling, pumps, lighting and conversion losses remains undocumented.
 
 ## Records to obtain first
 

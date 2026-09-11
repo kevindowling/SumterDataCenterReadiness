@@ -2,7 +2,7 @@
 
 ## Short answer
 
-Occasional emergency backup is different from regular generation. If engines or turbines run for months because grid service is delayed or inadequate, the campus is functioning as an on-site power plant regardless of labels such as “temporary” or “mobile.”
+Occasional emergency backup has different effects from regular generation. Engines or turbines running for months because grid service is delayed or inadequate would function as an on-site power plant, even if described as “temporary” or “mobile.”
 
 ## Three numbers officials need
 
@@ -22,7 +22,7 @@ A representative [Caterpillar 3516B](https://turnkey-industries.com/wp-content/u
 | Direct CO₂ per year | 650,000 metric tons |
 | Passenger-car CO₂ equivalent | 140,000 typical cars |
 
-This is an around-the-clock scale illustration, not an Americus project forecast.
+This scenario assumes continuous operation and is not a forecast for the Americus project.
 
 ## Natural-gas turbine scale scenario
 
@@ -38,13 +38,13 @@ A representative [16.53 MW turbine](https://www.solarturbines.com/en_US/products
 
 [Natural gas usually emits less direct CO₂](https://www.eia.gov/environment/emissions/co2_vol_mass.php), particulate matter, and sulfur pollution than diesel per unit of electricity, but it still emits NOx, CO, VOCs, hazardous pollutants, and CO₂. Upstream methane is outside the stack calculation.
 
-## Local health cannot be reduced to “cars”
+## Limits of the car comparison
 
 The [car comparison](https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle) describes annual CO₂ scale only. Cars spread emissions over many roads; a generator plant concentrates emissions at one property. Local health analysis requires unit-specific emission rates, stack heights, operating hours, weather, and dispersion modeling for NO₂, particulate matter, CO, VOCs, and hazardous pollutants.
 
 ## Questions that close the loopholes
 
-The [signed development agreement](09-development-agreement.md) states that backup generators “shall be used only in emergency situations” and limits routine testing to 8:00 a.m. through 6:00 p.m., Monday through Friday (§10). It does not define “emergency,” does not cap how many days testing may occur, and does not name a single engine, fuel, or emission control. That is the gap the questions below are written to close.
+The [signed development agreement](09-development-agreement.md) states that backup generators “shall be used only in emergency situations” and limits routine testing to 8:00 a.m. through 6:00 p.m., Monday through Friday (§10). It does not define “emergency,” cap annual testing days or identify the engines, fuel and emission controls. The following conditions would supply those details.
 
 The [draft ordinance passed by the Zoning Committee](/research/ordinance-draft-zoning-committee-2026-08-18.pdf) on August 18, 2026 says nothing about on-site generation either: no emergency definition, no hour limits, and nothing addressing "bring your own generation," a data center building or contracting its own dedicated generating capacity instead of waiting on utility interconnection. If the project goes that route, this draft would not regulate it as the power plant it would be.
 

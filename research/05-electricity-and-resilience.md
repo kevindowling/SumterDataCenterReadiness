@@ -2,7 +2,7 @@
 
 ## Short answer
 
-A large data center can equal or exceed the average electricity use of an entire county. That does not automatically mean it will cause local blackouts. The real questions are whether firm generation and transmission capacity exist, who pays for upgrades, and whether the facility rides through ordinary voltage disturbances instead of disconnecting abruptly.
+A large data center can equal or exceed the average electricity use of an entire county. Local reliability depends on available generation and transmission capacity, responsibility for upgrades, and whether the facility can ride through ordinary voltage disturbances without disconnecting abruptly.
 
 ## County comparison, with a source warning
 
@@ -15,15 +15,15 @@ A [commercial data aggregator](https://findenergy.com/ga/sumter-county-electrici
 | 150 MW | 1,314,000 MWh | 3.23× |
 | 300 MW | 2,628,000 MWh | 6.46× |
 
-These are arithmetic scenarios. The Americus project load is unknown.
+These are arithmetic comparisons. The planned **400 MW IT load** is about **8.6 times** the third-party estimate of Sumter County's average load. Cooling, pumps, lighting and conversion losses would place total facility demand above 400 MW.
 
-At the August 4, 2026 community meeting a Georgia Power representative answered from the floor that the utility had met with the developer and does have the ability to serve the load ([recording and summary](/meetings/2026-08-04-data-centers-are-coming/)). That is a statement made in a room, not a will-serve letter: it names no megawatt figure, no service date, and no allocation of upgrade cost.
+At the August 4, 2026 community meeting, a Georgia Power representative said the utility had met with the developer and could serve the load ([recording and summary](/meetings/2026-08-04-data-centers-are-coming/)). No will-serve letter accompanied the statement, which gave no service date or allocation of upgrade cost. Other planning material identifies 400 MW as the project's IT load.
 
-## What has actually happened on the grid
+## Documented grid events
 
 [NERC documented](https://www.ferc.gov/sites/default/files/2025-04/Presentation%20NERC%20Seeks%20to%20Address%20Reliability%20Impacts%20from%C2%A0Large%20Load%20Integration_1.pdf) simultaneous losses of approximately **1,500 MW** and **1,800 MW** of Northern Virginia data-center load following voltage disturbances. The initiating transmission faults were not necessarily caused by the data centers. The reliability problem was that many facilities reacted together, suddenly leaving generation greater than demand.
 
-That distinction matters: high consumption creates planning and cost challenges; synchronized disconnection creates a separate operational challenge.
+High consumption creates planning and cost challenges. Synchronized disconnection creates a separate operational risk.
 
 ## Georgia context
 
@@ -47,7 +47,7 @@ The report's recommended community benefit is a developer-funded portfolio, not 
 
 Funding scales with the project instead of being a fixed demand: an illustrative **$500,000–$1,000,000 per approved MW** base endowment deposited phase by phase, an annual per-MWh operating contribution, and adders triggered by measured impacts (generator runtime beyond emergency limits, attributed power-quality events, residential curtailments). At 100 MW that implies a **$50–100 million** base plus ongoing contributions.
 
-The program is also a local jobs program. Auditing, weatherizing, rewiring, roofing, and installing solar and batteries on hundreds of homes is years of hands-on work for electricians, roofers, HVAC technicians, and weatherization crews, work that must be done here and cannot be automated or staffed remotely. The agreement should require local-hire and apprenticeship commitments in the competitive procurement so the training and paychecks stay in Sumter County.
+The program would also create local work in energy audits, weatherization, wiring, roofing, HVAC, solar and battery installation. Competitive procurement should include local-hire and apprenticeship requirements.
 
 
 ## Conditions that matter even without a household grant

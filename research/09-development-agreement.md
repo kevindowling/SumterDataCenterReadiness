@@ -1,14 +1,14 @@
-# What does the signed agreement actually commit?
+# What does the signed agreement commit?
 
 ## Short answer
 
 There is a signed contract. On **July 1, 2026** the **Americus-Sumter Payroll Development Authority** and **Liberty GA USA LLC** executed an Economic Development Agreement covering a four-phase data center campus on about **102 acres on Swett Avenue**, tax parcel **64-17**. The full scanned document is mirrored here: [Economic Development Agreement, PDA and Liberty GA USA LLC](/research/pda-liberty-development-agreement.pdf) (11 pages, PDF).
 
-Everything below is a reading of that document, with the paragraph numbers so any statement can be checked against the page. This desk has not compared its copy against the Authority's own file copy; anyone can request that under the [Open Records Act](11-open-government.md).
+The analysis below cites paragraph numbers so each statement can be checked against the document. The Field Desk has not compared this scan with the Authority's file copy, which is available by request under the [Open Records Act](11-open-government.md).
 
 ## What the agreement settles
 
-Much of what this report has listed as unknown is now on paper.
+The agreement resolves several questions previously listed as unknown.
 
 | Question | What the agreement says | Where |
 |---|---|---|
@@ -41,7 +41,7 @@ The sequence, from primary documents:
 | July 22, 2026 | The Authority deeds the land to Liberty GA USA LLC | [Deed](/research/liberty-limited-warranty-deed-2026-07-22.pdf) |
 | July 23, 2026 | The deed is recorded | Deed Book 1806, Page 746 |
 
-Three details in the deed are worth naming.
+The deed contains three notable details.
 
 **It says the wrong county.** The granting clause conveys land "lying, being and situated in the County of **Gwinnett**." The caption, the parcel ID, and the metes and bounds in Exhibit A all describe Sumter County, parcel 64-17. This is a drafting error. Under Georgia law a specific legal description ordinarily controls over a mistaken general recital, so the conveyance is not in doubt. But the error is now in the county's permanent land records, and correcting it takes a corrective deed.
 
@@ -55,21 +55,21 @@ Three details in the deed are worth naming.
 
 Its buyer is not the company that took title. The buyer is **Liberty Data Centers Corp., a corporation organized in Ontario, Canada**, with notices to **Tony Di Benedetto** at a Kleinburg, Ontario address and Krevolin & Horst of Atlanta as counsel. Paragraph 16 lets the buyer assign the agreement to an affiliate on 30 days' written notice. The deed three weeks later runs to Liberty GA USA LLC, a Georgia company. See [who is behind the proposal](10-liberty-data-centers.md).
 
-Four terms matter:
+Four terms affect the parties' obligations:
 
 - **The Authority can take the land back for $1.00** if the City of Americus refuses a rezoning the project needs, or if Liberty cannot get its permits, water, sewer, wastewater or electrical service. ¶22
 - **Liberty can hand the land back for $1.00** at any time, in its sole discretion, and require the Authority to buy it. Exhibit B
 - **The penalty for failing to develop is blank.** Exhibit B reads "Buyer shall pay Seller $___ each week/month until the default has been reasonably cured." No figure was filled in.
 - **The Authority's Executive Director is a licensed real estate broker.** ¶11 discloses that Rusty Warner holds Georgia license 164935, states he has no interest in the transaction, and that no brokerage fee is charged.
 
-Exhibit B also puts numbers to Phase 1 that the development agreement does not: **100 MW**, about 24 months, roughly 500 construction jobs and 200 permanent positions, and $1-5 billion across all phases. It is a preliminary schedule attached to an unexecuted draft, so it carries less weight than the signed agreement. It is still the only place a megawatt figure appears in any document on this desk.
+Exhibit B also puts numbers to Phase 1 that the development agreement does not: **100 MW**, about 24 months, roughly 500 construction jobs and 200 permanent positions, and $1-5 billion across all phases. It is a preliminary schedule attached to an unexecuted draft, so it carries less weight than the signed agreement. The September 8 community presentation identifies the full four-building plan as a **400 MW IT load**.
 
 ## The operating conditions
 
-These are the clauses a resident will care about most, and they are real commitments rather than talking points.
+The following clauses impose operating requirements:
 
 - **No private wells, no private sewer.** Liberty "shall not construct or utilize water wells" and shall not build its own sanitary sewer. It must apply to the City of Americus for water and sewer service. §5(C)
-- **No open-loop cooling.** Closed-loop cooling or other technologies "designed to minimize water consumption" are required; open-loop and once-through systems are prohibited. §11
+- **No open-loop cooling under the PDA agreement.** Closed-loop cooling or other technologies "designed to minimize water consumption" are required; open-loop and once-through systems are prohibited. The city ordinance contains no matching water-use standard, so the city cannot enforce this term through zoning. §11
 - **Generators for emergencies only.** Routine testing is limited to 8:00 a.m. to 6:00 p.m., Monday through Friday, and backup generators "shall be used only in emergency situations." §10
 - **Noise measured at the property line**, using industry-standard meters, against federal, state, EPD and City of Americus limits. If a governmental entity finds an exceedance, the operator must take corrective measures. §9
 - **Lighting shielded and directed downward** to limit glare and spillover onto adjacent property. §12
@@ -81,7 +81,7 @@ These are the clauses a resident will care about most, and they are real commitm
 
 A commitment to a standard is not a number. None of the following appears anywhere in the document:
 
-- IT load or total meter load, in megawatts, at any phase
+- Total meter load above the planned 400 MW IT load
 - Water demand, whether average day, peak day, or annual, or a water balance
 - The specific cooling equipment. "Closed-loop" describes the circuit, not the water use; closed-circuit coolers can still be evaporative, so §11 does not by itself cap consumption
 - Generator count, size, fuel, emission controls, or an annual hour limit. "Emergency situations" is not defined, and testing hours are limited without a cap on testing days
@@ -91,9 +91,7 @@ A commitment to a standard is not a number. None of the following appears anywhe
 
 The **Innovation Center** and "Americus Tech Campus" are defined at length in §1(D) as a workforce, education, and innovation ecosystem, but that paragraph carries no square footage, no dollar figure, no staffing level, and no completion test separate from Phase One.
 
-## Enforcement: what actually happens if the promises are not kept
-
-This is where the document repays close reading.
+## Enforcement if the promises are not kept
 
 **The clawback protects the land.** §15 gives the Authority an absolute option to repurchase the property for $1.00 if the city declines a needed rezoning, if Liberty cannot or will not obtain its permits and utility connections, if Liberty decides the site is unsuitable, or if Liberty fails to begin actual construction within **18 months** of closing. Closing on a repurchase happens within 30 days, by limited warranty deed, free of liens. §15(B) has Liberty waive and release any claim against the Authority arising from its own failure to perform.
 
@@ -103,9 +101,9 @@ This is where the document repays close reading.
 
 **The counterparty can change without consent.** §24 (Binding Agreement; Assignment) bars assignment to a third party without written consent, but expressly allows Liberty to assign to an affiliate on 30 days' written notice, with the affiliate assuming the obligations. An affiliate is anything under common control.
 
-**Nothing said in a meeting counts.** The merger clause at §25 states that the document is the sole and entire agreement and that there are "no oral or written representations, understandings, promises, covenants, inducements, or agreements" outside it. Assurances given from a podium are not enforceable; only the text is.
+**Outside assurances are not part of the agreement.** The merger clause at §25 states that the document is the sole and entire agreement and that there are "no oral or written representations, understandings, promises, covenants, inducements, or agreements" outside it. Only terms in the contract are enforceable under that clause.
 
-**The term outlives everything else.** §20 runs the agreement until the data center "is completely closed and ceases operation." Georgia law governs, and any litigation is to be filed in the Superior Court of Sumter County. §18, §19
+**The term runs through closure.** §20 keeps the agreement in effect until the data center "is completely closed and ceases operation." Georgia law governs, and any litigation is to be filed in the Superior Court of Sumter County. §18, §19
 
 ## Two things to read carefully
 
@@ -130,4 +128,4 @@ See [how to obtain the records and reach the officials](11-open-government.md) f
 
 ## Safe public statement
 
-> A signed development agreement exists. It fixes the site, the phasing, the buildout floor, a 30-year operating covenant, and a set of real conditions: city water and sewer instead of private wells, no open-loop cooling, emergency-only generators, shielded lighting, and noise measured at the property line. It does not state a single megawatt, gallon, or decibel, its only monetary remedy for default is the $469,000 value of the land, and its merger clause means nothing promised outside the page is binding.
+> The signed development agreement fixes the site, phasing, buildout floor, 30-year operating covenant and several operating conditions. Other planning material identifies a 400 MW IT load, but the agreement states no megawatt, gallon or decibel limit. Its water terms bind the parties to the PDA agreement; the city ordinance contains no matching water-use standard. The agreement's only monetary remedy for default is the $469,000 value of the land, and its merger clause excludes promises made outside the contract.
