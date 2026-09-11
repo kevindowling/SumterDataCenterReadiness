@@ -226,13 +226,18 @@ table.map-popup td{padding:3px 0;vertical-align:top}
    grow taller than the viewport on a narrow screen. */
 .recap-well{position:relative;aspect-ratio:9/16;max-height:min(78vh,660px);margin-inline:auto;border:1px solid var(--ink);background:var(--ink);box-shadow:10px 10px 0 #171a1814;overflow:hidden}
 .recap-well>*{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* An embed that cannot scale to its frame, so the frame goes to it. See the
+   Facebook entry in meetings.js: the 280 here and the 280 there are one
+   number, and the height cap is off because shrinking the well below that
+   width is what clips the player. */
+.recap-well-fixed{width:280px;max-height:none}
 .recap-play{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;background:var(--ink);color:var(--light);text-align:center;cursor:pointer;font:inherit}
 .recap-play-glyph{display:grid;place-items:center;width:64px;height:64px;border:1px solid var(--light);border-radius:50%;font-size:21px;padding-left:5px}
 .recap-play:hover .recap-play-glyph{background:var(--orange);border-color:var(--orange)}
 .recap-play-label{font-size:21px;font-weight:600;line-height:1.15}
 .recap-play-meta{color:#fdfcf8a6;font:500 9px/1.4 var(--mono);letter-spacing:.1em}
-.recap-youtube{display:block;margin-top:14px;color:var(--muted);font:500 9px/1 var(--mono);letter-spacing:.1em;text-align:center;text-decoration:none}
-.recap-youtube:hover{color:var(--ink)}
+.recap-watch{display:block;margin-top:14px;color:var(--muted);font:500 9px/1 var(--mono);letter-spacing:.1em;text-align:center;text-decoration:none}
+.recap-watch:hover{color:var(--ink)}
 .recap-deck{display:block;margin-top:30px;padding:20px;border:1px solid var(--ink);background:var(--light);text-decoration:none;box-shadow:6px 6px 0 #171a1814}
 .recap-deck small{display:block;color:var(--orange);font:500 8px/1 var(--mono);letter-spacing:.13em}
 .recap-deck b{display:block;margin-top:9px;color:var(--ink);font-size:20px;font-weight:600;line-height:1.15}
@@ -311,6 +316,42 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .recap-note h4 small{color:var(--orange);font:500 8px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase}
 .recap-note p{margin:8px 0 0;font-size:16px;line-height:1.62}
 .recap-note-source a{color:var(--ink);font:500 9px/1 var(--mono);letter-spacing:.1em;text-decoration:none;border-bottom:1px solid var(--orange);padding-bottom:3px}
+/* The slide deck. One column of slides, each the picture and the words that
+   were on it; the reading width is set on the text, not the page, so a
+   1600px-wide slide can still be seen at a usable size. */
+.deck{max-width:1000px;margin:0 auto;padding:40px clamp(20px,5vw,60px) 90px}
+.deck-head{padding-bottom:34px;border-bottom:1px solid var(--ink)}
+.deck-head h1{margin:14px 0 0;font-size:clamp(34px,4.2vw,56px);font-weight:600;line-height:1;letter-spacing:-.04em}
+.deck-head .lede{max-width:700px;margin:18px 0 0;font-size:17px;line-height:1.5}
+.deck-by{margin:16px 0 0;color:var(--muted);font:500 10px/1.6 var(--mono);letter-spacing:.08em}
+.deck-by a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--orange);padding-bottom:2px}
+.deck-pdf{display:block;margin-top:28px;padding:20px;border:1px solid var(--ink);background:var(--light);text-decoration:none;box-shadow:6px 6px 0 #171a1814}
+.deck-pdf small{display:block;color:var(--orange);font:500 8px/1 var(--mono);letter-spacing:.13em}
+.deck-pdf b{display:block;margin-top:9px;color:var(--ink);font-size:20px;font-weight:600;line-height:1.15}
+.deck-pdf span{display:block;margin-top:6px;color:var(--muted);font-size:14px;line-height:1.5}
+.deck-pdf:hover{background:var(--ink)}
+.deck-pdf:hover b{color:var(--light)}
+.deck-pdf:hover span{color:#fdfcf8a6}
+.deck-note{max-width:74ch;margin:22px 0 0;color:var(--muted);font-size:14px;line-height:1.55}
+.deck-slides{margin:0;padding:0;list-style:none}
+.deck-slide{padding:38px 0;border-bottom:1px solid #171a1826}
+.deck-number{margin:0 0 14px}
+.deck-number a{color:var(--muted);font:500 10px/1 var(--mono);letter-spacing:.13em;text-decoration:none}
+.deck-number a:hover{color:var(--orange)}
+.deck-figure{margin:0}
+.deck-figure img{display:block;width:100%;height:auto;border:1px solid var(--ink);background:var(--light)}
+.deck-text{max-width:74ch;margin-top:20px}
+.deck-text p{margin:0;font-size:16px;line-height:1.62}
+.deck-text p+p{margin-top:7px}
+.deck-transcribed{margin-top:14px!important;color:var(--muted);font-size:13px!important;line-height:1.5!important}
+/* Phone video, so the well is portrait for the same reason the recording's
+   is; capped by height so a clip cannot push the next slide off the screen. */
+.deck-clip{margin:24px 0 0;display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:24px;align-items:start}
+.deck-clip video{width:100%;max-height:min(70vh,560px);border:1px solid var(--ink);background:var(--ink)}
+.deck-clip figcaption{color:var(--muted);font-size:14px;line-height:1.55}
+.deck-clip figcaption b{display:block;margin-bottom:7px;color:var(--orange);font:500 8px/1 var(--mono);letter-spacing:.13em;text-transform:uppercase}
+.deck-foot{margin-top:34px}
+.deck-foot a{color:var(--ink);font:500 9px/1 var(--mono);letter-spacing:.1em;text-decoration:none;border-bottom:1px solid var(--orange);padding-bottom:3px}
 .meeting-source{margin-top:44px;padding-top:26px;border-top:1px solid #171a1826;color:var(--muted)}
 .meeting-source p{margin:10px 0 0;font-size:14px;line-height:1.5}
 .meeting-source-links{display:flex;flex-wrap:wrap;gap:18px}
@@ -321,6 +362,9 @@ table.map-popup td{padding:3px 0;vertical-align:top}
   .meeting-tags{grid-column:2;justify-content:flex-start;margin-top:4px}
   .meeting-recap-grid{grid-template-columns:1fr}
   .meetings,.meeting{padding:30px 20px 70px}
+  .deck{padding:30px 20px 70px}
+  .deck-clip{grid-template-columns:1fr}
+  .deck-clip video{max-width:280px}
 }
 /* Prerendered fallback nav: present in the static HTML a crawler or a reader
    without JavaScript is served, and replaced the moment the app renders. */

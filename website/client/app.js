@@ -10,8 +10,9 @@ import {
   BODIES, COMMENT, CONFIRMED_ON, STALE_AFTER, americusToday, byMonth, calendarIsStale, clockTime,
   dayOfMonth, endStamp, findMeeting, longDate, meetingLabel, meetingPath, meetingSeoTitle,
   meetingWhen, monthLabel, nextSpeakable, pastMeetings, recapMeetings, startStamp,
-  upcomingMeetings, weekday,
+  upcomingMeetings, videoHost, weekday,
 } from './meetings.js';
+import {DECK} from './deck-2026-09-08.js';
 import {authConfig} from './auth-config.js';
 
 
@@ -55,6 +56,7 @@ function pathFor(next) {
     : next.view === 'contact' ? '/contact/'
     : next.view === 'meetings' ? '/meetings/'
     : next.view === 'meeting' ? meetingPath(next.id)
+    : next.view === 'slides' ? `${meetingPath(next.id)}slides/`
     : next.view === 'board' ? (next.threadId ? `/board/${next.threadId}/` : '/board/')
     : '/';
 }
@@ -70,6 +72,10 @@ function routeFromPath(pathname) {
   const doc = pathname.match(/^\/doc\/([a-z0-9-]+)\/?$/);
   const thread = pathname.match(/^\/board\/(\d+)\/?$/);
   const meeting = pathname.match(/^\/meetings\/([a-z0-9-]+)\/?$/);
+  // A deck hangs off the meeting it was presented at, so its URL does too.
+  // Only the one meeting has a deck; another id under /slides/ falls back to
+  // that meeting's page rather than 404ing on a plausible-looking URL.
+  const slides = pathname.match(/^\/meetings\/([a-z0-9-]+)\/slides\/?$/);
   return /^\/community\/?$/.test(pathname) ? {view: 'community'}
     : /^\/map\/?$/.test(pathname) ? {view: 'map'}
     : /^\/petition\/?$/.test(pathname) ? {view: 'petition'}
@@ -77,6 +83,8 @@ function routeFromPath(pathname) {
     : /^\/meetings\/?$/.test(pathname) ? {view: 'meetings'}
     // An unknown id falls back to the calendar rather than the home page: a
     // stale link to a meeting is best answered with the list of real ones.
+    : slides ? (slides[1] === DECK.meeting ? {view: 'slides', id: slides[1]}
+      : findMeeting(slides[1]) ? {view: 'meeting', id: slides[1]} : {view: 'meetings'})
     : meeting ? (findMeeting(meeting[1]) ? {view: 'meeting', id: meeting[1]} : {view: 'meetings'})
     : thread ? {view: 'board', threadId: thread[1]}
     : /^\/board\/?$/.test(pathname) ? {view: 'board'}
@@ -221,21 +229,7 @@ let videoPlaying = false;
 function recapBanner() {
   const [event] = recapMeetings();
   if (!event) return '';
-  const {video, deck} = event.recap;
-  // Nothing is fetched from YouTube until the reader asks for it. The poster is
-  // the site's own card rather than an i.ytimg.com thumbnail, so the home page
-  // makes no third-party request for a recording most visitors will not play:
-  // the same bargain the vendored Leaflet copy makes for the map.
-  const player = videoPlaying
-    ? `<iframe class="recap-frame" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&amp;rel=0"
-        title="${escapeHtml(event.title)}, full meeting recording"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`
-    : `<button class="recap-play" data-play>
-        <span class="recap-play-glyph" aria-hidden="true">▶</span>
-        <span class="recap-play-label">Watch the meeting</span>
-        <span class="recap-play-meta">${escapeHtml(video.length)} · loads from YouTube</span>
-      </button>`;
+  const {deck} = event.recap;
   // Three blocks, not two, so the grid can put the player directly under the
   // headline when the columns collapse. Stacked the other way the reader meets
   // the speaker list and a slide download before the thing they came to watch.
@@ -248,17 +242,10 @@ function recapBanner() {
     <div class="recap-detail">
       ${event.program ? `<p class="event-topics-label">WHO SPOKE</p>
       <dl class="event-program">${event.program.map((slot) => `<dt>${escapeHtml(slot.name)}</dt><dd>${escapeHtml(slot.role)}</dd>`).join('')}</dl>` : ''}
-      ${deck ? `<a class="recap-deck" href="${deck.href}" target="_blank" rel="noreferrer">
-        <small>SLIDES FROM THE MEETING</small>
-        <b>${escapeHtml(deck.title)}</b>
-        <span>${escapeHtml(deck.speaker)} · ${escapeHtml(deck.meta)} ↓</span>
-      </a>` : ''}
+      ${deck ? deckLink(deck) : ''}
     </div>
     <div class="recap-media">
-      <!-- Recorded on a phone, so the well is portrait: a 16:9 embed would sit
-           this video in a wall of black with the speakers a thumbnail wide. -->
-      <div class="recap-well">${player}</div>
-      <a class="recap-youtube" href="https://youtu.be/${video.id}" target="_blank" rel="noreferrer">Open on YouTube ↗</a>
+      ${videoWell(event)}
     </div>
   </section>`;
 }
@@ -269,18 +256,26 @@ function recapBanner() {
 // is made in exactly one place.
 function videoWell(meeting) {
   const {video} = meeting.recap;
+  const host = videoHost(video);
+  // Nothing is fetched from the host until the reader asks for it. The poster
+  // is the site's own card rather than a thumbnail pulled from YouTube or
+  // Facebook, so a page makes no third-party request for a recording most
+  // visitors will not play: the same bargain the vendored Leaflet copy makes
+  // for the map. Which is also why the button names the host it will call.
   const player = videoPlaying
-    ? `<iframe class="recap-frame" src="https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1&amp;rel=0"
+    ? `<iframe class="recap-frame" src="${escapeHtml(host.embed(video))}"
         title="${escapeHtml(meetingLabel(meeting))}, full meeting recording"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`
     : `<button class="recap-play" data-play>
         <span class="recap-play-glyph" aria-hidden="true">▶</span>
         <span class="recap-play-label">Watch the meeting</span>
-        <span class="recap-play-meta">${escapeHtml(video.length)} · loads from YouTube</span>
+        <span class="recap-play-meta">${escapeHtml(video.length)} · loads from ${escapeHtml(host.name)}</span>
       </button>`;
-  return `<div class="recap-well">${player}</div>
-    <a class="recap-youtube" href="https://youtu.be/${video.id}" target="_blank" rel="noreferrer">Open on YouTube ↗</a>`;
+  // Both meetings were recorded on a phone, so the well is portrait: a 16:9
+  // embed would sit the video in a wall of black, speakers a thumbnail wide.
+  return `<div class="recap-well${host.fixed ? ' recap-well-fixed' : ''}">${player}</div>
+    <a class="recap-watch" href="${escapeHtml(host.watch(video))}" target="_blank" rel="noreferrer">Open on ${escapeHtml(host.name)} ↗</a>`;
 }
 
 // What was said, for the reader who will not watch 74 minutes of video. It
@@ -299,11 +294,75 @@ function recapNotes(notes) {
   </div>`;
 }
 
-const deckLink = (deck) => `<a class="recap-deck" href="${deck.href}" target="_blank" rel="noreferrer">
+// A deck is either a PDF to download or, since September, a page on this site.
+// The arrow says which: a download gets the same downward arrow every file on
+// the desk gets, a page gets the one every internal link gets, and a page is
+// not opened in a new tab.
+const deckLink = (deck) => `<a class="recap-deck" href="${deck.href}"${deck.page ? '' : ' target="_blank" rel="noreferrer"'}>
   <small>SLIDES FROM THE MEETING</small>
   <b>${escapeHtml(deck.title)}</b>
-  <span>${escapeHtml(deck.speaker)} · ${escapeHtml(deck.meta)} ↓</span>
+  <span>${escapeHtml(deck.speaker)} · ${escapeHtml(deck.meta)} ${deck.page ? '→' : '↓'}</span>
 </a>`;
+
+// --- The slide deck --------------------------------------------------------
+
+// Seventy slides as a page. Every image is lazy and carries its own dimensions
+// so the column does not jump as they arrive, and the clips are preload="none"
+// with a poster: fourteen megabytes of video must not be fetched by anyone who
+// only came to read the wetlands slides.
+//
+// The words sit beside the picture rather than inside it. That is the whole
+// point of the page: they are searchable, selectable, translatable, and a
+// screen reader can read them, none of which is true of the PDF.
+function deckSlide(slide, index) {
+  const number = index + 1;
+  const file = `${DECK.assets}slide-${String(number).padStart(2, '0')}.jpg`;
+  const clip = slide.clip;
+  return `<li class="deck-slide" id="slide-${number}">
+    <p class="deck-number"><a href="#slide-${number}">${String(number).padStart(2, '0')}</a></p>
+    <figure class="deck-figure">
+      <a href="${file}" target="_blank" rel="noreferrer">
+        <img src="${file}" alt="${escapeHtml(slide.alt)}" width="1600" height="900" loading="lazy" decoding="async" />
+      </a>
+    </figure>
+    ${slide.lines.length ? `<div class="deck-text">
+      ${slide.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join('')}
+      ${slide.transcribed ? '<p class="deck-transcribed">The words on this slide are part of a pasted-in picture. Typed out here by hand so they can be read, searched and spoken aloud.</p>' : ''}
+    </div>` : ''}
+    ${clip ? `<figure class="deck-clip">
+      <video controls preload="none" playsinline width="720" height="1280"
+             poster="${DECK.assets}${clip.file}-poster.jpg">
+        <source src="${DECK.assets}${clip.file}.mp4" type="video/mp4" />
+      </video>
+      <figcaption><b>Clip on this slide · ${escapeHtml(clip.length)}</b>${escapeHtml(clip.caption)}</figcaption>
+    </figure>` : ''}
+  </li>`;
+}
+
+const deckSeoTitle = () =>
+  `${DECK.title} - slides from the ${longDate(DECK.date)}, ${DECK.date.slice(0, 4)} meeting - Sumter Field Desk`;
+
+function slidesPage() {
+  const meeting = findMeeting(DECK.meeting);
+  const clips = DECK.slides.filter((slide) => slide.clip).length;
+  return `${topbar()}<main class="deck">
+    <a class="meeting-back" href="${meetingPath(DECK.meeting)}">← Back to the meeting</a>
+    <header class="deck-head">
+      <p class="eyebrow"><span></span> SLIDES FROM THE MEETING</p>
+      <h1>${escapeHtml(DECK.title)}</h1>
+      <p class="lede">${escapeHtml(DECK.subtitle)}</p>
+      <p class="deck-by">${escapeHtml(DECK.speaker)} · ${escapeHtml(longDate(DECK.date))} · <a href="${meetingPath(DECK.meeting)}">${escapeHtml(meetingLabel(meeting))}</a></p>
+      <a class="deck-pdf" href="${DECK.pdf.href}" target="_blank" rel="noreferrer">
+        <small>THE WHOLE DECK AS ONE FILE</small>
+        <b>Download the slides ↓</b>
+        <span>${escapeHtml(DECK.pdf.meta)}. The ${clips} clips do not play in a PDF; they are on this page.</span>
+      </a>
+      <p class="deck-note">This is the speaker's deck, reproduced. The argument and every figure in it are his, not this desk's, and nothing in it has been checked here. ${escapeHtml(DECK.source)}</p>
+    </header>
+    <ol class="deck-slides">${DECK.slides.map(deckSlide).join('')}</ol>
+    <p class="deck-foot"><a href="${meetingPath(DECK.meeting)}">Back to the ${escapeHtml(longDate(DECK.date))} meeting, and the recording →</a></p>
+  </main>`;
+}
 
 // One line on the home page for the next meeting a resident may actually
 // address. Knowing a meeting exists is worth nothing three hours after the
@@ -1311,6 +1370,7 @@ function updateHead() {
     : route.view === 'contact' ? 'Contact your officials, Sumter Field Desk'
     : route.view === 'meetings' ? 'Public meetings, Sumter Field Desk'
     : route.view === 'meeting' ? meetingSeoTitle(findMeeting(route.id))
+    : route.view === 'slides' ? deckSeoTitle()
     : HOME_TITLE;
   const canonical = document.querySelector('link[rel="canonical"]');
   if (canonical) canonical.href = new URL(pathFor(route), location.origin).href;
@@ -1334,6 +1394,7 @@ async function render() {
       : route.view === 'contact' ? contactPage()
       : route.view === 'meetings' ? meetingsPage()
       : route.view === 'meeting' ? meetingPage(route.id)
+      : route.view === 'slides' ? slidesPage()
       : route.view === 'board' ? boardView()
       : home()) + surveyPanel();
   }

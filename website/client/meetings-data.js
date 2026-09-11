@@ -278,6 +278,27 @@ export const MEETING_ROWS = [
       'What residents can do next',
     ],
     sourceNote: 'Taken from the organisers\' own flyer for the meeting.',
+    recap: {
+      // Streamed to the organisers' own Facebook page rather than posted to
+      // YouTube as the August meeting was. The share link they hand out,
+      // facebook.com/share/v/1D2e8n45hE/, redirects to a reel URL that the
+      // embed comes back empty from; this is the canonical permalink both
+      // resolve to, and it is what the player needs.
+      video: {
+        host: 'facebook',
+        href: 'https://www.facebook.com/61592765326617/videos/1493535906138748/',
+        length: '1 hr 33 min',
+      },
+      // The August deck was a PDF and nothing else. This one is a page: see
+      // deck-2026-09-08.js for why, and for the three clips a PDF cannot hold.
+      deck: {
+        href: '/meetings/2026-09-08-what-we-know-about-the-data-center/slides/',
+        title: 'Real Data over Developer Dogma',
+        speaker: 'Kirk Lyman-Barner',
+        meta: '70 slides, with the three clips',
+        page: true,
+      },
+    },
   },
   official('2026-09-08', 'commission', 'Work session', 'unknown'),
   scheduled('2026-09-14'),

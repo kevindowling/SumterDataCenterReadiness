@@ -25,7 +25,7 @@ const types = {
   '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
   '.geojson': 'application/geo+json; charset=utf-8',
   '.webmanifest': 'application/manifest+json; charset=utf-8', '.ico': 'image/x-icon',
-  '.pdf': 'application/pdf', '.woff2': 'font/woff2',
+  '.pdf': 'application/pdf', '.woff2': 'font/woff2', '.mp4': 'video/mp4',
 };
 
 // Verifies an Auth0-issued RS256 access token without dependencies. Every
@@ -1075,7 +1075,7 @@ const aliasedFiles = ['/index.html', '/sw.js'];
 // of these paths; in dev the shell is served and the router resolves the path.
 // Deliberately an explicit pattern rather than a catch-all, so an unknown path
 // still 403s instead of leaking the shell for anything not on this list.
-const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|meetings(\/[a-z0-9-]+)?|board(\/\d+)?)\/?$/;
+const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|meetings(\/[a-z0-9-]+(\/slides)?)?|board(\/\d+)?)\/?$/;
 
 // The one file whose "./" paths have to be rewritten before it is served.
 const isShell = (file) => file.endsWith(join('website', 'index.html'));

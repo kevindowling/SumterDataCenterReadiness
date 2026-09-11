@@ -13,7 +13,7 @@
 // /meetings/ URL. Anyone who had ever opened the site saw it; a first-time
 // visitor saw the calendar. Reproduce by loading the old build, deploying the
 // new one to the same origin, and opening the new route.
-const VERSION = 'field-desk-v10';
+const VERSION = 'field-desk-v11';
 // Rooted, not './'-relative. This file has to stay at the site root to claim
 // scope '/', but the assets it caches now live under /client and /assets.
 const SHELL = [
@@ -28,6 +28,11 @@ const SHELL = [
   '/client/contacts.js',
   '/client/meetings.js',
   '/client/meetings-data.js',
+  // app.js imports the deck at the top, so offline it is the same failure the
+  // note above describes: the import dies and #app is left blank. The slide
+  // images and clips are deliberately NOT precached; they are megabytes, and
+  // the fetch handler picks them up for anyone who actually opens the deck.
+  '/client/deck-2026-09-08.js',
   // Both of these are imported but were missing here, which made the offline
   // promise false in the one case it matters: a reader who has visited exactly
   // once. app.js imports install.js at the top, so offline that import failed
@@ -125,6 +130,12 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (isLive(url)) return;                       // straight to the network
   if (url.origin !== self.location.origin) return;
+  // Video is the browser's business. A <video> element asks for byte ranges,
+  // and the cache-first branch below would try to store the 206 those come
+  // back as, which the Cache API refuses; the throw lands in its .catch, the
+  // handler answers Response.error(), and the clip simply fails to play. The
+  // deck's clips are also fourteen megabytes nobody should be made to keep.
+  if (url.pathname.endsWith('.mp4')) return;
 
   // Research notes: network first so corrections show up immediately. Same
   // policy as the app code, for the same reason.

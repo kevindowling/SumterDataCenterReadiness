@@ -25,6 +25,46 @@ export {BODIES, COMMENT, CONFIRMED_ON, STALE_AFTER};
 // check is what makes that safe to offer.
 const REQUIRED = ['date', 'body', 'kind', 'time', 'status'];
 
+// The one width the Facebook embed and the well it sits in must agree on.
+// Stated once here and once as .recap-well-fixed in styles.css; if it changes,
+// it changes in both. See the note on the facebook entry below.
+const FACEBOOK_WIDTH = 280;
+
+// Where a recording lives, and how to reach it. The August meeting went up on
+// YouTube; September's was streamed to the organisers' Facebook page, which is
+// where the residents watching it live already were. The meeting is the
+// record, not the platform, so the site embeds whichever one holds the file
+// rather than re-hosting it, and names that platform on the button so a reader
+// knows what they are about to load. `key` is the field such a row must carry.
+export const VIDEO_HOSTS = {
+  youtube: {
+    name: 'YouTube',
+    key: 'id',
+    embed: ({id}) => `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`,
+    watch: ({id}) => `https://youtu.be/${id}`,
+  },
+  facebook: {
+    // The plugin wants the canonical /videos/ permalink. The share and reel
+    // short links Facebook actually hands out redirect in a browser and come
+    // back empty here, so the data file records the permalink they resolve to.
+    name: 'Facebook',
+    key: 'href',
+    // Unlike YouTube's, this embed does not scale to its frame: the page
+    // inside lays itself out at whatever `width` says, defaults to about 500,
+    // and anything wider than the frame is simply cut off, which clipped the
+    // video and half the controls. So the width is stated, and `fixed` below
+    // pins the well to the same number rather than sizing it from the
+    // viewport. The number is the narrowest the well ever gets: a 320px phone
+    // less the 20px of page padding on each side. Passing `height` as well
+    // undoes all of this, the plugin goes back to its own layout; don't.
+    fixed: FACEBOOK_WIDTH,
+    embed: ({href}) => `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(href)}&show_text=false&autoplay=true&width=${FACEBOOK_WIDTH}`,
+    watch: ({href}) => href,
+  },
+};
+
+export const videoHost = (video) => VIDEO_HOSTS[video.host || 'youtube'];
+
 function validate(meeting, index) {
   const where = `meetings-data.js row ${index + 1} (${meeting.date || 'no date'})`;
   for (const field of REQUIRED) {
@@ -48,6 +88,18 @@ function validate(meeting, index) {
   }
   if (meeting.speak && !COMMENT[meeting.speak] && meeting.speak !== 'open') {
     throw new Error(`${where}: speak must be 'published', 'unknown' or 'open', got '${meeting.speak}'`);
+  }
+  // A recap naming a host the site cannot embed renders as an empty black well
+  // with a dead link under it, which reads as "the recording was taken down"
+  // rather than "somebody mistyped youtube".
+  if (meeting.recap) {
+    const video = meeting.recap.video;
+    if (!video) throw new Error(`${where}: recap with no video`);
+    const host = videoHost(video);
+    if (!host) {
+      throw new Error(`${where}: unknown video host '${video.host}': expected one of ${Object.keys(VIDEO_HOSTS).join(', ')}`);
+    }
+    if (!video[host.key]) throw new Error(`${where}: a ${host.name} video needs a '${host.key}'`);
   }
   return meeting;
 }

@@ -24,8 +24,9 @@ import {
 import {livePetition} from '../client/petition.js';
 import {contactSections} from '../client/contacts.js';
 import {
-  MEETINGS, meetingDescription, meetingPath, meetingSeoTitle,
+  MEETINGS, longDate, meetingDescription, meetingPath, meetingSeoTitle,
 } from '../client/meetings.js';
+import {DECK} from '../client/deck-2026-09-08.js';
 
 const here = dirname(fileURLToPath(import.meta.url));   // website/build
 const website = join(here, '..');
@@ -283,6 +284,16 @@ for (const meeting of MEETINGS) {
   })));
 }
 
+// The deck presented at the September 8 meeting, as its own indexable page.
+// Worth a URL of its own: the searches this answers, "Terracon Swett Avenue
+// REC", "Americus 55 dBA property line", land on a slide, not on a meeting.
+const deckUrl = `${SITE_ORIGIN}${meetingPath(DECK.meeting)}slides/`;
+written.push(await emit(join('meetings', DECK.meeting, 'slides', 'index.html'), withHead(shell, {
+  title: `${DECK.title} - slides from the ${longDate(DECK.date)}, ${DECK.date.slice(0, 4)} meeting - ${SITE_NAME}`,
+  description: `${DECK.subtitle}. ${DECK.speaker}'s ${DECK.slides.length} slides from the September 8, 2026 community meeting in Americus, with the text of every slide and the three clips that a PDF cannot play.`,
+  url: deckUrl,
+})));
+
 // Home page: the shell itself, with the canonical tag the others carry.
 written.push(await emit('index.html', withHead(shell, {
   title: HOME_TITLE,
@@ -315,6 +326,7 @@ const urls = [
     loc: `${SITE_ORIGIN}${meetingPath(meeting.id)}`,
     lastmod: lastModified('website/client/meetings-data.js'),
   })),
+  {loc: deckUrl, lastmod: lastModified('website/client/deck-2026-09-08.js')},
   ...documents.map((doc, index) => ({loc: docUrl(doc.id), lastmod: noteDates[index]})),
 ];
 written.push(await emit('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
