@@ -35,8 +35,7 @@ Use these guides to prepare questions about water, sound, air pollution, electri
 ## What is not known publicly
 
 - The end user or tenant of the compute. Liberty said on August 4 that it has a customer; it did not name one
-- Who the officers, directors, and owners of Liberty GA USA LLC are, and who signed for it on July 1. The company publishes no name, and no corporate filing has been retrieved
-- Total facility demand above the planned 400 MW IT load
+- Total facility demand. The 400 MW figure in the planning materials is IT load only
 - Final cooling and heat-rejection design, and whether it is evaporative
 - Average and peak water demand
 - Generator count, models, fuel, and allowed operating hours
