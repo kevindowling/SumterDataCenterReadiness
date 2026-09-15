@@ -154,7 +154,7 @@ const topbar = () => `
 const accountControls = () => {
   if (!isConfigured()) return '';
   return user
-    ? `<button class="source-link" data-board>Message board ↗</button><button class="source-link" data-community>Community desk ↗</button><span class="account-name" title="${escapeHtml(user.email || '')}">${escapeHtml(user.name || user.email || 'Account')}</span><button class="source-link" data-logout>Sign out</button>`
+    ? `<button class="source-link" data-board>Message board ↗</button><button class="account-name" data-community title="${escapeHtml(user.email || '')}">${escapeHtml(user.name || user.email || 'Account')}</button><button class="source-link" data-logout>Sign out</button>`
     : `<button class="source-link" data-login>Sign in</button>`;
 };
 
