@@ -2,7 +2,7 @@
 
 ## Section 1-Statement of purpose.
 
-The intent of this district is to identify areas within City of Americus for the development of technology infrastructure and digital data processing facilities that require significant land area, electrical capacity, cooling systems, and security measures. Public water and sewer shall be required for all Data Center, Minor; Data Center, Major; Data Center Campus; Mobile Data Center; and Cryptocurrency Mining operations.
+The intent of this district is to identify areas within City of Americus for the development of technology infrastructure and digital data processing facilities that require significant land area, electrical capacity, cooling systems, and security measures. Public water and sewer shall be required for all Data Center, Minor; Data Center, Major; Data Center Campus; and Mobile Data Center uses.
 
 The I-3 district is intended to accommodate large-scale technology uses in appropriate industrial areas and in a manner that minimizes adverse impacts on surrounding properties, public infrastructure, and natural resources. Such facilities often involve high energy consumption, water demand, specialized mechanical systems, large building footprints, and potential noise and infrastructure impacts.
 
@@ -16,7 +16,11 @@ These regulations are adopted to protect the public health, safety, and welfare 
 
 A facility primarily used for the housing of computer systems, servers, telecommunications equipment, data storage systems, and associated mechanical and electrical infrastructure necessary for the processing, storage, and transmission of digital information. Such facilities may include electrical substations, backup generators, cooling equipment, battery energy storage systems, and related support infrastructure.
 
-Data Center: 0-50MW
+Data centers are classified by the peak electrical demand of the total buildout shown on the site-development plan or master development plan:
+
+Data Center, Minor: less than 50 MW
+
+Data Center, Major: 50 MW or more, including the following tiers:
 
 Data Center (Large): 50-99MW
 
@@ -25,6 +29,8 @@ Data Center (Hyperscale): 100-500MW
 Data Center (Large Hyperscale): 500-1000MW
 
 Data Center (Gigawatt Scale): 1000-2000MW
+
+A data center campus shall be classified by the combined peak electrical demand of all buildings shown on the master development plan.
 
 ### Data center campus.
 
@@ -48,7 +54,7 @@ The greatest quantity of water used by a facility during any consecutive twenty-
 
 ### Material operational change.
 
-Any change or cumulative series of changes in the construction or operation of a data center, data center campus, or cryptocurrency mining operation that materially increases or alters an impact evaluated through the approved site-development plan, approved master development plan, or conditional-use approval, as applicable. Such changes may include an increase or material alteration in gross floor area, electrical demand, generator capacity, fuel-storage capacity, cooling technology, water demand, wastewater discharge, noise generation, hours of operation, utility infrastructure, or other operational equipment or characteristics.
+Any change or cumulative series of changes in the construction or operation of a data center or data center campus that materially increases or alters an impact evaluated through the approved site-development plan, approved master development plan, or conditional-use approval, as applicable. Such changes may include an increase or material alteration in gross floor area, electrical demand, generator capacity, fuel-storage capacity, cooling technology, water demand, wastewater discharge, noise generation, hours of operation, utility infrastructure, or other operational equipment or characteristics.
 
 ### Non-evaporative cooling system.
 
@@ -98,6 +104,10 @@ An area meeting the applicable federal or state definition of wetland, including
 
 ## Section 3 - Permitted uses.
 
+The following uses are permitted in the I-3 district subject to site-development plan approval and to all applicable development standards of this Article:
+
+- Data center, minor
+
 ## Section 4- Conditional uses.
 
 The following uses shall require approval as a conditional use in accordance with the procedures of this chapter:
@@ -107,8 +117,6 @@ The following uses shall require approval as a conditional use in accordance wit
 - Data center campuses
 
 - Mobile data center
-
-- Cryptocurrency mining operations
 
 ## Section 5- Area, height and placement requirements.
 
@@ -136,9 +144,7 @@ Maximum Lot Coverage: 						                    75 percent
 
 ## Section 6- Data center development standards.
 
-(a) Minimum lot size.
-
-Any lot proposed for development as a data center shall contain a minimum of 25 acres.
+Minimum lot size. Any lot proposed for development as a data center shall contain a minimum of 25 acres.
 
 ### (1) Separation from residential zoning and residential uses.
 
@@ -198,19 +204,19 @@ If the facility is determined to exceed these limits, the operator shall take co
 
 Measurements shall be taken using industry standard sound level meters and methodologies.
 
-The required acoustical analysis shall evaluate the cumulative sound of all buildings, cooling systems, transformers, substations, generators, ventilation equipment, and other facility equipment at full reasonably foreseeable operating conditions. The analysis shall compare modeled operational sound with the pre-development ambient noise study required by Section 7(6), including nighttime ambient conditions at nearby residences and other noise-sensitive receptors. Where the analysis demonstrates a substantial increase above existing nighttime ambient sound or identifies tonal, impulsive, or low-frequency characteristics likely to increase community impact, the City of __________________ may require additional equipment setbacks, enclosures, barriers, silencers, operational limitations, or other mitigation as conditions of approval. Nothing in this paragraph authorizes sound levels exceeding the property-line limits stated above.
+The required acoustical analysis shall evaluate the cumulative sound of all buildings, cooling systems, transformers, substations, generators, ventilation equipment, and other facility equipment at full reasonably foreseeable operating conditions. The analysis shall compare modeled operational sound with the pre-development ambient noise study required by Section 7(9), including nighttime ambient conditions at nearby residences and other noise-sensitive receptors. Where the analysis demonstrates a substantial increase above existing nighttime ambient sound or identifies tonal, impulsive, or low-frequency characteristics likely to increase community impact, the City of Americus may require additional equipment setbacks, enclosures, barriers, silencers, operational limitations, or other mitigation as conditions of approval. Nothing in this paragraph authorizes sound levels exceeding the property-line limits stated above.
 
 ### (7) Generator testing.
 
 Routine testing of backup generators shall be limited strictly to workdays only (Monday through Friday) between the hours of 8:00 a.m. to 6:00 p.m. Routine maintenance, readiness, or performance verification testing of backup generators on weekends (Saturdays and Sundays) or official government holidays is strictly prohibited.
 
-Generators shall only be used in emergency situations.  Failure of the selected electric utility provider to provide power to the proposed project does not count as an emergency or create permission for the operator to use the generators.   All emergency and standby generators, associated fuel-storage tanks, and related equipment shall be identified on the approved site plan. Plans shall state the number and rated capacity of generators; the location and capacity of each fuel-storage tank; aggregate on-site fuel-storage capacity; estimated operating duration at full generator load; and proposed fuel-delivery, containment, spill-control, fire-protection, and emergency-response measures.
+Generators shall only be used in emergency situations.  An unplanned interruption of utility service is an emergency. The absence, delay, or insufficiency of utility interconnection or contracted utility capacity is not an emergency and does not authorize generator operation.   All emergency and standby generators, associated fuel-storage tanks, and related equipment shall be identified on the approved site plan. Plans shall state the number and rated capacity of generators; the location and capacity of each fuel-storage tank; aggregate on-site fuel-storage capacity; estimated operating duration at full generator load; and proposed fuel-delivery, containment, spill-control, fire-protection, and emergency-response measures.
 
 To protect the public health, safety, and welfare of surrounding properties from the localized cumulative impacts of particulate matter, soot, and nitrogen oxides generated during operations, all stationary emergency or standby diesel generators installed at a Data Center, Major, or Data Center Campus shall be factory-certified to meet U.S. EPA Tier 4 Final emissions standards, or shall be equipped with verified add-on emission control systems (including, but not limited to, Selective Catalytic Reduction systems and diesel particulate filters) that reduce emissions to a level fully equivalent to Tier 4 Final standards as verified by the state environmental permitting agency at the time of building permit review. The installation or operation of unmitigated Tier 2 or Tier 3 backup generators for new Major or Campus developments is strictly prohibited.
 
 Generator and fuel-storage installations shall comply with all applicable federal, state, and local environmental and fire-safety requirements and shall receive approval from the applicable fire-code official and other reviewing agencies before issuance of applicable development or building permits. Tanks shall incorporate required secondary containment, leak and overfill protection, impact protection, emergency shutoff systems, and stormwater safeguards.
 
-For a use requiring conditional-use approval, the aggregate fuel-storage capacity and generator configuration shall be limited to those approved by the City of __________________. A material increase shall constitute a material operational change and shall be reviewed in accordance with this article.
+For a use requiring conditional-use approval, the aggregate fuel-storage capacity and generator configuration shall be limited to those approved by the City of Americus. A material increase shall constitute a material operational change and shall be reviewed in accordance with this article.
 
 Generator testing logs shall be maintained and made available to the Zoning Commission or their designee upon request.
 
@@ -224,17 +230,17 @@ A hybrid or evaporative cooling component shall not be permitted by right.
 
 Each data center shall install separate metering capable of documenting total facility water use and water used specifically for cooling.
 
-The facility must record daily meter readings and submit the monthly flow/water-meter records by the 10th day of the following month to [the city/county water and/or wastewater authority.]
+The facility must record daily meter readings and submit the monthly flow/water-meter records by the 10th day of the following month to the City of Americus water and wastewater utility.
 
-Each data center maintaining cooling towers, evaporative condensers, direct evaporative cooling, or similar water-containing cooling technologies, or any other aerosol-producing equipment must maintain these facilities in accordance with a Maintenance Program and Plan (MPP). The MPP is to be prepared by a qualified person, and must identify responsible management personnel, define requirements for safe operation, risk assessments, equipment disinfection, water quality monitoring standards and frequency, corrective actions, worker protection procedures, and a plan for the prevention of Legionella and other water-associated pathogens. Records of maintenance procedures defined in the MPP must be submitted in the annual compliance report required by this article.
+Where any cooling tower, evaporative condenser, direct evaporative cooling unit, or similar water-containing or aerosol-producing equipment is approved for emergency or temporary use under this subsection, the operator must maintain that equipment in accordance with a Maintenance Program and Plan (MPP). The MPP is to be prepared by a qualified person, and must identify responsible management personnel, define requirements for safe operation, risk assessments, equipment disinfection, water quality monitoring standards and frequency, corrective actions, worker protection procedures, and a plan for the prevention of Legionella and other water-associated pathogens. Records of maintenance procedures defined in the MPP must be submitted in the annual compliance report required by this article.
 
 A change in cooling technology or an increase exceeding an approved water-use limit shall constitute a material operational change and shall be reviewed in accordance with this article.
 
-As part of conditional-use approval, the City of Americus shall establish a maximum average daily and peak daily water-use limit for the approved development based upon the applicant's water-use plan, utility-capacity certification, drought and emergency supply considerations, and the total buildout shown on the approved master development plan. The approved limit shall be enforceable as a condition of approval. Daily limits of over 100,000 gallons per day will require state permitting.
+As part of conditional-use approval, the City of Americus shall establish a maximum average daily and peak daily water-use limit for the approved development based upon the applicant's water-use plan, utility-capacity certification, drought and emergency supply considerations, and the total buildout shown on the approved master development plan. The approved limit shall be enforceable as a condition of approval. No limit shall be approved that, together with existing demand and reserve capacity for existing customers and planned community growth, would exceed the withdrawal authorized by the City's groundwater-withdrawal permit issued by the Georgia Environmental Protection Division.
 
 ### (9) Public water and sanitary sewer.
 
-All data centers, data center campuses, and cryptocurrency mining operations shall be connected to and served by public water and public sanitary sewer. Public sanitary sewer service shall be used only for domestic and sanitary wastewater generated by the development. Private wells and onsite sewage-disposal systems shall not be used for domestic or sanitary sewage.
+All data centers and data center campuses shall be connected to and served by public water and public sanitary sewer. Public sanitary sewer service shall be used only for domestic and sanitary wastewater generated by the development. Private wells and onsite sewage-disposal systems shall not be used for domestic or sanitary sewage.
 
 Cooling water, process wastewater, industrial wastewater, and other non-domestic wastewater generated by the facility shall not be discharged into the public sanitary sewer system. The owner or operator shall provide, operate, and maintain a separate onsite wastewater treatment or management system for all such wastewater. The onsite system shall be designed, permitted, operated, and maintained in accordance with all applicable federal, state, and local requirements.
 
@@ -286,7 +292,7 @@ Off-street parking for data center facilities shall be provided in accordance wi
 
 ### (15) Conditions of approval.
 
-The City of Americus may impose additional conditions as part of the conditional use approval to mitigate impacts on surrounding properties, infrastructure, or natural resources. No conditional use for a Data Center, Major, or Data Center Campus shall be approved unless the Board makes written findings, based upon the application record and site-specific evidence, that the proposed location, design, and operating conditions: (1) comply with the residential separation and equipment setback requirements of this Article; (2) are capable of meeting the applicable daytime and nighttime property-line noise limits, considering the ambient-noise study and cumulative facility sound; (3) provide adequate residential, wetland, and environmental buffers; (4) avoid or appropriately investigate, remediate, control, and monitor REC Areas, brownfields, borrow pits, wetlands, and other Environmental Constraint Areas; (5) have documented utility capacity for the approved buildout; (6) comply with approved water-use limits and cooling restrictions; (7) provide adequate fire, hazardous-material, battery, fuel-storage, and emergency-response measures; and (8) will not create site-specific impacts on surrounding properties, public infrastructure, or natural resources that cannot be reasonably mitigated through enforceable conditions of approval.
+The City of Americus may impose additional conditions as part of the conditional use approval to mitigate impacts on surrounding properties, infrastructure, or natural resources. No conditional use for a Data Center, Major, or Data Center Campus shall be approved unless the City Council makes written findings, based upon the application record and site-specific evidence, that the proposed location, design, and operating conditions: (1) comply with the residential separation and equipment setback requirements of this Article; (2) are capable of meeting the applicable daytime and nighttime property-line noise limits, considering the ambient-noise study and cumulative facility sound; (3) provide adequate residential, wetland, and environmental buffers; (4) avoid or appropriately investigate, remediate, control, and monitor REC Areas, brownfields, borrow pits, wetlands, and other Environmental Constraint Areas; (5) have documented utility capacity for the approved buildout; (6) comply with approved water-use limits and cooling restrictions; (7) provide adequate fire, hazardous-material, battery, fuel-storage, and emergency-response measures; and (8) will not create site-specific impacts on surrounding properties, public infrastructure, or natural resources that cannot be reasonably mitigated through enforceable conditions of approval.
 
 ### (16) Road infrastructure impacts.
 
@@ -294,7 +300,7 @@ Where a proposed data center development will significantly increase heavy truck
 
 ### (17) Infrastructure responsibility.
 
-Approval of a data center development shall not obligate the City of Americus or any public utility provider to construct, extend, or upgrade infrastructure or services necessary to support the proposed facility. Any improvements to roads, utilities, or other infrastructure required to serve the development shall be the responsibility of the applicant unless otherwise approved by the City of Americus. This responsibility shall include, but not be limited to, any additional public safety infrastructure, equipment, staffing, or facilities determined by the County to be reasonably necessary to serve or mitigate the impacts of the proposed development, including, but not limited to, fire stations, fire apparatus, emergency medical service (EMS) facilities and equipment, emergency personnel, emergency communications infrastructure, law enforcement facilities and equipment, or other public safety improvements necessary to maintain adopted levels of service.
+Approval of a data center development shall not obligate the City of Americus or any public utility provider to construct, extend, or upgrade infrastructure or services necessary to support the proposed facility. Any improvements to roads, utilities, or other infrastructure required to serve the development shall be the responsibility of the applicant unless otherwise approved by the City of Americus. This responsibility shall include, but not be limited to, any additional public safety infrastructure, equipment, staffing, or facilities determined by the City of Americus to be reasonably necessary to serve or mitigate the impacts of the proposed development, including, but not limited to, fire stations, fire apparatus, emergency medical service (EMS) facilities and equipment, emergency personnel, emergency communications infrastructure, law enforcement facilities and equipment, or other public safety improvements necessary to maintain adopted levels of service.
 
 ### (18) Building design standards.
 
@@ -332,11 +338,11 @@ Due to the distinct geologic hazards, structural instability, and high potential
 
 (d) Prohibition of Structures. No primary buildings, accessory structures, mechanical equipment yards, electrical substations, fuel-storage tanks, battery energy storage systems, or wastewater management systems of any kind shall be permitted within the designated Non-Buildable Karst Mitigation Area.
 
-Furthermore, no clearing, grading, excavation, or land disturbance shall occur within this area unless expressly authorized under an approved Karst Remediation and Stormwater Management Plan approved by the County Engineer or designated, County approved Engineer.
+Furthermore, no clearing, grading, excavation, or land disturbance shall occur within this area unless expressly authorized under an approved Karst Remediation and Stormwater Management Plan approved by the City Engineer or an engineer designated by the City of Americus.
 
-Baseline Testing: Prior to any land disturbance or clearing, the applicant's licensed professional geologist shall install a minimum of three (3) monitoring wells (one upgradient and two down-gradient) and submit a baseline water quality analysis to the County Engineer or Designated Engineer and Planning Director.
+Baseline Testing: Prior to any land disturbance or clearing, the applicant's licensed professional geologist shall install a minimum of three (3) monitoring wells (one upgradient and two down-gradient) and submit a baseline water quality analysis to the City Engineer or designated engineer and the Planning Director.
 
-Ongoing Semi-Annual Testing: Once operational, the facility operator shall contract with an independent, state-certified laboratory to conduct water quality sampling from the monitoring wells semi-annually (every six months). The certified testing results shall be included in the Annual Compliance Report mandated under Section 9. If an unauthorized spike in target chemical contaminants or petroleum byproducts is detected, the facility shall be subject to the Public Nuisance Abatement penalties under Section 14.
+Ongoing Semi-Annual Testing: Once operational, the facility operator shall contract with an independent, state-certified laboratory to conduct water quality sampling from the monitoring wells semi-annually (every six months). The certified testing results shall be included in the Annual Compliance Report mandated under Section 9. If an unauthorized spike in target chemical contaminants or petroleum byproducts is detected, the facility shall be subject to the Public Nuisance Abatement penalties under Section 13.
 
 ### (20) Environmental Constraint and Sensitive Lands Protection.
 
@@ -361,7 +367,7 @@ Ongoing Semi-Annual Testing: Once operational, the facility operator shall contr
 (j) Continuing Obligation. Discovery during construction or operation of previously unidentified contamination, buried waste, petroleum products, stained soil, unusual odors, drums, tanks, fill material, groundwater contamination, or other evidence of a potential environmental hazard shall require immediate cessation of land-disturbing activity within the affected area and notification of the Zoning Commission and all other agencies required by law. Work within the affected area shall not resume until the condition has been investigated and any required corrective measures have been completed or approved.
 
 **(21) Blasting and Explosives Regulation.**
-No person or corporate entity shall conduct blasting, rock fracturing, or utilize explosive materials for site preparation, grading, or utility excavation within the district without first obtaining a valid Blasting Permit from the [Fire Marshal / Code Enforcement Officer]. Any permitted blasting operation shall strictly comply with the following mandatory standards:
+No person or corporate entity shall conduct blasting, rock fracturing, or utilize explosive materials for site preparation, grading, or utility excavation within the district without first obtaining a valid Blasting Permit from the City Fire Marshal. Any permitted blasting operation shall strictly comply with the following mandatory standards:
 
 (a) Application and Pre-Blast Survey. The permit application must include a detailed blast plan, a scaled map identifying all structures within a five thousand two hundred eighty (5,280) foot radius of the blast site, and a pre-blast structural inspection of all willing adjacent properties within that zone.
 
@@ -375,9 +381,9 @@ No person or corporate entity shall conduct blasting, rock fracturing, or utiliz
 
 (f) Indemnity Bond Required. Before the issuance of a Blasting Permit, the applicant shall post and maintain a valid corporate indemnity bond or irrevocable letter of credit in an amount not less than five million dollars ($5,000,000).
 
-- The bond shall name [City/Town/County Name] as the obligee, shall be issued by a surety licensed to do business in the State, and shall be conditioned to pay for any and all property damage, bodily injury, or public infrastructure repair resulting directly or indirectly from the blasting operations.
+- The bond shall name the City of Americus as the obligee, shall be issued by a surety licensed to do business in the State, and shall be conditioned to pay for any and all property damage, bodily injury, or public infrastructure repair resulting directly or indirectly from the blasting operations.
 
-- This financial assurance shall remain in full force and effect until the [Fire Marshal / Code Enforcement Officer] confirms in writing that all blasting operations are complete and all verified claims for property damage have been legally resolved.
+- This financial assurance shall remain in full force and effect until the City Fire Marshal confirms in writing that all blasting operations are complete and all verified claims for property damage have been legally resolved.
 
 **(22) Airport Proximity and Flight-Path Safety.**
 To safeguard aviation operations and maintain compliance with Federal Aviation Administration (FAA) regulations and Georgia aviation safety standards, any data center development located within five (5) miles of a public-use or private-use airport facility shall comply with the following mandates:
@@ -388,7 +394,7 @@ To safeguard aviation operations and maintain compliance with Federal Aviation A
 
 ## Section 7- Application and Public Participation Requirements.
 
-Applications for conditional use approval for a data center, data center campus, mobile data center, or cryptocurrency mining operation shall be filed with the Planning and Zoning Commission. To ensure robust public transparency, comprehensive community engagement, and strict adherence to procedural due process, no application for a conditional use under this Article shall be considered complete or scheduled for a public hearing until the applicant has fully complied with all of the following requirements:
+Applications for conditional use approval for a data center, data center campus, or mobile data center shall be filed with the Planning and Zoning Commission. To ensure robust public transparency, comprehensive community engagement, and strict adherence to procedural due process, no application for a conditional use under this Article shall be considered complete or scheduled for a public hearing until the applicant has fully complied with all of the following requirements:
 
 (1) Required application materials.
 
@@ -420,7 +426,7 @@ Applications for conditional use approval for a data center, data center campus,
 
 (n) Tree preservation or reforestation plan, if applicable.
 
-(o) Comprehensive karst geology site plan (as required under Section 6(21)).
+(o) Comprehensive karst geology site plan (as required under Section 6(19)).
 
 (2) Mandatory Pre-Application Community Town Hall Meeting.
 Prior to the formal submission of an application to the Planning and Zoning Commission, the applicant shall host, facilitate, and fully fund a minimum of one (1) public community town hall meeting to present the proposed development layout, infrastructure specifications, and environmental impact assessments to local residents.
@@ -434,14 +440,14 @@ Prior to the formal submission of an application to the Planning and Zoning Comm
 4. (d) Conduct of Meeting and Documentation: The applicant shall provide a clear overview of the project, including total square footage, maximum continuous megawatt draw, backup generator emissions tiers, and cooling water configurations. A question-and-answer period must be provided. The applicant shall retain an independent court reporter or certified digital recording service to document the entire proceeding. A complete transcript, a copy of the presentation materials, and a verified physical sign-in sheet of all attendees shall be submitted as a mandatory component of the official application package.
 
 (3) Expanded Public Hearing Notification Radius.
-When a conditional use application under this Article is deemed complete and is formally scheduled for a public hearing before the Planning and Zoning Commission and the City of ____________, the required notification boundary shall be significantly expanded to mitigate the regional geographic impacts associated with large-scale technology infrastructure.
+When a conditional use application under this Article is deemed complete and is formally scheduled for a public hearing before the Planning and Zoning Commission and the City Council of the City of Americus, the required notification boundary shall be significantly expanded to mitigate the regional geographic impacts associated with large-scale technology infrastructure.
 
 1. (a) Mailed Notice: The jurisdiction shall mail a formal notice of the public hearings to all property owners, registered tenants, and residents located within ten (10) mile of the nearest property line of the proposed development site. This mailed notice shall be dispatched at least thirty (30) calendar days prior to the date of the first public hearing, with all direct mailing and administrative costs borne entirely by the applicant.
 
 2. (b) Expanded Posting Standards: In addition to standard legal newspaper advertisements, the applicant shall install reflective, high-visibility zoning notification signs measuring no less than four (4) feet by four (4) feet at maximum five hundred (500) foot intervals along the entire public perimeter of the subject parcel. These signs must clearly list the maximum proposed megawatt capacity, building footprints, and the scheduled dates, times, and locations of all public hearings.
 
 (c) Supermajority Voting Requirement for Major Facilities.
-Due to the extraordinary demands placed upon public grid infrastructure, emergency response capabilities, and natural resources by large-scale technology installations, the approval of a Conditional Use Permit for a Data Center, Major, or a Data Center Campus shall require a supermajority vote of four-fifths (4/5) [or specify other supermajority, e.g., 5-0] of the full voting membership of the Zoning Commission to pass. A simple majority vote shall be legally insufficient to approve a Major or Campus conditional use application under this Article.
+Due to the extraordinary demands placed upon public grid infrastructure, emergency response capabilities, and natural resources by large-scale technology installations, the approval of a Conditional Use Permit for a Data Center, Major, or a Data Center Campus shall require a supermajority vote of four-fifths (4/5) of the full voting membership of the City Council to pass. A simple majority vote shall be legally insufficient to approve a Major or Campus conditional use application under this Article.
 
 (4) Application Completeness.
 
@@ -453,17 +459,17 @@ The applicant shall provide an emergency operations and safety plan describing p
 
 (6) Construction traffic management plan.
 
-The applicant shall provide a construction traffic management plan identifying proposed haul routes, construction access points, staging areas, anticipated truck traffic volumes, hours of construction traffic activity, and measures to minimize impacts on public roads, adjacent properties, emergency access, and general traffic safety. The Zoning Commission, as part of the conditional use approval, may require revisions to the plan and may require coordination with applicable county departments, utility providers, school transportation officials, or emergency response agencies where necessary.
+The applicant shall provide a construction traffic management plan identifying proposed haul routes, construction access points, staging areas, anticipated truck traffic volumes, hours of construction traffic activity, and measures to minimize impacts on public roads, adjacent properties, emergency access, and general traffic safety. The Zoning Commission, as part of the conditional use approval, may require revisions to the plan and may require coordination with applicable city and county departments, utility providers, school transportation officials, or emergency response agencies where necessary.
 
 (7) Applicant responsibility for costs.
 
-All costs associated with required studies, reports, plans, engineering analyses, and technical reviews required under this section shall be the responsibility of the applicant. Where the county determines that independent technical review by a qualified consultant is necessary to evaluate the application, the applicant may be required to reimburse the county for the reasonable cost of such review.
+All costs associated with required studies, reports, plans, engineering analyses, and technical reviews required under this section shall be the responsibility of the applicant. Where the City of Americus determines that independent technical review by a qualified consultant is necessary to evaluate the application, the applicant may be required to reimburse the City for the reasonable cost of such review.
 
-(8) Electrical demand disclosure. The applicant shall provide documentation identifying the anticipated maximum electrical demand for the facility and any planned phases of expansion. Any increase in electrical demand beyond that approved as part of the conditional use approval shall require additional review and approval by the county.
+(8) Electrical demand disclosure. The applicant shall provide documentation identifying the anticipated maximum electrical demand for the facility and any planned phases of expansion. Any increase in electrical demand beyond that approved as part of the conditional use approval shall require additional review and approval by the City of Americus.
 
 (9) Ambient noise study.
 
-The applicant shall provide a pre-development ambient noise study prepared by a qualified acoustical consultant. The study shall document existing background sound levels at locations determined appropriately by the county, including property lines adjacent to residential or other noise-sensitive land uses where applicable. The county may require post-construction noise testing to verify compliance with Section 6(6). All costs associated with such studies and any independent technical review shall be the responsibility of the applicant.
+The applicant shall provide a pre-development ambient noise study prepared by a qualified acoustical consultant. The study shall document existing background sound levels at locations determined appropriately by the City of Americus, including property lines adjacent to residential or other noise-sensitive land uses where applicable. The City may require post-construction noise testing to verify compliance with Section 6(6). All costs associated with such studies and any independent technical review shall be the responsibility of the applicant.
 
 (10) Electromagnetic Interference Assessment
 
@@ -491,11 +497,11 @@ The assessment shall evaluate potential interference with:
 
 (j) Aviation or navigation systems where applicable; and
 
-(k) Other sensitive systems identified by the County.
+(k) Other sensitive systems identified by the City of Americus.
 
 (11) Emergency responder coordination.
 
-In addition to the emergency operations plan required by subsection (e), the applicant shall coordinate with local fire, emergency management, law enforcement, and other public safety agencies regarding site access, emergency response procedures, hazardous materials, fuel storage, battery storage systems, and other operational features of the proposed facility that may affect emergency response. The City of __________________ may require periodic coordination, updated emergency response procedures, or specialized training as a condition of approval.
+In addition to the emergency operations plan required by subsection (5), the applicant shall coordinate with local fire, emergency management, law enforcement, and other public safety agencies regarding site access, emergency response procedures, hazardous materials, fuel storage, battery storage systems, and other operational features of the proposed facility that may affect emergency response. The City of Americus may require periodic coordination, updated emergency response procedures, or specialized training as a condition of approval.
 
 Before issuance of a certificate of occupancy, the applicant shall provide documentation of a completed pre-incident coordination meeting with the local fire department and emergency management agency addressing emergency access, shutoff locations, battery hazards, generator and fuel hazards, hazardous materials, water supply for fire suppression, mutual-aid needs, and facility contact procedures. Any specialized equipment, training, access improvements, or response measures imposed as a condition of approval shall be completed or funded before operation begins.
 
@@ -521,7 +527,7 @@ For purposes of this section, expansion shall include additional buildings, serv
 
 ## Section 9- Ongoing Compliance and annual reporting.
 
-(1) Continuing compliance. Each data center, data center campus, and cryptocurrency mining operation shall continuously comply with the requirements of this article, the approved site-development plan, the approved master development plan, if applicable, and any applicable conditions of conditional-use approval.
+(1) Continuing compliance. Each data center and data center campus shall continuously comply with the requirements of this article, the approved site-development plan, the approved master development plan, if applicable, and any applicable conditions of conditional-use approval.
 
 (2) Annual compliance report. On or before January 31 of each year, the owner or operator shall submit an annual compliance report to the Zoning Commission covering the preceding calendar year. The report shall be signed by an authorized representative of the owner or operator and shall certify compliance with the requirements identified in subsection
 
@@ -541,7 +547,7 @@ The annual compliance report shall include:
 
 6. (f) A description of any change in cooling technology, electrical demand, generator capacity, fuel-storage capacity, building area, operational equipment, or other facility component that could constitute a material operational change;
 
-7. (g) Copies of any notices of violation, enforcement actions, consent orders, or similar findings issued by a federal, state, or local regulatory agency relating to the facility during the reporting period, together with a description of any corrective action taken;;
+7. (g) Copies of any notices of violation, enforcement actions, consent orders, or similar findings issued by a federal, state, or local regulatory agency relating to the facility during the reporting period, together with a description of any corrective action taken;
 
 (h) A summary of environmental monitoring, remediation activities, institutional or engineering controls, environmental covenants, wetland-buffer compliance, and any newly discovered environmental condition or release occurring during the reporting period;
 
@@ -551,9 +557,9 @@ The annual compliance report shall include:
 
 The owner or operator shall maintain the records supporting each annual compliance report for a minimum of five (5) years and shall make such records available to the City of Americus for inspection upon reasonable request.
 
-(5) County review and inspection.
+(5) City review and inspection.
 
-The City of Americus may review the annual compliance report, inspect the facility at reasonable times in accordance with applicable law, and require additional information reasonably necessary to determine compliance. Submission of an annual compliance report shall not limit the County’s authority to investigate a complaint or conduct an inspection at another time.
+The City of Americus may review the annual compliance report, inspect the facility at reasonable times in accordance with applicable law, and require additional information reasonably necessary to determine compliance. Submission of an annual compliance report shall not limit the City’s authority to investigate a complaint or conduct an inspection at another time.
 
 (6) Failure to comply.
 
@@ -581,15 +587,15 @@ Submission of an annual compliance report shall not constitute approval of a mat
 
 ## Section 11- Tax Abatements and Regulatory Compliance
 
-(1) Condition of Compliance. The granting, continuation, or renewal of any municipal tax abatement or economic incentive authorized under [Insert City Finance Code Reference] is strictly conditioned upon the data center's absolute compliance with all standards in this ordinance, including but not limited to EMF/EMI thresholds, noise limits, and green infrastructure requirements.
+(1) Condition of Compliance. The granting, continuation, or renewal of any municipal tax abatement or economic incentive granted or supported by the City of Americus is strictly conditioned upon the data center's absolute compliance with all standards in this ordinance, including but not limited to the noise limits, water-use limits, generator standards, environmental protections, and conditions of approval established under this ordinance.
 
-(2) Link to Decommissioning. No tax abatement shall be finalized or distributed by the Finance Department until the operator has fully executed and funded the Decommissioning Plan and financial security requirements established in Section [Insert Decommissioning Section Number] of this ordinance.
+(2) Link to Decommissioning. No tax abatement shall be finalized or distributed by the Finance Department until the operator has fully executed and funded the Decommissioning Plan and financial security requirements established in Section 12 of this ordinance.
 
 (3) Revocation and Clawback. A violation of any regulatory standard herein that remains uncured for more than thirty (30) days shall result in the immediate suspension of all tax abatements. If a facility is abandoned or triggers the decommissioning clauses of this ordinance, the City reserves the right to capture and "claw back" any abated taxes from the previous three (3) fiscal years.
 
 ## Section 12- Decommissioning and abandonment.
 
-(1) Applicability. Every data center, data center campus, and cryptocurrency mining operation shall comply with this section. These requirements apply to permitted uses and conditional uses and shall remain binding upon the property owner, facility owner, operator, and their successors and assigns.
+(1) Applicability. Every data center and data center campus shall comply with this section. These requirements apply to permitted uses and conditional uses and shall remain binding upon the property owner, facility owner, operator, and their successors and assigns.
 
 (2) Decommissioning plan.
 
@@ -661,7 +667,7 @@ The owner or operator shall provide financial assurance in an amount equal to on
 
 The required financial assurance shall be provided in a form acceptable to the City of Americus and City Attorney. Acceptable forms may include an irrevocable letter of credit, surety bond, cash escrow, or another form approved by the City of Americus.
 
-The financial-assurance instrument shall name the City of Americus as beneficiary, obligee, or other authorized recipient, as applicable, and shall permit the County to draw upon or collect the secured funds if the owner or operator fails to perform decommissioning or site restoration as required.
+The financial-assurance instrument shall name the City of Americus as beneficiary, obligee, or other authorized recipient, as applicable, and shall permit the City of Americus to draw upon or collect the secured funds if the owner or operator fails to perform decommissioning or site restoration as required.
 
 (9) Continuing validity.
 
@@ -677,7 +683,7 @@ At least once every three (3) years, and upon any material operational change th
 
 The updated financial assurance shall continue to equal one hundred twenty-five (125) percent of the updated decommissioning and site-restoration cost estimate approved by the City of Americus.
 
-The City of Americusmay require the financial assurance to be increased or otherwise adjusted to reflect facility expansions, changes in equipment or operations, inflation, or current labor, equipment, transportation, disposal, remediation, and site-restoration costs. The owner or operator shall provide any required increase or replacement financial assurance within sixty (60) days after receiving written notice from the City of Americus.
+The City of Americus may require the financial assurance to be increased or otherwise adjusted to reflect facility expansions, changes in equipment or operations, inflation, or current labor, equipment, transportation, disposal, remediation, and site-restoration costs. The owner or operator shall provide any required increase or replacement financial assurance within sixty (60) days after receiving written notice from the City of Americus.
 
 (11) Transfer of ownership or control.
 
@@ -687,7 +693,7 @@ A transfer of ownership, operation, or control of the property or facility shall
 
 2. (b) Provided replacement financial assurance in the full amount required by this section; and
 
-3. (c) Received written confirmation from the City of Americusapproving the substitution.
+3. (c) Received written confirmation from the City of Americus approving the substitution.
 
 The existing financial assurance shall remain in effect until City of Americus has accepted the replacement financial assurance.
 
@@ -725,13 +731,13 @@ The City of Americus shall release the financial assurance only after the Zoning
 
 ## Section 13- Violation of Article and Public Nuisance Abatement
 
-(1) Declaration of Public Nuisance. Any data center facility operated, maintained, or constructed in violation of any provision of this Ordinance—including but not limited to the sound thresholds, water restrictions, or electromagnetic field (EMF/EMI) mitigation standards—is hereby declared to be a Public Nuisance per se.
+(1) Declaration of Public Nuisance. Any data center facility operated, maintained, or constructed in violation of any provision of this Ordinance—including but not limited to the sound limits, water restrictions, generator standards, or any electromagnetic interference mitigation imposed as a condition of approval—is hereby declared to be a Public Nuisance per se.
 
 (2) Revocation of Permit and Operating Authority. Upon a finding by the Code Enforcement Administrator that a violation has continued uncured for a period of fifteen (15) business days following written notice to the operator, the Conditional Use Permit and Certificate of Occupancy for the facility shall be automatically suspended. Continued operation of the data center during such suspension shall constitute a separate, strict-liability municipal offense for each day of operation.
 
 (3) Summary Abatement. If the operator fails to abate the public nuisance within the designated timeframe, the City reserves the right to enter the property and summarily abate the nuisance. Pursuant to O.C.G.A. § 41-2-9, the full cost of such abatement—including any mechanical, technical, or legal expenses incurred by the City—shall be transmitted to the municipal tax collector or city revenue officer. This amount shall constitute a lien against the real property possessing the same dignity and priority as a lien for municipal ad valorem taxes, and shall be collected using all methods available under Georgia law for the collection of delinquent property taxes.
 
-(4) Incentive Forfeiture. A final determination of a violation under this Section shall result in the immediate and permanent revocation of all tax abatements granted under Section [X] of this Ordinance. The City shall be entitled to recover and "claw back" any and all taxes abated during the three (3) fiscal years preceding the date of the violation notice.
+(4) Incentive Forfeiture. A final determination of a violation under this Section shall result in the immediate and permanent revocation of all tax abatements described in Section 11 of this Ordinance. The City shall be entitled to recover and "claw back" any and all taxes abated during the three (3) fiscal years preceding the date of the violation notice.
 
 ## Section 14- Severability.
 
