@@ -36,6 +36,7 @@ const required = [
   'research/swett-avenue-retracement-survey-2026-06-02.jpg',
   'research/americus-tech-campus-rendering.jpg',
   'research/pda-minutes-2026-03-09-excerpt.pdf',
+  'research/model-ordinance-v6-2026-09-16.pdf',
   ...docs.map((name) => `research/${name}`),
 ];
 const errors = [];

@@ -527,6 +527,11 @@ function home() {
           <div class="env-banner-title">Ordinance Draft <em>↓</em></div>
           <p class="env-banner-sub">The August 18 draft has no water-use limit. The PDA agreement's cooling terms are not enforceable by the city through this ordinance.</p>
         </a>
+        <a class="env-banner" href="/research/model-ordinance-v6-2026-09-16.pdf" target="_blank" rel="noreferrer">
+          <div class="env-banner-eyebrow"><i></i> COMMUNITY PROPOSAL · 28 PAGES</div>
+          <div class="env-banner-title">Model Ordinance <em>↓</em></div>
+          <p class="env-banner-sub">Model Technology and Data Center Ordinance, version 6, written for Americus, September 16, 2026. What the August 18 draft leaves out: water-use limits, generator standards, and decommissioning security.</p>
+        </a>
       </div>
     </section>
     <section class="hero hero-wide">

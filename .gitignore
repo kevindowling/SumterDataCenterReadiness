@@ -8,3 +8,12 @@ npm-debug.log*
 .claude
 ignore/*
 node_modules/
+
+# Ordinance working files. Only the published PDF in research/ goes up; the
+# .docx it is rendered from, the local render, and superseded versions stay here.
+/ordinance/*.docx
+/ordinance/*.md
+/ordinance/*.pdf
+/research/model-ordinance-v6-2026-09-15.pdf
+/tools/docx2md.py
+/tools/docx2pdf.py
