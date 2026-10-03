@@ -13,6 +13,7 @@ const required = [
   'website/index.html', 'website/sw.js', 'website/package.json',
   'website/client/app.js', 'website/client/auth.js', 'website/client/auth-config.js',
   'website/client/content.js', 'website/client/petition.js', 'website/client/contacts.js',
+  'website/client/privacy.js',
   'website/client/map.js', 'website/client/gis-sources.js', 'website/client/install.js',
   'website/client/meetings.js', 'website/client/meetings-data.js',
   'website/client/deck-2026-09-08.js',

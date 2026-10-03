@@ -1075,7 +1075,7 @@ const aliasedFiles = ['/index.html', '/sw.js'];
 // of these paths; in dev the shell is served and the router resolves the path.
 // Deliberately an explicit pattern rather than a catch-all, so an unknown path
 // still 403s instead of leaking the shell for anything not on this list.
-const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|meetings(\/[a-z0-9-]+(\/slides)?)?|board(\/\d+)?)\/?$/;
+const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|privacy|meetings(\/[a-z0-9-]+(\/slides)?)?|board(\/\d+)?)\/?$/;
 
 // The one file whose "./" paths have to be rewritten before it is served.
 const isShell = (file) => file.endsWith(join('website', 'index.html'));

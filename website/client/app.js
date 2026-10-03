@@ -6,6 +6,7 @@ import {
 } from './content.js';
 import {LIMITS, livePetition} from './petition.js';
 import {contactSections} from './contacts.js';
+import {privacySections} from './privacy.js';
 import {
   BODIES, COMMENT, CONFIRMED_ON, STALE_AFTER, americusToday, byMonth, calendarIsStale, clockTime,
   dayOfMonth, endStamp, findMeeting, longDate, meetingLabel, meetingPath, meetingSeoTitle,
@@ -54,6 +55,7 @@ function pathFor(next) {
     : next.view === 'map' ? '/map/'
     : next.view === 'petition' ? '/petition/'
     : next.view === 'contact' ? '/contact/'
+    : next.view === 'privacy' ? '/privacy/'
     : next.view === 'meetings' ? '/meetings/'
     : next.view === 'meeting' ? meetingPath(next.id)
     : next.view === 'slides' ? `${meetingPath(next.id)}slides/`
@@ -80,6 +82,7 @@ function routeFromPath(pathname) {
     : /^\/map\/?$/.test(pathname) ? {view: 'map'}
     : /^\/petition\/?$/.test(pathname) ? {view: 'petition'}
     : /^\/contact\/?$/.test(pathname) ? {view: 'contact'}
+    : /^\/privacy\/?$/.test(pathname) ? {view: 'privacy'}
     : /^\/meetings\/?$/.test(pathname) ? {view: 'meetings'}
     // An unknown id falls back to the calendar rather than the home page: a
     // stale link to a meeting is best answered with the list of real ones.
@@ -1240,6 +1243,11 @@ function contactPage() {
   return `${topbar()}<main class="contact">${contactSections()}</main>${searchPanel()}`;
 }
 
+// Borrows the contact page's layout: same column, same headings, same tables.
+function privacyPage() {
+  return `${topbar()}<main class="contact privacy">${privacySections()}</main>${searchPanel()}`;
+}
+
 const communityFeatures = [
   {number: 'C2', title: 'Surveys', text: 'Structured community input on the draft ordinance and its conditions.'},
 ];
@@ -1373,6 +1381,7 @@ function updateHead() {
     : route.view === 'map' ? 'Site map, Sumter Field Desk'
     : route.view === 'board' ? 'Message board, Sumter Field Desk'
     : route.view === 'contact' ? 'Contact your officials, Sumter Field Desk'
+    : route.view === 'privacy' ? 'Privacy, Sumter Field Desk'
     : route.view === 'meetings' ? 'Public meetings, Sumter Field Desk'
     : route.view === 'meeting' ? meetingSeoTitle(findMeeting(route.id))
     : route.view === 'slides' ? deckSeoTitle()
@@ -1397,6 +1406,7 @@ async function render() {
       : route.view === 'map' ? siteMap()
       : route.view === 'petition' ? petitionPage()
       : route.view === 'contact' ? contactPage()
+      : route.view === 'privacy' ? privacyPage()
       : route.view === 'meetings' ? meetingsPage()
       : route.view === 'meeting' ? meetingPage(route.id)
       : route.view === 'slides' ? slidesPage()

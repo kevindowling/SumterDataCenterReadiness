@@ -23,6 +23,7 @@ import {
 } from '../client/content.js';
 import {livePetition} from '../client/petition.js';
 import {contactSections} from '../client/contacts.js';
+import {privacySections} from '../client/privacy.js';
 import {
   MEETINGS, longDate, meetingDescription, meetingPath, meetingSeoTitle,
 } from '../client/meetings.js';
@@ -253,6 +254,18 @@ written.push(await emit(join('contact', 'index.html'), withHead(shell, {
   `<div id="app" data-prerendered="contact"><main class="contact">${contactSections()}</main></div>`,
 )));
 
+// Prerendered for the same reason as the contact page, and because the Google
+// OAuth consent screen links here: a reviewer's crawler has to find the text
+// in the HTML, not behind a script.
+written.push(await emit(join('privacy', 'index.html'), withHead(shell, {
+  title: `Privacy - ${SITE_NAME}`,
+  description: 'What the Sumter Field Desk collects, who sees it, the services behind it, and how to have your data corrected or deleted.',
+  url: `${SITE_ORIGIN}/privacy/`,
+}).replace(
+  '<div id="app"><noscript>This research desk requires JavaScript.</noscript></div>',
+  `<div id="app" data-prerendered="privacy"><main class="contact privacy">${privacySections()}</main></div>`,
+)));
+
 // Views with no note behind them still need a real URL and a sane title.
 for (const [path, title, description] of [
   ['community', 'Community desk', 'Sign in to the Sumter Field Desk community area.'],
@@ -317,6 +330,7 @@ const urls = [
   {loc: `${SITE_ORIGIN}/`, lastmod: newest(noteDates)},
   {loc: `${SITE_ORIGIN}/petition/`, lastmod: lastModified('website/client/petition.js')},
   {loc: `${SITE_ORIGIN}/contact/`, lastmod: lastModified('website/client/contacts.js')},
+  {loc: `${SITE_ORIGIN}/privacy/`, lastmod: lastModified('website/client/privacy.js')},
   // Dated from the data file, not from meetings.js: the calendar's content
   // changes when a meeting is added, and after the data moved out, changes to
   // meetings.js are formatting and date maths that leave every listing saying
