@@ -38,7 +38,7 @@ Signatures caught by the hidden-field check are recorded as rejected and never c
 
 Paper signatures are entered by a named organizer, marked as paper and reported separately from email-confirmed signatures because the two methods provide different evidence.
 
-[the signed paper sheets](/research/petition-signatures-redacted.pdf) (PDF, 25 pages). 
+[the signed paper sheets](/research/petition-signatures-redacted.pdf) (PDF, 31 pages). 
 
 ## What is published and what is not
 
