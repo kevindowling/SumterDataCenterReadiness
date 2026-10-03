@@ -155,6 +155,7 @@ export const approach = [
       'If any part is denied, the agency must cite the specific code section, subsection and paragraph in writing, and must still produce the parts that are not exempt (§§ 50-18-71(d), 50-18-72(b)).',
     ],
     fineprint: 'The first quarter hour of staff time is free, copies are generally capped at 10¢ a page, and there is no fee to simply inspect records routinely open to the public, such as deeds, ordinances and zoning maps.',
+    link: {href: '/records/', label: 'Check the open records log before you file, and log your request there →'},
   },
 ];
 
@@ -271,6 +272,7 @@ function approachBlock() {
         <span class="approach-summary">${escapeHtml(step.summary)}</span>
       </summary>
       <ol>${step.steps.map((line) => `<li>${escapeHtml(line)}</li>`).join('')}</ol>
+      ${step.link ? `<p class="approach-link"><a href="${escapeHtml(step.link.href)}">${escapeHtml(step.link.label)}</a></p>` : ''}
       ${step.fineprint ? `<p class="contact-fineprint">${escapeHtml(step.fineprint)}</p>` : ''}
     </details>`).join('');
   return `<section class="contact-approach">

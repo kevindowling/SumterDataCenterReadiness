@@ -407,3 +407,48 @@ test('the GIS cache exposes its age headers cross-origin', async () => {
   assert.match(exposed, /X-Gis-Age-Ms/);
   assert.match(exposed, /X-Gis-Fetched-At/);
 });
+
+// --- /api/records ------------------------------------------------------------
+// The log is public so a neighbor can check for an existing request without an
+// account; everything that writes, and the review queue that shows unredacted
+// uploads, must not be.
+test('the records log is readable without a token', async () => {
+  const response = await fetch(`${base}/api/records`);
+  // 501 without a database configured; 200 once there is one. Never 401.
+  assert.ok([200, 501].includes(response.status), `unexpected status ${response.status}`);
+});
+
+test('records write and review routes sit behind the auth gate', async () => {
+  const calls = [
+    ['POST', '/api/records', '{}'],
+    ['PATCH', '/api/records/1', '{"status":"withdrawn"}'],
+    ['PUT', '/api/records/1/files?name=minutes.pdf', '%PDF-1.7'],
+    ['GET', '/api/records/review'],
+    ['POST', '/api/records/files/1/drafted', '{}'],
+    ['POST', '/api/records/files/1/publish', '{"paths":["research/records/x.pdf"]}'],
+    ['POST', '/api/records/files/1/reject', '{"note":"x"}'],
+  ];
+  for (const [method, path, body] of calls) {
+    for (const headers of [{}, {Authorization: 'Bearer aaa.bbb.ccc'}]) {
+      const response = await fetch(`${base}${path}`, {method, headers, ...(body ? {body} : {})});
+      // 501 until an Auth0 audience is configured, 401 once it is. Never a
+      // database error first: the token is checked before anything else.
+      assert.ok([401, 501].includes(response.status), `${method} ${path} unexpected status ${response.status}`);
+      if (response.status === 501) assert.doesNotMatch((await response.json()).error, /Database/, `${method} ${path} checked the database before the token`);
+    }
+  }
+});
+
+test('records preflight allows uploads and status changes', async () => {
+  const preflight = await fetch(`${base}/api/records/1/files`, {method: 'OPTIONS', headers: {Origin: 'http://localhost:4173'}});
+  assert.equal(preflight.status, 204);
+  assert.match(preflight.headers.get('access-control-allow-methods'), /PUT/);
+  assert.match(preflight.headers.get('access-control-allow-methods'), /PATCH/);
+});
+
+test('serves the records and privacy pages', async () => {
+  for (const path of ['/records/', '/records', '/privacy/']) {
+    const response = await fetch(`${base}${path}`);
+    assert.equal(response.status, 200, `${path} should serve the shell`);
+  }
+});

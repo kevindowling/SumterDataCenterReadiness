@@ -13,6 +13,12 @@ import {
 import {
   DISPOSABLE_DOMAINS, TIERS, findPetition, normalizeEmail, normalizeIdentity, validateSignature,
 } from '../client/petition.js';
+import {
+  MAX_FILE_BYTES, PUBLISHED_PATH, STATUSES, UPLOADABLE, USER_QUOTA_BYTES, LIMITS as RECORD_LIMITS,
+  cleanFilename, dueDate, isOverdue, kindOf, validateRequest, validateUpdate,
+} from '../client/records.js';
+import {deleteFile, driveConfigured, driveLink, requestFolder, uploadFile} from './drive.mjs';
+import {UploadError, receiveUpload} from './uploads.mjs';
 
 const serverDir = fileURLToPath(new URL('.', import.meta.url));         // website/server
 const websiteDir = normalize(join(serverDir, '..'));
@@ -26,6 +32,7 @@ const types = {
   '.geojson': 'application/geo+json; charset=utf-8',
   '.webmanifest': 'application/manifest+json; charset=utf-8', '.ico': 'image/x-icon',
   '.pdf': 'application/pdf', '.woff2': 'font/woff2', '.mp4': 'video/mp4',
+  '.csv': 'text/csv; charset=utf-8',
 };
 
 // Verifies an Auth0-issued RS256 access token without dependencies. Every
@@ -293,6 +300,293 @@ async function handleBoard(pathname, request, response, claims) {
   }
 
   sendJson(response, 405, {error: 'Method not allowed'});
+}
+
+// --- Open-records request log ------------------------------------------------
+//
+// A public list of the records requests residents have filed, so the next
+// person can see a request already exists instead of filing it again, and a
+// private path for the documents an agency hands back:
+//
+//   1. A signed-in resident logs a request. Their name is public on purpose:
+//      someone who wants the same records should be able to find them.
+//   2. When the agency answers, the requester uploads what came back. Each
+//      file is checked for what it really is (server/uploads.mjs), then sent
+//      to a private folder in the desk's Google Drive.
+//   3. An organizer redacts it on their own machine and commits the redacted
+//      copy under research/records/. This server never publishes anything: it
+//      only records, once the copy is already live on the site, where it is.
+//
+// The list is readable signed out, like the petition. Everything that writes
+// needs a token, checked here rather than by the gate in handleApi so the one
+// public route can sit beside the rest.
+
+// Organizers who review uploads. Falls back to the board's moderators, who are
+// the same two people today.
+const recordsAdmins = new Set((process.env.RECORDS_ADMINS || process.env.BOARD_ADMINS || '')
+  .split(',').map((id) => id.trim()).filter(Boolean));
+const isRecordsAdmin = (claims) => Boolean(claims) && recordsAdmins.has(claims.sub);
+
+const REQUEST_COLUMNS = `id, user_id, requester_name, agency, custodian, description, sent_on::text AS sent_on,
+  status, fulfilled_on::text AS fulfilled_on, denial_citation, drive_folder_id, created_at`;
+const FILE_COLUMNS = `id, request_id, uploaded_by, filename, kind, byte_size, state, published_paths,
+  review_note, drive_file_id, created_at`;
+
+const canEditRequest = (row, claims) => Boolean(claims) && (row.user_id === claims.sub || isRecordsAdmin(claims));
+
+// What the public sees of an upload: only published files, and only where the
+// redacted copies live. The requester and the organizers also see what is
+// still in review, so an upload does not seem to vanish.
+function recordFile(row, {full}) {
+  const base = {id: String(row.id), filename: row.filename, kind: row.kind, state: row.state, paths: row.published_paths || []};
+  return full ? {...base, size: Number(row.byte_size), note: row.review_note, uploadedAt: row.created_at} : base;
+}
+
+function recordRequest(row, files, claims) {
+  const request = {
+    id: String(row.id), requesterName: row.requester_name, agency: row.agency, custodian: row.custodian,
+    description: row.description, sentOn: row.sent_on, status: row.status, statusLabel: STATUSES[row.status],
+    fulfilledOn: row.fulfilled_on, denialCitation: row.denial_citation, createdAt: row.created_at,
+  };
+  const editable = canEditRequest(row, claims);
+  const mine = files.filter((file) => file.request_id === row.id);
+  return {
+    ...request,
+    dueOn: dueDate(request.sentOn),
+    overdue: isOverdue(request),
+    mine: Boolean(claims) && row.user_id === claims.sub,
+    canEdit: editable,
+    files: mine.filter((file) => editable || file.state === 'published').map((file) => recordFile(file, {full: editable})),
+    // Signed-out readers still learn that something came back and is in review.
+    inReview: mine.filter((file) => file.state === 'received' || file.state === 'drafted').length,
+  };
+}
+
+async function optionalClaims(request) {
+  if (!authConfig.audience || !request.headers.authorization) return null;
+  try { return await verifyToken(request); } catch { return null; }
+}
+
+async function handleRecords(pathname, request, response, url) {
+  const rest = pathname.slice('/api/records'.length);
+
+  // GET /api/records -> the public log
+  if (rest === '' && request.method === 'GET') {
+    const database = await getPool();
+    if (!database) { sendJson(response, 501, {error: 'Database not configured'}); return; }
+    const claims = await optionalClaims(request);
+    const {rows} = await database.query(`SELECT ${REQUEST_COLUMNS} FROM records_requests ORDER BY sent_on DESC, id DESC LIMIT 500`);
+    const {rows: files} = rows.length
+      ? await database.query(`SELECT ${FILE_COLUMNS} FROM records_files WHERE request_id = ANY($1) AND (state <> 'rejected' OR uploaded_by = $2) ORDER BY created_at`,
+        [rows.map((row) => row.id), claims?.sub || ''])
+      : {rows: []};
+    sendJson(response, 200, {
+      requests: rows.map((row) => recordRequest(row, files, claims)),
+      signedIn: Boolean(claims),
+      admin: isRecordsAdmin(claims),
+      uploads: driveConfigured(),
+    });
+    return;
+  }
+
+  // Everything below writes, or shows what is not yet public. The token is
+  // checked before the database, as the gate in handleApi does for the board.
+  if (!authConfig.audience) { sendJson(response, 501, {error: 'Set authConfig.audience to enable API routes.'}); return; }
+  let claims;
+  try { claims = await verifyToken(request); }
+  catch (error) { sendJson(response, 401, {error: error.message}); return; }
+  const database = await getPool();
+  if (!database) { sendJson(response, 501, {error: 'Database not configured'}); return; }
+
+  // POST /api/records -> log a request
+  if (rest === '' && request.method === 'POST') {
+    const {value, error} = validateRequest(await readJsonBody(request));
+    if (error) { sendJson(response, 400, {error}); return; }
+    if (throttled(`records-log:${claims.sub}`, 10, 60 * 60_000)) { sendJson(response, 429, {error: 'That is a lot of requests in an hour. Try again later.'}); return; }
+    const {rows} = await database.query(
+      `INSERT INTO records_requests (user_id, requester_name, agency, custodian, description, sent_on, status, fulfilled_on, denial_citation)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING ${REQUEST_COLUMNS}`,
+      [claims.sub, value.requesterName, value.agency, value.custodian, value.description, value.sentOn,
+        value.status, value.fulfilledOn, value.denialCitation]);
+    sendJson(response, 201, {request: recordRequest(rows[0], [], claims)});
+    return;
+  }
+
+  // GET /api/records/review -> the organizers' queue
+  if (rest === '/review' && request.method === 'GET') {
+    if (!isRecordsAdmin(claims)) { sendJson(response, 403, {error: 'Organizers only'}); return; }
+    const {rows} = await database.query(
+      `SELECT f.id, f.filename, f.kind, f.byte_size, f.state, f.drive_file_id, f.created_at,
+              r.id AS request_id, r.agency, r.description, r.requester_name, r.sent_on::text AS sent_on
+         FROM records_files f JOIN records_requests r ON r.id = f.request_id
+        WHERE f.state IN ('received', 'drafted') ORDER BY f.created_at`);
+    sendJson(response, 200, {files: rows.map((row) => ({
+      id: String(row.id), filename: row.filename, kind: row.kind, size: Number(row.byte_size), state: row.state,
+      uploadedAt: row.created_at, driveLink: row.drive_file_id ? driveLink(row.drive_file_id) : null,
+      request: {id: String(row.request_id), agency: row.agency, description: row.description, requesterName: row.requester_name, sentOn: row.sent_on},
+    }))});
+    return;
+  }
+
+  const requestMatch = rest.match(/^\/(\d+)$/);
+  const uploadMatch = rest.match(/^\/(\d+)\/files$/);
+  const fileMatch = rest.match(/^\/files\/(\d+)\/(drafted|publish|reject)$/);
+
+  // PATCH /api/records/:id -> the agency answered, or the requester gave up
+  if (requestMatch && request.method === 'PATCH') {
+    const {rows} = await database.query(`SELECT ${REQUEST_COLUMNS} FROM records_requests WHERE id = $1`, [requestMatch[1]]);
+    if (!rows.length) { sendJson(response, 404, {error: 'Request not found'}); return; }
+    if (!canEditRequest(rows[0], claims)) { sendJson(response, 403, {error: 'Only the requester can update this request'}); return; }
+    const {value, error} = validateUpdate(await readJsonBody(request), {sentOn: rows[0].sent_on});
+    if (error) { sendJson(response, 400, {error}); return; }
+    const {rows: updated} = await database.query(
+      `UPDATE records_requests SET status = $2, fulfilled_on = $3, denial_citation = $4, updated_at = now()
+        WHERE id = $1 RETURNING ${REQUEST_COLUMNS}`,
+      [requestMatch[1], value.status, value.fulfilledOn, value.denialCitation]);
+    const {rows: files} = await database.query(`SELECT ${FILE_COLUMNS} FROM records_files WHERE request_id = $1 ORDER BY created_at`, [requestMatch[1]]);
+    sendJson(response, 200, {request: recordRequest(updated[0], files, claims)});
+    return;
+  }
+
+  // PUT /api/records/:id/files?name=minutes.pdf -> the raw file as the body
+  if (uploadMatch && request.method === 'PUT') {
+    await handleRecordsUpload(request, response, url, database, uploadMatch[1], claims);
+    return;
+  }
+
+  if (fileMatch && request.method === 'POST') {
+    if (!isRecordsAdmin(claims)) { sendJson(response, 403, {error: 'Organizers only'}); return; }
+    await handleRecordsReview(request, response, database, fileMatch[1], fileMatch[2], claims);
+    return;
+  }
+
+  sendJson(response, 404, {error: 'Unknown records route'});
+}
+
+async function handleRecordsUpload(request, response, url, database, requestId, claims) {
+  if (!driveConfigured()) { sendJson(response, 501, {error: 'Uploads are not configured on this server yet.'}); return; }
+  const {rows} = await database.query(`SELECT ${REQUEST_COLUMNS} FROM records_requests WHERE id = $1`, [requestId]);
+  const row = rows[0];
+  if (!row) { sendJson(response, 404, {error: 'Request not found'}); return; }
+  if (!canEditRequest(row, claims)) { sendJson(response, 403, {error: 'Only the requester can upload to this request'}); return; }
+  if (!UPLOADABLE.has(row.status)) { sendJson(response, 409, {error: 'Mark the request fulfilled or partly denied before uploading what came back.'}); return; }
+
+  const filename = cleanFilename(url.searchParams.get('name'));
+  const type = kindOf(filename);
+  if (!filename || !type) { sendJson(response, 415, {error: 'Only PDF, PNG, JPEG, XLSX, XLS and CSV files are accepted. Email anything else to the desk.'}); return; }
+
+  const declaredSize = Number(request.headers['content-length']);
+  if (!Number.isSafeInteger(declaredSize) || declaredSize <= 0) { sendJson(response, 411, {error: 'The upload must state its size.'}); return; }
+  if (declaredSize > MAX_FILE_BYTES) { sendJson(response, 413, {error: `Files are limited to ${MAX_FILE_BYTES / 1024 / 1024} MB. Email larger ones to the desk.`}); return; }
+
+  // Bytes this person already has waiting in Drive. Published and rejected
+  // originals are deleted from Drive, so they free their share.
+  const {rows: [{held}]} = await database.query(
+    `SELECT coalesce(sum(byte_size), 0)::bigint AS held FROM records_files WHERE uploaded_by = $1 AND state IN ('received', 'drafted')`,
+    [claims.sub]);
+  if (Number(held) + declaredSize > USER_QUOTA_BYTES) { sendJson(response, 413, {error: 'You have a lot of files waiting for review already. Try again once some are published.'}); return; }
+  if (throttled(`records-upload:${claims.sub}`, 30, 60 * 60_000)) { sendJson(response, 429, {error: 'That is a lot of uploads in an hour. Try again later.'}); return; }
+
+  let received;
+  try {
+    received = await receiveUpload(request, {kind: type.kind, declaredSize, maxBytes: MAX_FILE_BYTES});
+  } catch (error) {
+    sendJson(response, error instanceof UploadError ? error.status : 400, {error: error.message});
+    return;
+  }
+
+  try {
+    let folderId = row.drive_folder_id;
+    if (!folderId) {
+      folderId = await requestFolder({id: row.id, sentOn: row.sent_on, agency: row.agency});
+      // Two first uploads racing would each make a folder; the first to land
+      // wins and the other file simply goes into the winner's.
+      const {rows: claimed} = await database.query(
+        `UPDATE records_requests SET drive_folder_id = $2 WHERE id = $1 AND drive_folder_id IS NULL RETURNING drive_folder_id`,
+        [row.id, folderId]);
+      if (!claimed.length) {
+        await deleteFile(folderId).catch(() => {});
+        folderId = (await database.query('SELECT drive_folder_id FROM records_requests WHERE id = $1', [row.id])).rows[0].drive_folder_id;
+      }
+    }
+    const driveFileId = await uploadFile({path: received.path, size: received.size, name: filename, mime: type.mime, folderId});
+    const {rows: inserted} = await database.query(
+      `INSERT INTO records_files (request_id, uploaded_by, filename, kind, byte_size, sha256, drive_file_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING ${FILE_COLUMNS}`,
+      [row.id, claims.sub, filename, type.kind, received.size, received.sha256, driveFileId]);
+    sendJson(response, 201, {file: recordFile(inserted[0], {full: true})});
+  } catch (error) {
+    console.error(`Records upload to Drive failed: ${error.message}`);
+    sendJson(response, 502, {error: 'The file was checked but could not be stored. Try again in a few minutes.'});
+  } finally {
+    await received.cleanup();
+  }
+}
+
+// Confirms a published copy is really on the site before the log links it, so
+// the log can never point at a file that is not there. In production that is a
+// request to the live site, which only succeeds after the organizer has pushed
+// and Pages has deployed; in local dev, the file on disk.
+async function publishedCopyExists(path) {
+  const origin = process.env.PUBLIC_ORIGIN;
+  if (!origin) {
+    try { return statSync(join(projectDir, path)).isFile(); } catch { return false; }
+  }
+  try {
+    const response = await fetch(`${origin.replace(/\/$/, '')}/${path}`, {method: 'HEAD', redirect: 'follow'});
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function handleRecordsReview(request, response, database, fileId, action, claims) {
+  const {rows} = await database.query(`SELECT ${FILE_COLUMNS} FROM records_files WHERE id = $1`, [fileId]);
+  const file = rows[0];
+  if (!file) { sendJson(response, 404, {error: 'File not found'}); return; }
+  if (file.state !== 'received' && file.state !== 'drafted') { sendJson(response, 409, {error: `This file is already ${file.state}.`}); return; }
+
+  // POST .../drafted -> a redacted draft exists on the organizer's machine
+  if (action === 'drafted') {
+    await database.query(`UPDATE records_files SET state = 'drafted' WHERE id = $1`, [fileId]);
+    sendJson(response, 200, {state: 'drafted'});
+    return;
+  }
+
+  const input = await readJsonBody(request);
+
+  // POST .../reject {note} -> not publishable; the original is deleted
+  if (action === 'reject') {
+    const note = String(input.note ?? '').trim();
+    if (!note || note.length > RECORD_LIMITS.note) { sendJson(response, 400, {error: `Say why, in 1-${RECORD_LIMITS.note} characters. The requester sees it.`}); return; }
+    if (file.drive_file_id) await deleteFile(file.drive_file_id);
+    await database.query(
+      `UPDATE records_files SET state = 'rejected', review_note = $2, drive_file_id = NULL, reviewed_by = $3, reviewed_at = now() WHERE id = $1`,
+      [fileId, note, claims.sub]);
+    sendJson(response, 200, {state: 'rejected'});
+    return;
+  }
+
+  // POST .../publish {paths} -> the redacted copies are live; link them
+  const paths = Array.isArray(input.paths) ? input.paths.map((path) => String(path).trim().replace(/^\//, '')) : [];
+  if (!paths.length || paths.length > 20) { sendJson(response, 400, {error: 'Give the path of each published copy, e.g. research/records/2026-10-03-council-minutes.pdf.'}); return; }
+  const malformed = paths.find((path) => !PUBLISHED_PATH.test(path));
+  if (malformed) { sendJson(response, 400, {error: `${malformed} is not a records path. Use research/records/<lowercase-name>.pdf, .csv, .png or .jpg.`}); return; }
+  for (const path of paths) {
+    if (!await publishedCopyExists(path)) { sendJson(response, 409, {error: `${path} is not live on the site yet. Push it and wait for the Pages deploy, then publish.`}); return; }
+  }
+  // The redacted copies are public now, so the original goes. If Drive refuses,
+  // the file is still published and the original stays listed for a retry.
+  let driveFileId = file.drive_file_id;
+  let warning = '';
+  if (driveFileId) {
+    try { await deleteFile(driveFileId); driveFileId = null; }
+    catch (error) { warning = `Published, but the original could not be deleted from Drive: ${error.message}`; }
+  }
+  await database.query(
+    `UPDATE records_files SET state = 'published', published_paths = $2, drive_file_id = $3, reviewed_by = $4, reviewed_at = now() WHERE id = $1`,
+    [fileId, paths, driveFileId, claims.sub]);
+  sendJson(response, 200, {state: 'published', paths, ...(warning ? {warning} : {})});
 }
 
 // --- Petition ---------------------------------------------------------------
@@ -1048,6 +1342,8 @@ async function handleApi(pathname, request, response, url) {
   if (pathname.startsWith('/api/petition/')) { await handlePetition(pathname, request, response, url); return; }
   // Public on purpose: see the note above handleGis.
   if (pathname === '/api/gis') { await handleGis(request, response, url); return; }
+  // The log is public; its write routes verify a token themselves.
+  if (pathname === '/api/records' || pathname.startsWith('/api/records/')) { await handleRecords(pathname, request, response, url); return; }
   if (!authConfig.audience) { sendJson(response, 501, {error: 'Set authConfig.audience (an Auth0 API identifier) to enable API routes.'}); return; }
   let claims;
   try { claims = await verifyToken(request); }
@@ -1075,7 +1371,7 @@ const aliasedFiles = ['/index.html', '/sw.js'];
 // of these paths; in dev the shell is served and the router resolves the path.
 // Deliberately an explicit pattern rather than a catch-all, so an unknown path
 // still 403s instead of leaking the shell for anything not on this list.
-const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|privacy|meetings(\/[a-z0-9-]+(\/slides)?)?|board(\/\d+)?)\/?$/;
+const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|privacy|records|meetings(\/[a-z0-9-]+(\/slides)?)?|board(\/\d+)?)\/?$/;
 
 // The one file whose "./" paths have to be rewritten before it is served.
 const isShell = (file) => file.endsWith(join('website', 'index.html'));
@@ -1105,7 +1401,9 @@ function resolvePublicFile(rawPath) {
   return file;
 }
 
-createServer((request, response) => {
+// Node cuts a request off after five minutes by default. A 50 MB records
+// upload over a slow rural connection can take longer than that.
+createServer({requestTimeout: 30 * 60_000}, (request, response) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
   const rawPath = url.pathname;
   const pathname = (() => { try { return decodeURIComponent(rawPath); } catch { return rawPath; } })();
@@ -1115,7 +1413,7 @@ createServer((request, response) => {
       response.setHeader('Access-Control-Allow-Origin', origin);
       response.setHeader('Vary', 'Origin');
       response.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
       // Without this the map, served from another origin, cannot read the age
       // of the copy it was handed and so cannot tell the reader.
       response.setHeader('Access-Control-Expose-Headers', 'X-Gis-Fetched-At, X-Gis-Age-Ms, X-Gis-State, X-Gis-Feature-Count');

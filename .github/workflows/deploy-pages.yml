@@ -41,6 +41,12 @@ jobs:
           cp -r website/client _site/client
           cp -r website/assets _site/assets
           cp research/*.md research/*.pdf research/*.jpg _site/research/
+          # Redacted open-records responses (the /records/ log links them).
+          # Only the formats the redaction step produces; originals never
+          # enter the repository at all.
+          mkdir -p _site/research/records
+          find research/records -maxdepth 1 -type f \( -name '*.pdf' -o -name '*.csv' -o -name '*.png' -o -name '*.jpg' \) \
+            -exec cp {} _site/research/records/ \; 2>/dev/null || true
           touch _site/.nojekyll
           test ! -e _site/data-center-environmental-research-report.md
 

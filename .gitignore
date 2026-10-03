@@ -17,3 +17,5 @@ node_modules/
 /research/model-ordinance-v6-2026-09-15.pdf
 /tools/docx2md.py
 /tools/docx2pdf.py
+/tools/google-refresh-token.mjs
+/tools/records

@@ -434,6 +434,54 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .signer p{margin:10px 0 0;font-size:15px;line-height:1.45}
 @media(max-width:720px){.petition{padding:30px 20px 70px}.petition-head h1{font-size:clamp(36px,11vw,52px)}.form-row,.form-row.three{grid-template-columns:1fr}.petition-tally{grid-template-columns:1fr 1fr}.petition-form button{width:100%}}
 
+/* Open records log: the board's column and forms, plus request cards */
+.records .lede a{color:#1b6069;text-underline-offset:3px}
+.records .hero-actions{margin-top:26px}
+.record-form select,.record-manage select{display:block;width:100%;padding:12px;margin-bottom:10px;border:1px solid var(--ink);background:var(--paper);font:400 14px/1.2 var(--mono)}
+.record-row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.record-form .quiet{margin-left:8px;background:none;color:var(--ink)}
+.record-similar ul{margin:0 0 14px;padding:0;list-style:none;border-left:3px solid var(--orange)}
+.record-similar li{padding:6px 12px;font-size:15px;line-height:1.4}
+.record-similar li span{display:block;color:var(--muted);font:400 11px/1.4 var(--mono)}
+.record-similar-head{margin:4px 0 8px;color:var(--orange);font:500 9px/1 var(--mono);letter-spacing:.13em}
+.record-filters{display:flex;flex-wrap:wrap;gap:8px;margin:34px 0 0}
+.record-filters button{padding:8px 12px;border:1px solid var(--ink);background:none;cursor:pointer;font:500 10px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.record-filters button[aria-pressed=true]{background:var(--ink);color:var(--light)}
+.record-list{margin-top:16px;border-top:1px solid var(--ink)}
+.record-item{padding:20px 0;border-bottom:1px solid #171a1833}
+.record-item header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 14px}
+.record-item header b{font-size:21px;line-height:1.15}
+.record-status{padding:4px 8px;border:1px solid currentColor;font:500 9px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.record-status.pending{color:var(--muted)}
+.record-status.fulfilled{color:var(--green)}
+.record-status.partial,.record-status.denied,.record-status.overdue{color:var(--red)}
+.record-status.overdue{background:var(--red);border-color:var(--red);color:var(--light)}
+.record-status.withdrawn{color:var(--muted);text-decoration:line-through}
+.record-description{margin:10px 0 8px;line-height:1.5}
+.record-meta{margin:4px 0 0;color:var(--muted);font:400 12px/1.5 var(--mono)}
+.record-meta b{color:var(--ink);font-weight:500}
+.record-files{margin:12px 0 0;padding:0;list-style:none;font:400 13px/1.6 var(--mono)}
+.record-files li:before{content:'↓ ';color:var(--orange)}
+.record-files a{color:#1b6069;text-underline-offset:3px;overflow-wrap:anywhere}
+.record-files.mine li:before{content:'· '}
+.record-files em{font-style:normal}
+.record-files em.published{color:var(--green)}
+.record-files em.rejected{color:var(--red)}
+.record-manage{margin-top:14px}
+.record-manage summary{cursor:pointer;color:var(--orange);font:500 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.record-manage .board-form{margin:14px 0 0}
+.record-manage input[type=file]{font-size:13px}
+.record-queue{margin-top:34px;padding:16px 20px;border:1px solid var(--ink);background:var(--light)}
+.record-queue .board-count{margin-top:0}
+.record-queue-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 18px;padding:12px 0;border-top:1px solid #171a1826}
+.record-queue-row b{display:block;font:500 13px/1.3 var(--mono);overflow-wrap:anywhere}
+.record-queue-row span{color:var(--muted);font:400 11px/1.4 var(--mono)}
+.record-queue-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.record-queue-actions a{color:#1b6069;font:500 11px/1 var(--mono)}
+.record-queue-actions button{padding:8px 12px;border:1px solid var(--ink);background:var(--ink);color:var(--light);cursor:pointer;font:500 10px/1 var(--mono)}
+.record-queue-actions button.danger{border-color:var(--red);background:none;color:var(--red)}
+@media(max-width:720px){.record-row{grid-template-columns:1fr}.record-form .quiet{margin:8px 0 0}}
+
 /* Site footer: in the shell, below every view */
 .site-footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;padding:22px clamp(20px,5vw,64px);border-top:1px solid #171a1826;color:var(--muted);font:400 10px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase}
 .site-footer a{color:inherit;text-underline-offset:3px}
@@ -445,6 +493,8 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 .contact-head h1 em{color:var(--orange);font-weight:400}
 .contact h2{margin:0 0 14px;font-size:clamp(28px,3vw,42px);font-weight:600;line-height:1;letter-spacing:-.04em}
 .contact section{margin-top:clamp(44px,5vw,72px)}
+.approach-link{margin:14px 0 0;font-size:15px}
+.approach-link a{color:#1b6069;text-underline-offset:3px}
 .contact-fineprint{margin:16px 0 0;color:var(--muted);font-size:14px;line-height:1.5}
 .privacy a{color:#1b6069;text-underline-offset:3px}
 .contact-source{margin:14px 0 0;color:var(--muted);font:400 9px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase}

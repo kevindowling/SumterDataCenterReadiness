@@ -27,6 +27,7 @@ const SHELL = [
   '/client/petition.js',
   '/client/contacts.js',
   '/client/privacy.js',
+  '/client/records.js',
   '/client/meetings.js',
   '/client/meetings-data.js',
   // app.js imports the deck at the top, so offline it is the same failure the

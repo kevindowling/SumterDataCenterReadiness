@@ -266,6 +266,15 @@ written.push(await emit(join('privacy', 'index.html'), withHead(shell, {
   `<div id="app" data-prerendered="privacy"><main class="contact privacy">${privacySections()}</main></div>`,
 )));
 
+// The open-records log loads its entries from the API, so the HTML carries
+// only the title and description. Indexable: "Americus open records request"
+// should find the page that says whether someone already asked.
+written.push(await emit(join('records', 'index.html'), withHead(shell, {
+  title: `Open records log - ${SITE_NAME}`,
+  description: 'Open records requests Americus and Sumter County residents have filed about the data center, what the agencies sent back, and who to ask before filing the same request again.',
+  url: `${SITE_ORIGIN}/records/`,
+})));
+
 // Views with no note behind them still need a real URL and a sane title.
 for (const [path, title, description] of [
   ['community', 'Community desk', 'Sign in to the Sumter Field Desk community area.'],
@@ -331,6 +340,7 @@ const urls = [
   {loc: `${SITE_ORIGIN}/petition/`, lastmod: lastModified('website/client/petition.js')},
   {loc: `${SITE_ORIGIN}/contact/`, lastmod: lastModified('website/client/contacts.js')},
   {loc: `${SITE_ORIGIN}/privacy/`, lastmod: lastModified('website/client/privacy.js')},
+  {loc: `${SITE_ORIGIN}/records/`, lastmod: lastModified('website/client/records.js')},
   // Dated from the data file, not from meetings.js: the calendar's content
   // changes when a meeting is added, and after the data moved out, changes to
   // meetings.js are formatting and date maths that leave every listing saying

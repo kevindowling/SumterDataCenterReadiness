@@ -5,7 +5,11 @@ import {
   markdown, seoTitle, unlistedDocuments,
 } from './content.js';
 import {LIMITS, livePetition} from './petition.js';
-import {contactSections} from './contacts.js';
+import {contactSections, organizers} from './contacts.js';
+import {
+  ACCEPT, AGENCIES, LIMITS as RECORD_LIMITS, MAX_FILE_BYTES, STATUSES, UPLOADABLE, createSniffer, kindOf,
+  todayInAmericus,
+} from './records.js';
 import {privacySections} from './privacy.js';
 import {
   BODIES, COMMENT, CONFIRMED_ON, STALE_AFTER, americusToday, byMonth, calendarIsStale, clockTime,
@@ -56,6 +60,7 @@ function pathFor(next) {
     : next.view === 'petition' ? '/petition/'
     : next.view === 'contact' ? '/contact/'
     : next.view === 'privacy' ? '/privacy/'
+    : next.view === 'records' ? '/records/'
     : next.view === 'meetings' ? '/meetings/'
     : next.view === 'meeting' ? meetingPath(next.id)
     : next.view === 'slides' ? `${meetingPath(next.id)}slides/`
@@ -83,6 +88,7 @@ function routeFromPath(pathname) {
     : /^\/petition\/?$/.test(pathname) ? {view: 'petition'}
     : /^\/contact\/?$/.test(pathname) ? {view: 'contact'}
     : /^\/privacy\/?$/.test(pathname) ? {view: 'privacy'}
+    : /^\/records\/?$/.test(pathname) ? {view: 'records'}
     : /^\/meetings\/?$/.test(pathname) ? {view: 'meetings'}
     // An unknown id falls back to the calendar rather than the home page: a
     // stale link to a meeting is best answered with the list of real ones.
@@ -764,6 +770,358 @@ function boardView() {
   </main>${searchPanel()}`;
 }
 
+// --- Open-records log ----------------------------------------------------------
+// Public, like the petition: the point is that a neighbor can check whether a
+// request already exists before filing one, account or not. Logging a request
+// and uploading what came back need an account, because the name on a request
+// is public and has to belong to someone.
+
+let records = {
+  state: 'idle',          // idle | loading | ready | unavailable | error
+  requests: [], admin: false, uploads: false, error: '', notice: '',
+  filter: 'all',          // all | pending | answered
+  formOpen: false, formError: '', saving: false, draft: {},
+  busy: '',               // id of the request whose update or upload is running
+  itemMessages: {},       // per-request result or error line, by id
+  queue: [], queueError: '',
+  loadedAs: null,         // the account the log was last read as; '' signed out
+};
+
+const SIGNIFICANT = /[a-z0-9]{4,}/g;
+const STOPWORDS = new Set(['records', 'record', 'copies', 'copy', 'from', 'with', 'that', 'this', 'their', 'about', 'regarding', 'related', 'including', 'meeting', 'request', 'requested', 'please', 'between', 'concerning', 'documents', 'document', 'which', 'were', 'have', 'been']);
+const words = (text) => new Set((String(text).toLowerCase().match(SIGNIFICANT) || []).filter((word) => !STOPWORDS.has(word)));
+
+// Requests that look like the one being typed: same agency (either name
+// containing the other) plus a shared subject word, or several shared words
+// whatever the agency. Shown while typing, before anything is submitted.
+function similarRequests(agency, description) {
+  const wanted = words(description);
+  const agencyKey = String(agency).trim().toLowerCase();
+  if (!wanted.size && !agencyKey) return [];
+  return records.requests
+    .map((request) => {
+      const theirs = request.agency.toLowerCase();
+      const sameAgency = Boolean(agencyKey) && (theirs.includes(agencyKey) || agencyKey.includes(theirs));
+      const shared = [...words(request.description)].filter((word) => wanted.has(word)).length;
+      return {request, score: (sameAgency ? 2 : 0) + shared, shared, sameAgency};
+    })
+    .filter(({shared, sameAgency}) => (sameAgency && shared >= 1) || shared >= 3)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map(({request}) => request);
+}
+
+const recordDate = (iso) => (iso
+  ? new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC'})
+  : '');
+
+const fileSize = (bytes) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
+
+async function loadRecords() {
+  records = {...records, state: 'loading', error: '', loadedAs: user?.sub || ''};
+  render();
+  try {
+    // As the petition does: signed out, a plain read, without waiting on the
+    // sign-in script. Signed in, the same route also marks what this account
+    // may edit, and whether it reviews uploads.
+    const response = user
+      ? await apiFetch('/api/records', {optionalAuth: true})
+      : await fetch(`${apiOrigin()}/api/records`);
+    if (response.status === 501) { records = {...records, state: 'unavailable'}; render(); return; }
+    if (!response.ok) throw new Error(serverError(response.status));
+    const data = await response.json();
+    records = {...records, state: 'ready', requests: data.requests, admin: data.admin, uploads: data.uploads};
+    if (data.admin) await loadRecordsQueue();
+  } catch (error) {
+    records = {...records, state: 'error', error: error.message};
+  }
+  render();
+}
+
+async function loadRecordsQueue() {
+  try {
+    const response = await apiFetch('/api/records/review');
+    if (!response.ok) throw new Error(serverError(response.status));
+    records = {...records, queue: (await response.json()).files, queueError: ''};
+  } catch (error) {
+    records = {...records, queueError: error.message};
+  }
+}
+
+const formValues = (form) => Object.fromEntries([...new FormData(form).entries()].map(([key, value]) => [key, String(value)]));
+
+async function submitRecordRequest(form) {
+  const draft = formValues(form);
+  records = {...records, saving: true, formError: '', draft};
+  render();
+  try {
+    const response = await apiFetch('/api/records', {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(draft),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(response.status === 401 ? serverError(401) : body.error || `Server returned ${response.status}`);
+    records = {...records, saving: false, formOpen: false, draft: {}, notice: 'Logged. Neighbors can see it now.'};
+    await loadRecords();
+  } catch (error) {
+    records = {...records, saving: false, formError: error.message};
+    render();
+  }
+}
+
+const itemMessage = (id, text, error = false) => {
+  records = {...records, itemMessages: {...records.itemMessages, [id]: {text, error}}};
+};
+
+async function updateRecordRequest(form) {
+  const id = form.dataset.recordUpdate;
+  records = {...records, busy: id};
+  itemMessage(id, '');
+  render();
+  try {
+    const response = await apiFetch(`/api/records/${id}`, {
+      method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formValues(form)),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(response.status === 401 ? serverError(401) : body.error || `Server returned ${response.status}`);
+    records = {...records, busy: '', requests: records.requests.map((request) => (request.id === id ? body.request : request))};
+    itemMessage(id, 'Saved.');
+  } catch (error) {
+    records = {...records, busy: ''};
+    itemMessage(id, error.message, true);
+  }
+  render();
+}
+
+// The same check the server makes, run first in the browser, so a wrong file
+// is refused with its reason before minutes of uploading rather than after.
+async function precheckFile(file) {
+  const type = kindOf(file.name);
+  if (!type) return `${file.name}: only PDF, PNG, JPEG, XLSX, XLS and CSV files are accepted.`;
+  if (file.size > MAX_FILE_BYTES) return `${file.name} is larger than ${MAX_FILE_BYTES / 1024 / 1024} MB. Email it to the desk instead.`;
+  const sniffer = createSniffer(type.kind);
+  const reader = file.stream().getReader();
+  for (;;) {
+    const {done, value} = await reader.read();
+    if (done) break;
+    const error = sniffer.push(value);
+    if (error) { reader.cancel(); return `${file.name}: ${error}`; }
+  }
+  const error = sniffer.finish();
+  return error ? `${file.name}: ${error}` : '';
+}
+
+async function uploadRecordFiles(form) {
+  const id = form.dataset.recordUpload;
+  const files = [...form.querySelector('input[type=file]').files];
+  if (!files.length) { itemMessage(id, 'Choose one or more files first.', true); render(); return; }
+  records = {...records, busy: id};
+  const done = [];
+  try {
+    for (const [index, file] of files.entries()) {
+      itemMessage(id, `Checking ${file.name}…`);
+      render();
+      const problem = await precheckFile(file);
+      if (problem) throw new Error(problem);
+      itemMessage(id, `Uploading ${index + 1} of ${files.length}: ${file.name}…`);
+      render();
+      const response = await apiFetch(`/api/records/${id}/files?name=${encodeURIComponent(file.name)}`, {method: 'PUT', body: file});
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(response.status === 401 ? serverError(401) : body.error || `Server returned ${response.status}`);
+      done.push(file.name);
+    }
+    itemMessage(id, `Uploaded ${done.length === 1 ? done[0] : `${done.length} files`}. An organizer will redact and publish ${done.length === 1 ? 'it' : 'them'}.`);
+  } catch (error) {
+    itemMessage(id, `${done.length ? `Uploaded ${done.join(', ')}. ` : ''}${error.message}`, true);
+  }
+  records = {...records, busy: ''};
+  const messages = records.itemMessages;
+  await loadRecords();
+  records = {...records, itemMessages: messages};
+  render();
+}
+
+async function reviewRecordFile(fileId, action) {
+  let payload = {};
+  if (action === 'publish') {
+    const answer = prompt('Path of each published copy, one per line or comma-separated (e.g. research/records/2026-10-03-council-minutes.pdf). Push them first: the server checks they are live.');
+    if (!answer) return;
+    payload = {paths: answer.split(/[\s,]+/).filter(Boolean)};
+  }
+  if (action === 'reject') {
+    const note = prompt('Why is this not publishable? The requester sees this note. The original is deleted from Drive.');
+    if (!note) return;
+    payload = {note};
+  }
+  try {
+    const response = await apiFetch(`/api/records/files/${fileId}/${action}`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || serverError(response.status));
+    records = {...records, notice: body.warning || (action === 'publish' ? 'Published and linked.' : action === 'reject' ? 'Rejected; the original was deleted.' : 'Marked drafted.')};
+  } catch (error) {
+    records = {...records, notice: '', queueError: error.message};
+  }
+  await loadRecords();
+}
+
+const RECORD_FILE_STATES = {received: 'Waiting for review', drafted: 'Being redacted', published: 'Published', rejected: 'Not published'};
+
+const statusBadge = (request) => (request.overdue
+  ? `<span class="record-status overdue">Overdue · due ${recordDate(request.dueOn)}</span>`
+  : `<span class="record-status ${request.status}">${escapeHtml(request.statusLabel)}</span>`);
+
+const similarList = (matches) => (matches.length
+  ? `<p class="record-similar-head">ALREADY ON THE LOG · CHECK BEFORE FILING AGAIN</p>
+     <ul>${matches.map((request) => `<li><b>${escapeHtml(request.agency)}</b> · ${escapeHtml(request.description.slice(0, 140))}${request.description.length > 140 ? '…' : ''}<span>${escapeHtml(request.requesterName)} · ${recordDate(request.sentOn)} · ${request.overdue ? 'Overdue' : escapeHtml(request.statusLabel)}</span></li>`).join('')}</ul>`
+  : '');
+
+const ANSWERED = new Set(['fulfilled', 'partial', 'denied']);
+
+// The status, answer date and citation fields, shared by the log form (for a
+// past request) and each request's update panel.
+const outcomeFields = (prefix, values, {logging}) => `
+  <div class="record-row">
+    <div><label for="${prefix}-status">${logging ? 'HAS THE AGENCY ANSWERED?' : 'STATUS'}</label>
+      <select id="${prefix}-status" name="status" data-record-status>
+        ${Object.entries(STATUSES).filter(([key]) => !logging || key !== 'withdrawn').map(([key, label]) => `<option value="${key}" ${values.status === key ? 'selected' : ''}>${logging && key === 'pending' ? 'Not yet' : escapeHtml(label)}</option>`).join('')}
+      </select></div>
+    <div data-answered ${ANSWERED.has(values.status) ? '' : 'hidden'}><label for="${prefix}-answered">DATE ANSWERED</label>
+      <input id="${prefix}-answered" name="fulfilledOn" type="date" max="${todayInAmericus()}" value="${escapeHtml(values.fulfilledOn || '')}" /></div>
+  </div>
+  <div data-denied ${values.status === 'partial' || values.status === 'denied' ? '' : 'hidden'}>
+    <label for="${prefix}-citation">CODE SECTION CITED FOR THE DENIAL</label>
+    <input id="${prefix}-citation" name="denialCitation" maxlength="${RECORD_LIMITS.citation}" placeholder="e.g. § 50-18-72(a)(34)" value="${escapeHtml(values.denialCitation || '')}" />
+  </div>`;
+
+function recordForm() {
+  const draft = {requesterName: user?.name && !/@/.test(user.name) ? user.name : '', status: 'pending', ...records.draft};
+  return `<form class="board-form record-form" data-record-form>
+    <label for="record-name">YOUR NAME · SHOWN PUBLICLY SO NEIGHBORS CAN FIND YOU</label>
+    <input id="record-name" name="requesterName" maxlength="${RECORD_LIMITS.name}" required value="${escapeHtml(draft.requesterName)}" />
+    <div class="record-row">
+      <div><label for="record-agency">AGENCY</label>
+        <input id="record-agency" name="agency" list="record-agencies" maxlength="${RECORD_LIMITS.agency}" required value="${escapeHtml(draft.agency || '')}" data-similar-input />
+        <datalist id="record-agencies">${AGENCIES.map((agency) => `<option value="${escapeHtml(agency)}"></option>`).join('')}</datalist></div>
+      <div><label for="record-sent">DATE SENT</label>
+        <input id="record-sent" name="sentOn" type="date" max="${todayInAmericus()}" required value="${escapeHtml(draft.sentOn || '')}" /></div>
+    </div>
+    <label for="record-custodian">RECORDS CUSTODIAN · OPTIONAL</label>
+    <input id="record-custodian" name="custodian" maxlength="${RECORD_LIMITS.custodian}" placeholder="Who it went to, e.g. the city clerk" value="${escapeHtml(draft.custodian || '')}" />
+    <label for="record-description">WHAT YOU ASKED FOR</label>
+    <textarea id="record-description" name="description" rows="4" maxlength="${RECORD_LIMITS.description}" required placeholder="As specific as your request was: which records, which dates." data-similar-input>${escapeHtml(draft.description || '')}</textarea>
+    <div class="record-similar" id="record-similar" aria-live="polite">${similarList(similarRequests(draft.agency || '', draft.description || ''))}</div>
+    ${outcomeFields('record-new', draft, {logging: true})}
+    ${records.formError ? `<p class="board-notice error">${escapeHtml(records.formError)}</p>` : ''}
+    <p class="form-fineprint">Filed before this log existed? Enter the date you sent it and, if the agency has answered, its answer. You can upload what came back once it is logged. Uploaded documents are kept private, and an organizer redacts personal details before anything is published.</p>
+    <button type="submit" ${records.saving ? 'disabled' : ''}>${records.saving ? 'Logging…' : 'Log the request'}</button>
+    <button type="button" class="quiet" data-record-cancel>Cancel</button>
+  </form>`;
+}
+
+function recordItem(request) {
+  const message = records.itemMessages[request.id];
+  const busy = records.busy === request.id;
+  const published = request.files.filter((file) => file.state === 'published');
+  const own = request.canEdit ? request.files.filter((file) => file.state !== 'published') : [];
+  return `<article class="record-item" id="record-${request.id}">
+    <header><b>${escapeHtml(request.agency)}</b>${statusBadge(request)}</header>
+    <p class="record-description">${postBody(request.description)}</p>
+    <p class="record-meta">Requested by <b>${escapeHtml(request.requesterName)}</b> on ${recordDate(request.sentOn)}${request.custodian ? ` · to ${escapeHtml(request.custodian)}` : ''}${request.fulfilledOn ? ` · answered ${recordDate(request.fulfilledOn)}` : ''}</p>
+    ${request.denialCitation ? `<p class="record-meta">Denial cited ${escapeHtml(request.denialCitation)}</p>` : ''}
+    ${published.length ? `<ul class="record-files">${published.flatMap((file) => file.paths.map((path) => `<li><a href="/${escapeHtml(path)}">${escapeHtml(path.split('/').pop())}</a></li>`)).join('')}</ul>` : ''}
+    ${request.inReview && !request.canEdit ? `<p class="record-meta">${request.inReview} document${request.inReview === 1 ? '' : 's'} received and in review.</p>` : ''}
+    ${request.canEdit ? `<details class="record-manage" ${message || busy ? 'open' : ''}>
+      <summary>${request.mine ? 'Update your request' : 'Update as organizer'}</summary>
+      <form class="board-form" data-record-update="${request.id}">
+        ${outcomeFields(`record-${request.id}`, request, {logging: false})}
+        <button type="submit" ${busy ? 'disabled' : ''}>Save</button>
+      </form>
+      ${UPLOADABLE.has(request.status) ? (records.uploads ? `<form class="board-form" data-record-upload="${request.id}">
+        <label for="record-${request.id}-files">UPLOAD WHAT THE AGENCY SENT · PDF, IMAGES, SPREADSHEETS · UP TO ${MAX_FILE_BYTES / 1024 / 1024} MB EACH</label>
+        <input id="record-${request.id}-files" type="file" multiple accept="${ACCEPT}" />
+        <button type="submit" ${busy ? 'disabled' : ''}>${busy ? 'Working…' : 'Upload'}</button>
+        <p class="form-fineprint">Recordings and other formats: email them to ${escapeHtml(organizers.email)} with the request's agency and date.</p>
+      </form>` : '<p class="form-fineprint">Uploads are not switched on yet.</p>') : '<p class="form-fineprint">Once the agency answers, set the status to Fulfilled or Partly denied to upload what it sent.</p>'}
+      ${own.length ? `<ul class="record-files mine">${own.map((file) => `<li>${escapeHtml(file.filename)} · ${fileSize(file.size)} · <em class="${file.state}">${RECORD_FILE_STATES[file.state]}</em>${file.note ? ` · ${escapeHtml(file.note)}` : ''}</li>`).join('')}</ul>` : ''}
+    </details>` : ''}
+    ${message?.text ? `<p class="board-notice${message.error ? ' error' : ''}">${escapeHtml(message.text)}</p>` : ''}
+  </article>`;
+}
+
+function recordsQueue() {
+  if (!records.admin) return '';
+  return `<section class="record-queue">
+    <p class="board-count">REVIEW QUEUE · ${records.queue.length} FILE${records.queue.length === 1 ? '' : 'S'}</p>
+    ${records.queueError ? `<p class="board-notice error">${escapeHtml(records.queueError)}</p>` : ''}
+    ${records.queue.length ? records.queue.map((file) => `<div class="record-queue-row">
+      <div><b>${escapeHtml(file.filename)}</b><span>${escapeHtml(file.request.agency)} · ${escapeHtml(file.request.requesterName)} · ${fileSize(file.size)} · ${RECORD_FILE_STATES[file.state]}</span></div>
+      <div class="record-queue-actions">
+        ${file.driveLink ? `<a href="${escapeHtml(file.driveLink)}" target="_blank" rel="noopener">Open in Drive ↗</a>` : ''}
+        ${file.state === 'received' ? `<button data-record-review="drafted" data-file="${file.id}">Drafted</button>` : ''}
+        <button data-record-review="publish" data-file="${file.id}">Publish</button>
+        <button class="danger" data-record-review="reject" data-file="${file.id}">Reject</button>
+      </div>
+    </div>`).join('') : '<p class="record-meta">Nothing waiting.</p>'}
+  </section>`;
+}
+
+function recordsPage() {
+  const visible = records.requests.filter((request) => records.filter === 'all'
+    || (records.filter === 'pending' ? request.status === 'pending' : request.status !== 'pending'));
+  const notice = records.state === 'unavailable'
+    ? '<p class="board-notice">The community server is online but its database is not configured yet, so the log cannot be read.</p>'
+    : records.state === 'error' ? `<p class="board-notice error">Could not reach the log: ${escapeHtml(records.error)}</p>`
+    : records.notice ? `<p class="board-notice">${escapeHtml(records.notice)}</p>` : '';
+  const action = records.formOpen ? recordForm()
+    : user ? '<div class="hero-actions"><button data-record-open>Log a request <span>→</span></button></div>'
+    : `<div class="hero-actions">${isConfigured() ? '<button data-login>Sign in to log a request <span>→</span></button>' : ''}</div>`;
+  const counts = {
+    all: records.requests.length,
+    pending: records.requests.filter((request) => request.status === 'pending').length,
+  };
+  const list = records.state === 'loading' && !records.requests.length ? '<p class="board-count">Loading the log…</p>'
+    : !records.requests.length ? (records.state === 'ready' ? '<p class="board-count">No requests logged yet. Be the first.</p>' : '')
+    : `<div class="record-filters" role="group" aria-label="Filter requests">
+        ${[['all', `All · ${counts.all}`], ['pending', `Waiting · ${counts.pending}`], ['answered', `Answered · ${counts.all - counts.pending}`]]
+          .map(([key, label]) => `<button data-record-filter="${key}" aria-pressed="${records.filter === key}">${label}</button>`).join('')}
+      </div>
+      <div class="record-list">${visible.map(recordItem).join('') || '<p class="record-meta">None.</p>'}</div>`;
+  return `${topbar()}<main class="board records">
+    <p class="eyebrow"><span></span> OPEN RECORDS LOG${records.admin ? ' · ORGANIZER' : ''}</p>
+    <h1>Who asked for <em>what.</em></h1>
+    <p class="lede">Records requests residents have filed with the city, the county and the Development Authority, and what came back. Check here before you file: a neighbor may already have the documents. When you do file, log it so the next person can find you. <a href="${docPath('records')}">How to file a Georgia open records request →</a></p>
+    ${notice}
+    ${action}
+    ${recordsQueue()}
+    ${list}
+  </main>${searchPanel()}`;
+}
+
+function bindRecords() {
+  document.querySelector('[data-record-open]')?.addEventListener('click', () => { records = {...records, formOpen: true, formError: '', notice: ''}; render(); document.querySelector('#record-name')?.focus(); });
+  document.querySelector('[data-record-cancel]')?.addEventListener('click', () => { records = {...records, formOpen: false, formError: '', draft: {}}; render(); });
+  document.querySelector('[data-record-form]')?.addEventListener('submit', (event) => { event.preventDefault(); submitRecordRequest(event.currentTarget); });
+  document.querySelectorAll('[data-record-update]').forEach((form) => form.addEventListener('submit', (event) => { event.preventDefault(); updateRecordRequest(form); }));
+  document.querySelectorAll('[data-record-upload]').forEach((form) => form.addEventListener('submit', (event) => { event.preventDefault(); uploadRecordFiles(form); }));
+  document.querySelectorAll('[data-record-filter]').forEach((button) => button.addEventListener('click', () => { records = {...records, filter: button.dataset.recordFilter}; render(); }));
+  document.querySelectorAll('[data-record-review]').forEach((button) => button.addEventListener('click', () => reviewRecordFile(button.dataset.file, button.dataset.recordReview)));
+  // Show the answer date and citation only for the statuses that use them,
+  // without a re-render that would throw away what has been typed.
+  document.querySelectorAll('[data-record-status]').forEach((select) => select.addEventListener('change', () => {
+    const form = select.closest('form');
+    form.querySelector('[data-answered]').hidden = !ANSWERED.has(select.value);
+    form.querySelector('[data-denied]').hidden = !(select.value === 'partial' || select.value === 'denied');
+  }));
+  // The duplicate check updates in place as the agency and description are
+  // typed, for the same reason.
+  const form = document.querySelector('[data-record-form]');
+  form?.querySelectorAll('[data-similar-input]').forEach((input) => input.addEventListener('input', () => {
+    const target = document.querySelector('#record-similar');
+    if (target) target.innerHTML = similarList(similarRequests(form.elements.agency.value, form.elements.description.value));
+  }));
+}
+
 // --- Petition ---------------------------------------------------------------
 // The only community feature that works signed out: a petition is worth
 // delivering only if the people it speaks for could actually sign it. Bot
@@ -1274,6 +1632,7 @@ function community() {
       <button class="community-card live" data-map><i>C0</i><b>Site map</b><span>The proposed parcel, the ½ / 1 / 3 mile rings, and the homes, schools, churches, waterways and flood zones around it.</span><em>OPEN THE MAP →</em></button>
       <button class="community-card live" data-petition><i>C3</i><b>Petition</b><span>Ask the county commissioners and the Americus city council to adopt the 18-month data center moratorium. One signature to both. Open to everyone, signed in or not.</span><em>SIGN THE PETITION →</em></button>
       <button class="community-card live" data-contact><i>C4</i><b>Contact</b><span>Your commissioner and council member by name, with e-mail addresses, plus how to write, how to speak at a meeting, and what records you can demand.</span><em>OPEN THE CONTACT DESK →</em></button>
+      <button class="community-card live" data-records><i>C5</i><b>Open records</b><span>Records requests neighbors have filed and what came back. Check before you file, and log yours so the next person can find you.</span><em>OPEN THE LOG →</em></button>
       <button class="community-card live" data-board><i>C1</i><b>Message board</b><span>Neighbor-to-neighbor threads on the proposal, meetings, and what people are hearing.</span><em>OPEN THE BOARD →</em></button>
       ${communityFeatures.map((feature) => `<div class="community-card"><i>${feature.number}</i><b>${feature.title}</b><span>${feature.text}</span><em>COMING SOON</em></div>`).join('')}
     </div>
@@ -1382,6 +1741,7 @@ function updateHead() {
     : route.view === 'board' ? 'Message board, Sumter Field Desk'
     : route.view === 'contact' ? 'Contact your officials, Sumter Field Desk'
     : route.view === 'privacy' ? 'Privacy, Sumter Field Desk'
+    : route.view === 'records' ? 'Open records log, Sumter Field Desk'
     : route.view === 'meetings' ? 'Public meetings, Sumter Field Desk'
     : route.view === 'meeting' ? meetingSeoTitle(findMeeting(route.id))
     : route.view === 'slides' ? deckSeoTitle()
@@ -1407,6 +1767,7 @@ async function render() {
       : route.view === 'petition' ? petitionPage()
       : route.view === 'contact' ? contactPage()
       : route.view === 'privacy' ? privacyPage()
+      : route.view === 'records' ? recordsPage()
       : route.view === 'meetings' ? meetingsPage()
       : route.view === 'meeting' ? meetingPage(route.id)
       : route.view === 'slides' ? slidesPage()
@@ -1418,6 +1779,9 @@ async function render() {
   if (route.view === 'community') probeServer();
   if (route.view === 'map' || route.view === 'home') mountSiteMap();
   if (route.view === 'board' && user && board.loadedFor !== (route.threadId || '')) loadBoard(route.threadId);
+  // Reloaded when sign-in finishes after the log was read signed out, so the
+  // requester's controls appear without a refresh.
+  if (route.view === 'records' && records.state !== 'loading' && records.loadedAs !== (user?.sub || '')) loadRecords();
   if (route.view === 'petition') {
     if (petitionView.state === 'idle') loadPetition();
     mountTurnstile();
@@ -1436,6 +1800,8 @@ function bind() {
   document.querySelectorAll('[data-board]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'board'}); }));
   document.querySelectorAll('[data-petition]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'petition'}); }));
   document.querySelectorAll('[data-contact]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'contact'}); }));
+  document.querySelectorAll('[data-records]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'records'}); }));
+  bindRecords();
   document.querySelectorAll('[data-thread]').forEach((button) => button.addEventListener('click', () => setRoute({view: 'board', threadId: button.dataset.thread})));
   document.querySelector('[data-sign]')?.addEventListener('submit', (event) => { event.preventDefault(); submitSignature(event.currentTarget); });
   document.querySelector('[data-paper]')?.addEventListener('submit', (event) => { event.preventDefault(); submitPaperSignature(event.currentTarget); });
