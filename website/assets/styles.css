@@ -483,6 +483,7 @@ table.map-popup td{padding:3px 0;vertical-align:top}
 @media(max-width:720px){.record-row{grid-template-columns:1fr}.record-form .quiet{margin:8px 0 0}}
 
 /* Site footer: in the shell, below every view */
+body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}#app{flex:1 0 auto;min-width:0}.site-footer{flex-shrink:0}
 .site-footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;padding:22px clamp(20px,5vw,64px);border-top:1px solid #171a1826;color:var(--muted);font:400 10px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase}
 .site-footer a{color:inherit;text-underline-offset:3px}
 .site-footer a:hover{color:var(--ink)}
