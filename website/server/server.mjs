@@ -17,6 +17,8 @@ import {
   MAX_FILE_BYTES, PUBLISHED_PATH, STATUSES, UPLOADABLE, USER_QUOTA_BYTES, LIMITS as RECORD_LIMITS,
   cleanFilename, dueDate, isOverdue, kindOf, validateRequest, validateUpdate,
 } from '../client/records.js';
+import {INTERESTS, validateVolunteer} from '../client/volunteer.js';
+import {organizers} from '../client/contacts.js';
 import {deleteFile, driveConfigured, driveLink, requestFolder, uploadFile} from './drive.mjs';
 import {UploadError, receiveUpload} from './uploads.mjs';
 
@@ -700,14 +702,15 @@ async function verifyTurnstile(token, ip) {
 // Mail. Resend is one fetch call, so no dependency and no SMTP client. With no
 // key configured the link is logged instead, which is what makes the whole flow
 // exercisable locally without sending anything to anybody.
-async function sendMail({to, subject, text}) {
+async function sendMail({to, subject, text, replyTo: replyToOverride = ''}) {
   const key = process.env.RESEND_API_KEY || '';
   // Must be an address on a domain verified in Resend, or the API refuses it.
   const from = process.env.MAIL_FROM || 'Sumter Field Desk <petition@scc4t.com>';
   // Someone whose name was signed without their consent needs a human to write
   // to, and "reply" is the only route they will think of. Unset means replies
-  // go to the from address, which nobody may be reading.
-  const replyTo = process.env.MAIL_REPLY_TO || '';
+  // go to the from address, which nobody may be reading. A volunteer sign-up
+  // overrides it, so an organizer's reply goes straight to the volunteer.
+  const replyTo = replyToOverride || process.env.MAIL_REPLY_TO || '';
   if (!key) {
     console.log(`[mail: no RESEND_API_KEY, not sent]\n  to: ${to}\n  subject: ${subject}\n${text}\n`);
     return true;
@@ -1336,8 +1339,120 @@ async function handleGis(request, response, url) {
   }
 }
 
+// --- Volunteers --------------------------------------------------------------
+// Sign-up is public, like the petition: asking a neighbor to make an account
+// before they may offer to help is a reason for them not to. Reading the list
+// is organizers only. Organizers are VOLUNTEER_ADMINS, falling back to
+// BOARD_ADMINS, as the records reviewers do.
+//
+// No mail goes to the address a volunteer typed. A form that emails whatever
+// address it is given is a way to send our mail to strangers; the organizers
+// write back by hand instead, from the notification's Reply-To.
+const volunteerAdmins = new Set((process.env.VOLUNTEER_ADMINS || process.env.BOARD_ADMINS || '')
+  .split(',').map((id) => id.trim()).filter(Boolean));
+const isVolunteerAdmin = (claims) => Boolean(claims) && volunteerAdmins.has(claims.sub);
+
+const VOLUNTEER_COLUMNS = 'id, name, email, phone, interests, message, turnstile, notified, contacted_at, created_at';
+const volunteerRow = (row) => ({
+  id: String(row.id), name: row.name, email: row.email, phone: row.phone, interests: row.interests,
+  message: row.message, turnstile: row.turnstile, notified: row.notified,
+  contactedAt: row.contacted_at, createdAt: row.created_at,
+});
+
+async function handleVolunteerSignup(request, response) {
+  const input = await readJsonBody(request);
+  const {value, error} = validateVolunteer(input);
+  if (error) { sendJson(response, 400, {error}); return; }
+  const thanks = {ok: true, message: 'Thank you. An organizer will be in touch by email.'};
+
+  // A hidden field no human can see. The bot gets the same answer as everyone
+  // else, and nothing is stored or sent.
+  if (String(input.website || '').trim()) { sendJson(response, 202, thanks); return; }
+
+  const prefix = ipPrefix(clientIp(request));
+  if (throttled(`volunteer-ip:${prefix}`, 5, 60 * 60_000)) {
+    sendJson(response, 429, {error: `Several sign-ups have already come from this connection. Please try again later, or write to ${organizers.email}.`});
+    return;
+  }
+  const turnstile = await verifyTurnstile(input.turnstileToken, clientIp(request));
+  if (turnstile === 'expired' || turnstile === 'fail') {
+    sendJson(response, 403, {error: 'The anti-bot check did not go through. Press the button once more.'});
+    return;
+  }
+  if (throttled(`volunteer-email:${value.email}`, 3, 24 * 60 * 60_000)) { sendJson(response, 202, thanks); return; }
+
+  const database = await getPool();
+  if (!database) { sendJson(response, 501, {error: 'Database not configured'}); return; }
+  const {rows} = await database.query(
+    `INSERT INTO volunteers (name, email, phone, interests, message, turnstile)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+    [value.name, value.email, value.phone, value.interests, value.message, turnstile]);
+
+  // The row is the record; the email is the nudge. A failed send still leaves
+  // the sign-up on /volunteers/, so the volunteer is not asked to try again.
+  const sent = await sendMail({
+    to: organizers.email,
+    replyTo: value.email,
+    subject: `New volunteer: ${value.name}`,
+    text: [
+      `${value.name} signed up to volunteer on the website.`,
+      '',
+      `Email: ${value.email}`,
+      `Phone: ${value.phone || 'not given'}`,
+      '',
+      'Would like to help with:',
+      ...(value.interests.length ? value.interests.map((key) => `  - ${INTERESTS[key]}`) : ['  (nothing ticked)']),
+      '',
+      ...(value.message ? ['Message:', value.message, ''] : []),
+      ...(turnstile === 'pass' ? [] : [`Anti-bot check: ${turnstile}. Probably a real person, but worth a second look.`, '']),
+      'Reply to this email to write back to them directly.',
+      `Every sign-up: ${siteOrigin()}/volunteers/`,
+    ].join('\n'),
+  });
+  if (sent) await database.query('UPDATE volunteers SET notified = true WHERE id = $1', [rows[0].id]);
+  sendJson(response, 202, thanks);
+}
+
+async function handleVolunteers(pathname, request, response) {
+  if (pathname === '/api/volunteers' && request.method === 'POST') { await handleVolunteerSignup(request, response); return; }
+
+  // Everything below is organizers only. The token is checked before the
+  // database, as the other gates are.
+  if (!authConfig.audience) { sendJson(response, 501, {error: 'Set authConfig.audience to enable API routes.'}); return; }
+  let claims;
+  try { claims = await verifyToken(request); }
+  catch (error) { sendJson(response, 401, {error: error.message}); return; }
+  if (!isVolunteerAdmin(claims)) { sendJson(response, 403, {error: 'Organizers only'}); return; }
+  const database = await getPool();
+  if (!database) { sendJson(response, 501, {error: 'Database not configured'}); return; }
+
+  // GET /api/volunteers -> every sign-up, newest first
+  if (pathname === '/api/volunteers' && request.method === 'GET') {
+    const {rows} = await database.query(`SELECT ${VOLUNTEER_COLUMNS} FROM volunteers ORDER BY created_at DESC LIMIT 1000`);
+    sendJson(response, 200, {volunteers: rows.map(volunteerRow), interests: INTERESTS});
+    return;
+  }
+
+  // PATCH /api/volunteers/:id {contacted: true|false} -> someone followed up
+  const match = pathname.match(/^\/api\/volunteers\/(\d+)$/);
+  if (match && request.method === 'PATCH') {
+    const contacted = (await readJsonBody(request)).contacted === true;
+    const {rows} = await database.query(
+      `UPDATE volunteers SET contacted_at = CASE WHEN $2 THEN now() END, contacted_by = CASE WHEN $2 THEN $3 END
+        WHERE id = $1 RETURNING ${VOLUNTEER_COLUMNS}`,
+      [match[1], contacted, claims.sub]);
+    if (!rows.length) { sendJson(response, 404, {error: 'Volunteer not found'}); return; }
+    sendJson(response, 200, {volunteer: volunteerRow(rows[0])});
+    return;
+  }
+
+  sendJson(response, 404, {error: 'Unknown volunteers route'});
+}
+
 async function handleApi(pathname, request, response, url) {
   if (pathname === '/api/health') { sendJson(response, 200, {ok: true}); return; }
+  // Sign-up is public; reading the list verifies a token itself.
+  if (pathname === '/api/volunteers' || pathname.startsWith('/api/volunteers/')) { await handleVolunteers(pathname, request, response); return; }
   // Public on purpose: see the note above handlePetition.
   if (pathname.startsWith('/api/petition/')) { await handlePetition(pathname, request, response, url); return; }
   // Public on purpose: see the note above handleGis.
@@ -1371,7 +1486,7 @@ const aliasedFiles = ['/index.html', '/sw.js'];
 // of these paths; in dev the shell is served and the router resolves the path.
 // Deliberately an explicit pattern rather than a catch-all, so an unknown path
 // still 403s instead of leaking the shell for anything not on this list.
-const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|privacy|records|meetings(\/[a-z0-9-]+(\/slides)?)?|board(\/\d+)?)\/?$/;
+const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|privacy|records|join|volunteers|meetings(\/[a-z0-9-]+(\/slides)?)?|board(\/\d+)?)\/?$/;
 
 // The one file whose "./" paths have to be rewritten before it is served.
 const isShell = (file) => file.endsWith(join('website', 'index.html'));

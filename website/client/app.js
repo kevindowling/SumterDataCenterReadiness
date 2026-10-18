@@ -11,6 +11,8 @@ import {
   todayInAmericus,
 } from './records.js';
 import {privacySections} from './privacy.js';
+import {joinSections} from './org.js';
+import {INTERESTS, LIMITS as VOLUNTEER_LIMITS} from './volunteer.js';
 import {
   BODIES, COMMENT, CONFIRMED_ON, STALE_AFTER, americusToday, byMonth, calendarIsStale, clockTime,
   dayOfMonth, endStamp, findMeeting, longDate, meetingLabel, meetingPath, meetingSeoTitle,
@@ -61,6 +63,8 @@ function pathFor(next) {
     : next.view === 'contact' ? '/contact/'
     : next.view === 'privacy' ? '/privacy/'
     : next.view === 'records' ? '/records/'
+    : next.view === 'join' ? '/join/'
+    : next.view === 'volunteers' ? '/volunteers/'
     : next.view === 'meetings' ? '/meetings/'
     : next.view === 'meeting' ? meetingPath(next.id)
     : next.view === 'slides' ? `${meetingPath(next.id)}slides/`
@@ -89,6 +93,8 @@ function routeFromPath(pathname) {
     : /^\/contact\/?$/.test(pathname) ? {view: 'contact'}
     : /^\/privacy\/?$/.test(pathname) ? {view: 'privacy'}
     : /^\/records\/?$/.test(pathname) ? {view: 'records'}
+    : /^\/join\/?$/.test(pathname) ? {view: 'join'}
+    : /^\/volunteers\/?$/.test(pathname) ? {view: 'volunteers'}
     : /^\/meetings\/?$/.test(pathname) ? {view: 'meetings'}
     // An unknown id falls back to the calendar rather than the home page: a
     // stale link to a meeting is best answered with the list of real ones.
@@ -152,6 +158,7 @@ const topbar = () => `
     <div class="top-actions">
       <span class="edition">COMMUNITY RESEARCH EDITION</span>
       <button class="search-button" data-search><kbd>/</kbd> Search the desk</button>
+      <button class="source-link" data-join>Join us ↗</button>
       <button class="source-link" data-petition>Sign the petition ↗</button>
       <button class="source-link" data-doc="start">Research notes ↗</button>
       <button class="source-link" data-meetings>Calendar ↗</button>
@@ -1606,6 +1613,152 @@ function privacyPage() {
   return `${topbar()}<main class="contact privacy">${privacySections()}</main>${searchPanel()}`;
 }
 
+// --- Join us ------------------------------------------------------------------
+// Open to everyone, like the petition: the point of the page is to get a
+// neighbor into the room or onto the volunteer list, and an account in the way
+// of that is a reason to give up. The form shares the petition's anti-bot
+// widget; only one of the two pages is ever on screen.
+
+let volunteerView = {submitting: false, done: '', formError: '', draft: {}};
+
+function volunteerForm() {
+  if (volunteerView.done) {
+    return `<div class="petition-form done"><h2>Thank you.</h2><p>${escapeHtml(volunteerView.done)}</p></div>`;
+  }
+  const d = volunteerView.draft;
+  const value = (field) => ` value="${escapeHtml(d[field] ?? '')}"`;
+  const picked = new Set(d.interests || []);
+  return `<form class="petition-form volunteer-form" data-volunteer>
+    <div class="form-row">
+      <label>NAME<input name="name" maxlength="${VOLUNTEER_LIMITS.name}" autocomplete="name" required${value('name')} /></label>
+      <label>EMAIL<input name="email" type="email" maxlength="${VOLUNTEER_LIMITS.email}" autocomplete="email" required${value('email')} /></label>
+    </div>
+    <div class="form-row">
+      <label>PHONE (OPTIONAL)<input name="phone" type="tel" maxlength="${VOLUNTEER_LIMITS.phone}" autocomplete="tel"${value('phone')} /></label>
+    </div>
+    <fieldset class="volunteer-interests">
+      <legend>I CAN HELP WITH</legend>
+      ${Object.entries(INTERESTS).map(([key, label]) => `<label class="form-check"><input type="checkbox" name="interests" value="${key}"${picked.has(key) ? ' checked' : ''} /> <span>${escapeHtml(label)}</span></label>`).join('')}
+    </fieldset>
+    <label class="form-comment">ANYTHING ELSE (OPTIONAL)
+      <textarea name="message" rows="3" maxlength="${VOLUNTEER_LIMITS.message}" placeholder="A skill, a question, or when you are free.">${escapeHtml(d.message || '')}</textarea>
+    </label>
+    <div class="honeypot" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off" /></label></div>
+    ${siteKey() ? `<div id="turnstile" class="cf-turnstile turnstile" data-sitekey="${escapeHtml(siteKey())}" data-action="turnstile-spin-v2"></div>` : ''}
+    ${volunteerView.formError ? `<p class="board-notice error">${escapeHtml(volunteerView.formError)}</p>` : ''}
+    <button type="submit" ${volunteerView.submitting ? 'disabled' : ''}>${volunteerView.submitting ? 'Sending…' : 'Sign me up'}</button>
+    <p class="form-fineprint">This goes to the organizers only and is never published. <a href="/privacy/">Privacy</a></p>
+  </form>`;
+}
+
+function joinPage() {
+  return `${topbar()}<main class="contact join">${joinSections({form: volunteerForm()})}</main>${searchPanel()}`;
+}
+
+async function submitVolunteer(form) {
+  const data = new FormData(form);
+  const draft = {
+    name: data.get('name'), email: data.get('email'), phone: data.get('phone'),
+    interests: data.getAll('interests'), message: data.get('message'),
+  };
+  // The same allowance as the petition: a check that never loaded is not held
+  // against anyone, but one still working is worth waiting a moment for.
+  const unavailable = turnstileFault === 'blocked' || turnstileFault === 'error';
+  if (siteKey() && !turnstilePassed() && !unavailable) {
+    const expired = Boolean(turnstileToken);
+    resetTurnstile();
+    volunteerView = {...volunteerView, draft, formError: expired
+      ? 'The anti-bot check expired. It has restarted; press the button again.'
+      : 'The anti-bot check is still running. Wait a moment, then press the button again.'};
+    render();
+    return;
+  }
+  volunteerView = {...volunteerView, draft, submitting: true, formError: ''};
+  render();
+  try {
+    const response = await fetch(`${apiOrigin()}/api/volunteers`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({...draft, website: data.get('website'), turnstileToken}),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || `Server returned ${response.status}`);
+    volunteerView = {submitting: false, done: body.message || 'Thank you.', formError: '', draft: {}};
+  } catch (error) {
+    volunteerView = {...volunteerView, submitting: false, formError: error.message};
+  }
+  resetTurnstile();   // spent either way; Cloudflare refuses a second use
+  render();
+}
+
+// --- Volunteer sign-ups (organizers) ------------------------------------------
+// The server decides who is an organizer; this page just shows what it is told.
+
+let volunteerList = {state: 'idle', volunteers: [], interests: INTERESTS, error: '', loadedAs: ''};
+
+async function loadVolunteers() {
+  volunteerList = {...volunteerList, state: 'loading', error: '', loadedAs: user?.sub || ''};
+  render();
+  try {
+    const response = await apiFetch('/api/volunteers');
+    const body = await response.json().catch(() => ({}));
+    if (response.status === 403) { volunteerList = {...volunteerList, state: 'forbidden'}; render(); return; }
+    if (!response.ok) throw new Error(body.error || serverError(response.status));
+    volunteerList = {...volunteerList, state: 'ready', volunteers: body.volunteers, interests: body.interests || INTERESTS};
+  } catch (error) {
+    volunteerList = {...volunteerList, state: 'error', error: error.message};
+  }
+  render();
+}
+
+async function markContacted(id, contacted) {
+  try {
+    const response = await apiFetch(`/api/volunteers/${id}`, {
+      method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({contacted}),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || serverError(response.status));
+    volunteerList = {...volunteerList, volunteers: volunteerList.volunteers.map((row) => (row.id === id ? body.volunteer : row))};
+  } catch (error) {
+    volunteerList = {...volunteerList, error: error.message};
+  }
+  render();
+}
+
+const signupDate = (stamp) => new Date(stamp).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York'});
+
+function volunteerCard(row) {
+  const interests = row.interests.map((key) => volunteerList.interests[key] || key);
+  return `<article class="record-item volunteer-item${row.contactedAt ? ' contacted' : ''}">
+    <header><b>${escapeHtml(row.name)}</b><span>${signupDate(row.createdAt)}${row.contactedAt ? ` · contacted ${signupDate(row.contactedAt)}` : ''}</span></header>
+    <p><a href="mailto:${escapeHtml(row.email)}">${escapeHtml(row.email)}</a>${row.phone ? ` · <a href="tel:${escapeHtml(row.phone.replace(/[^0-9+]/g, ''))}">${escapeHtml(row.phone)}</a>` : ''}</p>
+    ${interests.length ? `<ul>${interests.map((label) => `<li>${escapeHtml(label)}</li>`).join('')}</ul>` : ''}
+    ${row.message ? `<p class="volunteer-message">${postBody(row.message)}</p>` : ''}
+    ${row.turnstile === 'pass' ? '' : `<p class="record-meta">Anti-bot check: ${escapeHtml(row.turnstile)}</p>`}
+    <div class="record-queue-actions">${row.contactedAt
+      ? `<button data-contacted="${row.id}" data-value="false">Mark not contacted</button>`
+      : `<button data-contacted="${row.id}" data-value="true">Mark contacted</button>`}</div>
+  </article>`;
+}
+
+function volunteersPage() {
+  const waiting = volunteerList.volunteers.filter((row) => !row.contactedAt).length;
+  const body = !user
+    ? `<div class="hero-actions">${isConfigured() ? '<button data-login>Sign in <span>→</span></button>' : ''}</div>`
+    : volunteerList.state === 'forbidden' ? '<p class="board-notice">This list is for organizers. <a href="/join/">Looking to volunteer? Sign up here →</a></p>'
+    : volunteerList.state === 'error' ? `<p class="board-notice error">${escapeHtml(volunteerList.error)}</p>`
+    : volunteerList.state !== 'ready' ? '<p class="board-count">Loading…</p>'
+    : `${volunteerList.error ? `<p class="board-notice error">${escapeHtml(volunteerList.error)}</p>` : ''}
+       <p class="board-count">${volunteerList.volunteers.length} SIGN-UP${volunteerList.volunteers.length === 1 ? '' : 'S'} · ${waiting} NOT YET CONTACTED</p>
+       <div class="record-list">${volunteerList.volunteers.map(volunteerCard).join('') || '<p class="record-meta">No sign-ups yet.</p>'}</div>`;
+  return `${topbar()}<main class="board records">
+    <p class="eyebrow"><span></span> VOLUNTEERS · ORGANIZER</p>
+    <h1>Who offered <em>to help.</em></h1>
+    <p class="lede">Sign-ups from the <a href="/join/">Join us</a> page, newest first. Each one was also emailed to ${escapeHtml(organizers.email)}. Not public.</p>
+    ${body}
+  </main>${searchPanel()}`;
+}
+
 const communityFeatures = [
   {number: 'C2', title: 'Surveys', text: 'Structured community input on the draft ordinance and its conditions.'},
 ];
@@ -1742,6 +1895,8 @@ function updateHead() {
     : route.view === 'contact' ? 'Contact your officials, Sumter Field Desk'
     : route.view === 'privacy' ? 'Privacy, Sumter Field Desk'
     : route.view === 'records' ? 'Open records log, Sumter Field Desk'
+    : route.view === 'join' ? 'Join us, Sumter County Citizens for Transparency'
+    : route.view === 'volunteers' ? 'Volunteer sign-ups, Sumter Field Desk'
     : route.view === 'meetings' ? 'Public meetings, Sumter Field Desk'
     : route.view === 'meeting' ? meetingSeoTitle(findMeeting(route.id))
     : route.view === 'slides' ? deckSeoTitle()
@@ -1768,6 +1923,8 @@ async function render() {
       : route.view === 'contact' ? contactPage()
       : route.view === 'privacy' ? privacyPage()
       : route.view === 'records' ? recordsPage()
+      : route.view === 'join' ? joinPage()
+      : route.view === 'volunteers' ? volunteersPage()
       : route.view === 'meetings' ? meetingsPage()
       : route.view === 'meeting' ? meetingPage(route.id)
       : route.view === 'slides' ? slidesPage()
@@ -1786,6 +1943,8 @@ async function render() {
     if (petitionView.state === 'idle') loadPetition();
     mountTurnstile();
   }
+  if (route.view === 'join') mountTurnstile();
+  if (route.view === 'volunteers' && user && volunteerList.state !== 'loading' && volunteerList.loadedAs !== user.sub) loadVolunteers();
   if (route.view !== 'home') scrollTo({top: 0, behavior: 'auto'});
   if (searchOpen) requestAnimationFrame(() => document.querySelector('#search-input')?.focus());
 }
@@ -1802,6 +1961,9 @@ function bind() {
   document.querySelectorAll('[data-contact]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'contact'}); }));
   document.querySelectorAll('[data-records]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'records'}); }));
   bindRecords();
+  document.querySelectorAll('[data-join]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'join'}); }));
+  document.querySelector('[data-volunteer]')?.addEventListener('submit', (event) => { event.preventDefault(); submitVolunteer(event.currentTarget); });
+  document.querySelectorAll('[data-contacted]').forEach((button) => button.addEventListener('click', () => markContacted(button.dataset.contacted, button.dataset.value === 'true')));
   document.querySelectorAll('[data-thread]').forEach((button) => button.addEventListener('click', () => setRoute({view: 'board', threadId: button.dataset.thread})));
   document.querySelector('[data-sign]')?.addEventListener('submit', (event) => { event.preventDefault(); submitSignature(event.currentTarget); });
   document.querySelector('[data-paper]')?.addEventListener('submit', (event) => { event.preventDefault(); submitPaperSignature(event.currentTarget); });

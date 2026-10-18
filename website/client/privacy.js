@@ -10,7 +10,7 @@
 import {escapeHtml} from './content.js';
 import {organizers} from './contacts.js';
 
-export const effective = {iso: '2026-10-03', label: 'October 3, 2026'};
+export const effective = {iso: '2026-10-18', label: 'October 18, 2026'};
 
 // One row per thing a person can do that leaves data behind.
 export const collected = [
@@ -50,6 +50,11 @@ export const collected = [
     who: 'Forwarded by Cloudflare to the two organizers. We ask before publishing your name or anything you wrote.',
   },
   {
+    activity: 'Signing up to volunteer',
+    what: 'Your name, email, optional phone number, the ways you said you can help, and any message. For abuse review: the result of the Cloudflare anti-bot check.',
+    who: `Organizers only. It is emailed to ${organizers.email} and listed on a page only organizers can open. It is never published, and we do not email the address you give except to write back to you personally.`,
+  },
+  {
     activity: 'Logging an open-records request',
     what: 'Your name, the agency and custodian, what you asked for, the dates it was sent and answered, any denial citation, and any documents you upload.',
     who: 'Your name and the request are public, so neighbors can find you instead of filing the same request twice. Uploaded documents are stored privately in a Google Drive account run by the desk. The document is then redacted, and only the redacted copy is published. The original upload is deleted once the redacted copy is up, or if an organizer decides it cannot be published.',
@@ -61,10 +66,10 @@ export const collected = [
 // both only ever hold what the rows above already describe.
 export const services = [
   {name: 'GitHub Pages', role: 'Hosts the public pages.'},
-  {name: 'A rented server and a managed database', role: 'Run the sign-in features, petition, message board, survey and open-records log, and store what they collect.'},
+  {name: 'A rented server and a managed database', role: 'Run the sign-in features, petition, message board, survey, open-records log and volunteer sign-ups, and store what they collect.'},
   {name: 'Auth0', role: 'Handles sign-in. Its script is loaded from jsDelivr.'},
-  {name: 'Cloudflare', role: 'Routes mail sent to the desk\'s address, and runs the anti-bot check on the petition page.'},
-  {name: 'Resend', role: 'Sends petition confirmation emails.'},
+  {name: 'Cloudflare', role: 'Routes mail sent to the desk\'s address, and runs the anti-bot check on the petition and volunteer forms.'},
+  {name: 'Resend', role: 'Sends petition confirmation emails, and sends each volunteer sign-up to the organizers.'},
   {name: 'OpenStreetMap, Esri, USGS, and the county\'s GIS service', role: 'Supply map tiles and layers. Your browser fetches tiles from them directly, and fetches layers directly if the desk\'s stored copy is unavailable. A place you type into the map search is sent to OpenStreetMap\'s Nominatim service.'},
   {name: 'YouTube', role: 'Plays meeting recordings, only when you press play, through its reduced-tracking youtube-nocookie.com player.'},
   {name: 'Google Drive', role: 'Holds open-records uploads privately until they are redacted.'},

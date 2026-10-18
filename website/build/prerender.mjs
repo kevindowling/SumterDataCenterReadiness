@@ -24,6 +24,7 @@ import {
 import {livePetition} from '../client/petition.js';
 import {contactSections} from '../client/contacts.js';
 import {privacySections} from '../client/privacy.js';
+import {joinSections} from '../client/org.js';
 import {
   MEETINGS, longDate, meetingDescription, meetingPath, meetingSeoTitle,
 } from '../client/meetings.js';
@@ -266,6 +267,19 @@ written.push(await emit(join('privacy', 'index.html'), withHead(shell, {
   `<div id="app" data-prerendered="privacy"><main class="contact privacy">${privacySections()}</main></div>`,
 )));
 
+// The page that asks people to come to a meeting or volunteer. Its text is in
+// the HTML so a link shared to Facebook previews properly and a search for the
+// group's name lands on it. The form needs the app, so the build ships a line
+// saying so in its place.
+written.push(await emit(join('join', 'index.html'), withHead(shell, {
+  title: `Join us - Sumter County Citizens for Transparency`,
+  description: 'Come to a meeting of Sumter County Citizens for Transparency, sign up to volunteer, read our minutes, and download our bylaws.',
+  url: `${SITE_ORIGIN}/join/`,
+}).replace(
+  '<div id="app"><noscript>This research desk requires JavaScript.</noscript></div>',
+  `<div id="app" data-prerendered="join"><main class="contact join">${joinSections({form: `<p class="contact-blurb">The sign-up form needs JavaScript. You can also write to us at the address below.</p>`})}</main></div>`,
+)));
+
 // The open-records log loads its entries from the API, so the HTML carries
 // only the title and description. Indexable: "Americus open records request"
 // should find the page that says whether someone already asked.
@@ -280,6 +294,7 @@ for (const [path, title, description] of [
   ['community', 'Community desk', 'Sign in to the Sumter Field Desk community area.'],
   ['map', 'Site map', 'Map of the proposed Sumter County data center site and its surroundings.'],
   ['board', 'Message board', 'Neighbors comparing notes on the proposed Sumter County data center.'],
+  ['volunteers', 'Volunteer sign-ups', 'Organizers only.'],
 ]) {
   written.push(await emit(join(path, 'index.html'), withHead(shell, {
     title: `${title} - ${SITE_NAME}`,
@@ -341,6 +356,7 @@ const urls = [
   {loc: `${SITE_ORIGIN}/contact/`, lastmod: lastModified('website/client/contacts.js')},
   {loc: `${SITE_ORIGIN}/privacy/`, lastmod: lastModified('website/client/privacy.js')},
   {loc: `${SITE_ORIGIN}/records/`, lastmod: lastModified('website/client/records.js')},
+  {loc: `${SITE_ORIGIN}/join/`, lastmod: lastModified('website/client/org.js')},
   // Dated from the data file, not from meetings.js: the calendar's content
   // changes when a meeting is added, and after the data moved out, changes to
   // meetings.js are formatting and date maths that leave every listing saying
@@ -372,6 +388,7 @@ written.push(await emit('robots.txt', `User-agent: *
 Allow: /
 Disallow: /community/
 Disallow: /board/
+Disallow: /volunteers/
 Disallow: /research/
 
 Sitemap: ${SITE_ORIGIN}/sitemap.xml

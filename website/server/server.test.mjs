@@ -452,3 +452,58 @@ test('serves the records and privacy pages', async () => {
     assert.equal(response.status, 200, `${path} should serve the shell`);
   }
 });
+
+test('volunteer sign-up is reachable without a token', async () => {
+  const response = await fetch(`${base}/api/volunteers`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name: 'Ann Lee', email: 'ann@example.com', interests: ['meetings']}),
+  });
+  // 501 without a database configured; 202 once there is one. Never 401.
+  assert.ok([202, 501].includes(response.status), `unexpected status ${response.status}`);
+});
+
+test('volunteer sign-up rejects malformed submissions', async () => {
+  const cases = [
+    [{name: 'A', email: 'ann@example.com', interests: ['meetings']}, 'short name'],
+    [{name: 'Ann Lee', email: 'not-an-email', interests: ['meetings']}, 'bad email'],
+    [{name: 'Ann Lee', email: 'ann@example.com', interests: ['bribery']}, 'unknown interest'],
+    [{name: 'Ann Lee', email: 'ann@example.com', phone: '<script>', interests: ['meetings']}, 'junk phone'],
+    [{name: 'Ann Lee', email: 'ann@example.com'}, 'nothing offered'],
+  ];
+  for (const [body, label] of cases) {
+    const response = await fetch(`${base}/api/volunteers`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body),
+    });
+    assert.equal(response.status, 400, `${label} should be rejected`);
+  }
+});
+
+// A bot that fills every field is told the same thing as a person, and nothing
+// is stored: the 202 arrives even with no database behind the server.
+test('volunteer honeypot answers like a success without storing', async () => {
+  const response = await fetch(`${base}/api/volunteers`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name: 'Bot Person', email: 'bot@example.com', interests: ['online'], website: 'http://spam.example'}),
+  });
+  assert.equal(response.status, 202);
+});
+
+test('the volunteer list sits behind the auth gate', async () => {
+  const calls = [['GET', '/api/volunteers'], ['PATCH', '/api/volunteers/1', '{"contacted":true}']];
+  for (const [method, path, body] of calls) {
+    for (const headers of [{}, {Authorization: 'Bearer aaa.bbb.ccc'}]) {
+      const response = await fetch(`${base}${path}`, {method, headers, ...(body ? {body} : {})});
+      assert.ok([401, 501].includes(response.status), `${method} ${path} unexpected status ${response.status}`);
+      if (response.status === 501) assert.doesNotMatch((await response.json()).error, /Database/, `${method} ${path} checked the database before the token`);
+    }
+  }
+});
+
+test('serves the join and volunteers pages and the bylaws', async () => {
+  for (const path of ['/join/', '/join', '/volunteers/', '/research/scc4t-bylaws-2026-10-13.pdf']) {
+    const response = await fetch(`${base}${path}`);
+    assert.equal(response.status, 200, `${path} should be served`);
+  }
+});

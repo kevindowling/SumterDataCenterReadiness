@@ -570,3 +570,24 @@ body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}#app{
 .contact-documents a{font:600 19px/1.3 var(--serif);color:#1b6069;text-underline-offset:4px}
 .contact-documents span{display:block;margin-top:6px;color:var(--muted);font-size:15px;line-height:1.45}
 @media(max-width:720px){.event-program{grid-template-columns:1fr;gap:2px}.event-program dd{text-align:left;margin-bottom:8px}.contact{padding:30px 20px 70px}.contact-head h1{font-size:clamp(36px,11vw,52px)}.bodies-grid,.approach-grid{grid-template-columns:1fr}.contact-body{padding:18px}.contact-body dl{grid-template-columns:1fr;gap:4px 0}.roster th,.roster td{padding:8px 4px}}
+
+/* Join us: the contact layout, plus meeting cards, the volunteer form and document links */
+.join .volunteer-form{margin-top:18px}
+.volunteer-interests{display:grid;grid-template-columns:1fr 1fr;gap:2px 18px;margin:4px 0 10px;padding:0;border:0}
+.volunteer-interests .form-check{display:flex;margin-bottom:10px;color:var(--ink);font:400 15px/1.4 var(--serif);letter-spacing:normal}
+.volunteer-interests legend{margin-bottom:12px;padding:0;color:var(--muted);font:500 9px/1.3 var(--mono);letter-spacing:.11em}
+.join-meetings{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin:18px 0 0;padding:0;list-style:none}
+.join-meeting{padding:20px;border:1px solid var(--ink);background:var(--light)}
+.join-meeting h3{margin:8px 0 10px;font-size:24px;line-height:1.1;letter-spacing:-.02em}
+.join-meeting p{margin:0;font-size:16px;line-height:1.45}
+.join-meeting .join-when{color:var(--orange);font:500 11px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.join-docs{margin:18px 0 0;padding:0;list-style:none;border-top:1px solid #171a1833}
+.join-docs li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 18px;padding:14px 0;border-bottom:1px solid #171a1833}
+.join-docs a{color:#1b6069;font-size:19px;font-weight:600;text-underline-offset:3px}
+.join-docs span{color:var(--muted);font:400 11px/1.6 var(--mono)}
+.join a{color:#1b6069;text-underline-offset:3px}
+.volunteer-item ul{margin:8px 0;padding-left:20px;font-size:15px}
+.volunteer-item p{margin:6px 0 0}
+.volunteer-item.contacted{opacity:.6}
+.volunteer-message{padding-left:12px;border-left:3px solid var(--orange)}
+@media(max-width:720px){.volunteer-interests{grid-template-columns:1fr}}
