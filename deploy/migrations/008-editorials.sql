@@ -42,3 +42,48 @@ Good planning begins with good information. The public deserves transparency.$bo
   '2026-10-27'
 )
 ON CONFLICT (slug) DO NOTHING;
+
+-- The October 25 draft of the same letter, submitted in the group's name. It
+-- carries the three paragraphs the later draft cut, so both are kept.
+INSERT INTO editorials (slug, kind, title, byline, body, status, published_on)
+VALUES (
+  'no-rezoning-without-a-development-plan-october-25',
+  'letter',
+  'No Rezoning Without a Development Plan',
+  'Sumter County Citizens for Transparency (SCC4T)',
+  $body$The recent request by a landowner to rezone his Bumphead Road property on the north side of town, moving it from its current Agricultural use, jumping over the planned residential use all the way to light industrial was an exercise in zoning procedures that should be improved. The request for Light Industrial zoning would have allowed a data center to be located there near many of our schools.
+Proponents of the rezoning argued that there were other safeguards in place such as Georgia State Development of Regional Impact (DRI) review. Americus City Attorney Coleman, who sits on the DRI board, told us, “Don’t count on those safeguards to stop data centers.” Indeed, the triggers for requiring the DRI study are larger than the proposed Liberty project: more than 500,000 gross square feet, or more than 200 acres.
+Fortunately, two of the Bumphead parcels were denied the rezoning request and four were tabled for 90 days. Citizens’ presence and comments had clearly influenced the County Zoning Board.
+The seller said he didn’t have a buyer, but a likely prospect had indicated that they were interested in putting an Amazon distribution center on the property. Driving past the schools, this property would put that warehouse 37 miles away from I-75. But maybe they are planning on using flying cars.
+The meeting taught us an important lesson: Sumter County residents deserve to know what is being proposed before their elected officials change how land can be used. A rezoning decision can affect nearby homes, farms, roads, water supplies, and public services long after the vote is taken. Residents did a wonderful job explaining the risks to the Sumter County schoolchildren. At that meeting, we saw that citizens’ voices do matter.
+That is why Sumter County should adopt a straightforward rule: when a developer requests rezoning for a proposed project, the application must include a meaningful development plan before the County considers approval.
+The plan should explain what will be built, its approximate size and location, proposed road access, anticipated traffic, water and sewer needs, electrical demand, stormwater controls, and potential effects on neighboring properties and wetlands. These need not be final engineering drawings. But they must be detailed enough for citizens and officials to understand the proposal and its likely impacts.
+The zoning board procedures can be modified and notices can and should be posted regularly and in a timely manner on the County Commissioners and the City of Americus government websites.
+If a developer materially changes the proposal, the public should have an opportunity to review those changes before a final decision to move from conditional zoning to re-zoning is granted by local government.
+Property owners have a legitimate right to seek rezoning, and developers need predictable procedures. Residents have an equally legitimate interest in knowing what new land-use rights are being requested. Clear requirements protect both sides by reducing surprises, confusion, and costly disputes.
+Good planning begins with good information. The public deserves transparency.$body$,
+  'published',
+  '2026-10-25'
+)
+ON CONFLICT (slug) DO NOTHING;
+
+-- October 29: emergency services and fire. The draft is unsigned, so it runs
+-- under the group's name until the writer says otherwise.
+INSERT INTO editorials (slug, kind, title, byline, body, status, published_on)
+VALUES (
+  'are-our-elected-officials-playing-with-fire',
+  'letter',
+  'Are Our Elected Officials Playing With Fire?',
+  'Sumter County Citizens for Transparency (SCC4T)',
+  $body$Before Liberty’s proposed 400-megawatt data center is approved, Americus must demonstrate that its emergency services, infrastructure, and environmental protections can handle a major fire.
+Data center fires do happen. Some killed workers, destroyed equipment, and interrupted essential services. The 2021 Strasbourg disaster destroyed an entire data center building. Other incidents exposed weaknesses in suppression of battery energy storage system fires, electrical isolation, firefighting water supplies, and emergency planning.
+We’ve been told that Americus and Sumter County Fire Departments are unprepared to safely extinguish an industrial data center fire. They can only hope to protect other nearby structures, and we pray, have a solid evacuation plan for Furlow, Magnolia, GSW and the surrounding homes and businesses.
+The environmental concerns extend beyond the buildings. Scientific studies have detected metals, toxic compounds, and forever chemicals in battery-fire soot and firefighting water. Is it possible to prevent contaminated runoff from reaching the wetlands, Mill Creek and Lake Jennifer ponds, along with the Muckalee Creek that flows by the Magnolia Manor campus? Would a fire cause irreversible environmental damage and devalue our homes?
+Americus should require an independent, developer-funded assessment of staffing, specialized training, equipment, sustained water supply, gas shutoffs, and mutual aid. Our local fire departments and taxpayers should not have to pay for the assessment from already stretched budgets.
+Insurance underwriters already examine battery placement, fire protection, equipment separation, and surrounding exposures. Will the rapid buildout of data-centers increase risk concerns about data center fires and thus cause homeowners and business property insurance to skyrocket?
+Currently, we don’t know who will respond, what resources will be available, how vulnerable neighbors will be protected, and who will pay for cleanup and recovery. The new data center ordinance does not yet address operator liability insurance requirements, which should include environmental pollution liability coverage.
+A gasoline car fire can usually be put out with 700 gallons of water. A Tesla car fire may take more than 4,000 gallons and will often reignite. One can only imagine what it would take to suppress a 400 MW data center fire. We hope we don’t ever have to find out.$body$,
+  'published',
+  '2026-10-29'
+)
+ON CONFLICT (slug) DO NOTHING;
