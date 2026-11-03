@@ -25,6 +25,8 @@ import {livePetition} from '../client/petition.js';
 import {contactSections} from '../client/contacts.js';
 import {privacySections} from '../client/privacy.js';
 import {joinSections} from '../client/org.js';
+import {editorialArticleHtml, editorialListHtml, editorialPath, editorialSummary} from '../client/editorials.js';
+import {authConfig} from '../client/auth-config.js';
 import {
   MEETINGS, longDate, meetingDescription, meetingPath, meetingSeoTitle,
 } from '../client/meetings.js';
@@ -289,6 +291,59 @@ written.push(await emit(join('records', 'index.html'), withHead(shell, {
   url: `${SITE_ORIGIN}/records/`,
 })));
 
+// Editorials live in the database, not the repo, so the build asks the API for
+// the published ones and writes a real page for each: a link shared to
+// Facebook previews only if its title and summary are in the HTML. If the API
+// cannot be reached the build still succeeds; the list page ships empty and
+// the app fills it in, and a piece posted since the last build is served by
+// 404.html like a board thread until the next one.
+async function publishedEditorials() {
+  if (!authConfig.apiBase) return [];
+  try {
+    const response = await fetch(`${authConfig.apiBase}/api/editorials`, {signal: AbortSignal.timeout(15_000)});
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return (await response.json()).editorials.filter((item) => item.status === 'published');
+  } catch (error) {
+    console.warn(`Editorials not prerendered: ${error.message}`);
+    return [];
+  }
+}
+const editorials = await publishedEditorials();
+const editorialsUrl = `${SITE_ORIGIN}/editorials/`;
+written.push(await emit(join('editorials', 'index.html'), withHead(shell, {
+  title: 'Editorials - Sumter County Citizens for Transparency',
+  description: 'Letters, op-eds and statements by members of Sumter County Citizens for Transparency on the proposed Americus data center and local land-use decisions.',
+  url: editorialsUrl,
+}).replace(
+  '<div id="app"><noscript>This research desk requires JavaScript.</noscript></div>',
+  `<div id="app" data-prerendered="editorials"><main class="board editorials">${editorialListHtml(editorials)}</main></div>`,
+)));
+for (const editorial of editorials) {
+  const url = `${SITE_ORIGIN}${editorialPath(editorial.slug)}`;
+  const description = editorialSummary(editorial, 200);
+  written.push(await emit(join('editorials', editorial.slug, 'index.html'), withHead(shell, {
+    title: editorial.title,
+    description,
+    url,
+  }, [{
+    '@context': 'https://schema.org',
+    '@type': 'OpinionNewsArticle',
+    headline: editorial.title,
+    description,
+    url,
+    mainEntityOfPage: url,
+    datePublished: editorial.publishedOn,
+    dateModified: String(editorial.updatedAt || editorial.publishedOn).slice(0, 10),
+    image: PREVIEW_IMAGE,
+    // The byline names the writer; the desk is the publisher.
+    author: {'@type': 'Person', name: editorial.byline.split(',')[0].trim()},
+    publisher,
+  }]).replace(
+    '<div id="app"><noscript>This research desk requires JavaScript.</noscript></div>',
+    `<div id="app" data-prerendered="editorial"><main class="board editorials">${editorialArticleHtml(editorial)}</main></div>`,
+  )));
+}
+
 // Views with no note behind them still need a real URL and a sane title.
 for (const [path, title, description] of [
   ['community', 'Community desk', 'Sign in to the Sumter Field Desk community area.'],
@@ -357,6 +412,11 @@ const urls = [
   {loc: `${SITE_ORIGIN}/privacy/`, lastmod: lastModified('website/client/privacy.js')},
   {loc: `${SITE_ORIGIN}/records/`, lastmod: lastModified('website/client/records.js')},
   {loc: `${SITE_ORIGIN}/join/`, lastmod: lastModified('website/client/org.js')},
+  {loc: editorialsUrl, lastmod: editorials.map((item) => item.publishedOn).sort().pop() || lastModified('website/client/editorials.js')},
+  ...editorials.map((item) => ({
+    loc: `${SITE_ORIGIN}${editorialPath(item.slug)}`,
+    lastmod: String(item.updatedAt || item.publishedOn).slice(0, 10),
+  })),
   // Dated from the data file, not from meetings.js: the calendar's content
   // changes when a meeting is added, and after the data moved out, changes to
   // meetings.js are formatting and date maths that leave every listing saying

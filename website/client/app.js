@@ -14,6 +14,9 @@ import {privacySections} from './privacy.js';
 import {joinSections} from './org.js';
 import {INTERESTS, LIMITS as VOLUNTEER_LIMITS} from './volunteer.js';
 import {
+  KINDS, LIMITS as EDITORIAL_LIMITS, editorialArticleHtml, editorialListHtml, editorialPath, todayInAmericus as editorialToday,
+} from './editorials.js';
+import {
   BODIES, COMMENT, CONFIRMED_ON, STALE_AFTER, americusToday, byMonth, calendarIsStale, clockTime,
   dayOfMonth, endStamp, findMeeting, longDate, meetingLabel, meetingPath, meetingSeoTitle,
   meetingWhen, monthLabel, nextSpeakable, pastMeetings, recapMeetings, startStamp,
@@ -65,6 +68,8 @@ function pathFor(next) {
     : next.view === 'records' ? '/records/'
     : next.view === 'join' ? '/join/'
     : next.view === 'volunteers' ? '/volunteers/'
+    : next.view === 'editorials' ? '/editorials/'
+    : next.view === 'editorial' ? editorialPath(next.slug)
     : next.view === 'meetings' ? '/meetings/'
     : next.view === 'meeting' ? meetingPath(next.id)
     : next.view === 'slides' ? `${meetingPath(next.id)}slides/`
@@ -83,6 +88,7 @@ function routeFromPath(pathname) {
   const doc = pathname.match(/^\/doc\/([a-z0-9-]+)\/?$/);
   const thread = pathname.match(/^\/board\/(\d+)\/?$/);
   const meeting = pathname.match(/^\/meetings\/([a-z0-9-]+)\/?$/);
+  const editorial = pathname.match(/^\/editorials\/([a-z][a-z0-9-]*)\/?$/);
   // A deck hangs off the meeting it was presented at, so its URL does too.
   // Only the one meeting has a deck; another id under /slides/ falls back to
   // that meeting's page rather than 404ing on a plausible-looking URL.
@@ -95,6 +101,8 @@ function routeFromPath(pathname) {
     : /^\/records\/?$/.test(pathname) ? {view: 'records'}
     : /^\/join\/?$/.test(pathname) ? {view: 'join'}
     : /^\/volunteers\/?$/.test(pathname) ? {view: 'volunteers'}
+    : /^\/editorials\/?$/.test(pathname) ? {view: 'editorials'}
+    : editorial ? {view: 'editorial', slug: editorial[1]}
     : /^\/meetings\/?$/.test(pathname) ? {view: 'meetings'}
     // An unknown id falls back to the calendar rather than the home page: a
     // stale link to a meeting is best answered with the list of real ones.
@@ -161,6 +169,7 @@ const topbar = () => `
       <button class="source-link" data-join>Join us ↗</button>
       <button class="source-link" data-petition>Sign the petition ↗</button>
       <button class="source-link" data-doc="start">Research notes ↗</button>
+      <button class="source-link" data-editorials>Editorials ↗</button>
       <button class="source-link" data-meetings>Calendar ↗</button>
       <button class="source-link" data-contact>Contact officials ↗</button>
       ${accountControls()}
@@ -538,15 +547,20 @@ function home() {
           <div class="env-banner-title">Environmental Survey <em>↓</em></div>
           <p class="env-banner-sub">The full inspection of the tract, June 2022 - they discovered the site was once a dumping ground.</p>
         </a>
-        <a class="env-banner" href="/research/ordinance-draft-zoning-committee-2026-08-18.pdf" target="_blank" rel="noreferrer">
-          <div class="env-banner-eyebrow"><i></i> PRIMARY SOURCE</div>
-          <div class="env-banner-title">Ordinance Draft <em>↓</em></div>
-          <p class="env-banner-sub">The August 18 draft has no water-use limit. The PDA agreement's cooling terms are not enforceable by the city through this ordinance.</p>
+        <a class="env-banner" href="/research/ordinance-zoning-data-center-district-signed-2026-10-24.pdf" target="_blank" rel="noreferrer">
+          <div class="env-banner-eyebrow"><i></i> SIGNED OCTOBER 24 · 7 PAGES</div>
+          <div class="env-banner-title">Zoning Ordinance <em>↓</em></div>
+          <p class="env-banner-sub">The adopted D-C Data Center District: 55 dB at the property line, 250-foot buffers (500 feet beside homes and farms), and demolition within a year of shutdown.</p>
+        </a>
+        <a class="env-banner" href="/research/ordinance-chapter-14-data-centers-signed-2026-10-22.pdf" target="_blank" rel="noreferrer">
+          <div class="env-banner-eyebrow"><i></i> SIGNED OCTOBER 22 · 7 PAGES</div>
+          <div class="env-banner-title">City Code Addition <em>↓</em></div>
+          <p class="env-banner-sub">Chapter 14, Article X: closed-loop cooling, an independent water study, a Georgia Power will-serve letter, and fines of up to $1,000 a day. The signed copy is still headed "DRAFT".</p>
         </a>
         <a class="env-banner" href="/research/model-ordinance-v6-2026-09-16.pdf" target="_blank" rel="noreferrer">
           <div class="env-banner-eyebrow"><i></i> COMMUNITY PROPOSAL · 28 PAGES</div>
           <div class="env-banner-title">Model Ordinance <em>↓</em></div>
-          <p class="env-banner-sub">Model Technology and Data Center Ordinance, version 6, written for Americus, September 16, 2026. What the August 18 draft leaves out: water-use limits, generator standards, and decommissioning security.</p>
+          <p class="env-banner-sub">Model Technology and Data Center Ordinance, version 6, written for Americus, September 16, 2026. What the adopted ordinances still leave out: a numeric water-use limit, generator emission standards, and decommissioning security.</p>
         </a>
       </div>
     </section>
@@ -1759,6 +1773,149 @@ function volunteersPage() {
   </main>${searchPanel()}`;
 }
 
+// --- Editorials ----------------------------------------------------------------
+// Public reading, like the records log. Writers (EDITORIAL_AUTHORS on the
+// server) get a write button, their drafts, and an Edit button on each piece,
+// and publish without a second sign-off. One list call serves both the index
+// and a single piece.
+
+let editorials = {
+  state: 'idle',          // idle | loading | ready | unavailable | error
+  list: [], author: false, error: '',
+  editing: null,          // null, 'new', or the slug being edited
+  saving: false, formError: '', draft: {},
+  loadedAs: null,         // the account the list was last read as; '' signed out
+};
+
+const findEditorial = (slug) => editorials.list.find((item) => item.slug === slug);
+const editorialTitle = (slug) => {
+  const found = findEditorial(slug);
+  return found ? `${found.title} - Sumter County Citizens for Transparency` : 'Editorials, Sumter County Citizens for Transparency';
+};
+
+async function loadEditorials() {
+  editorials = {...editorials, state: 'loading', error: '', loadedAs: user?.sub || ''};
+  render();
+  try {
+    const response = user
+      ? await apiFetch('/api/editorials', {optionalAuth: true})
+      : await fetch(`${apiOrigin()}/api/editorials`);
+    if (response.status === 501) { editorials = {...editorials, state: 'unavailable'}; render(); return; }
+    if (!response.ok) throw new Error(serverError(response.status));
+    const data = await response.json();
+    editorials = {...editorials, state: 'ready', list: data.editorials, author: data.author};
+  } catch (error) {
+    editorials = {...editorials, state: 'error', error: error.message};
+  }
+  render();
+}
+
+async function saveEditorial(form, status) {
+  const values = {...formValues(form), status};
+  editorials = {...editorials, saving: true, formError: '', draft: values};
+  render();
+  try {
+    const editing = editorials.editing;
+    const response = await apiFetch(editing === 'new' ? '/api/editorials' : `/api/editorials/${editing}`, {
+      method: editing === 'new' ? 'POST' : 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(values),
+    });
+    if (response.status === 401) throw new Error(serverError(401));
+    if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || `Server returned ${response.status}`);
+    const {editorial} = await response.json();
+    editorials = {
+      ...editorials, saving: false, editing: null, draft: {},
+      list: [editorial, ...editorials.list.filter((item) => item.slug !== editorial.slug)],
+    };
+    setRoute({view: 'editorial', slug: editorial.slug});
+  } catch (error) {
+    editorials = {...editorials, saving: false, formError: error.message};
+    render();
+  }
+}
+
+async function deleteEditorial(slug) {
+  if (!confirm('Delete this piece for good? To take it down but keep it, edit it and save it as a draft instead.')) return;
+  try {
+    const response = await apiFetch(`/api/editorials/${slug}`, {method: 'DELETE'});
+    if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || serverError(response.status));
+    editorials = {...editorials, editing: null, draft: {}, list: editorials.list.filter((item) => item.slug !== slug)};
+    setRoute({view: 'editorials'});
+  } catch (error) {
+    editorials = {...editorials, formError: error.message};
+    render();
+  }
+}
+
+function editorialForm() {
+  const existing = editorials.editing === 'new' ? null : findEditorial(editorials.editing);
+  const values = {kind: 'letter', ...(existing || {}), ...editorials.draft};
+  const field = (key) => escapeHtml(values[key] || '');
+  const published = existing?.status === 'published';
+  return `<form class="board-form editorial-form" data-editorial-form>
+      <label>${existing ? 'EDIT THE PIECE' : 'WRITE A NEW PIECE'}</label>
+      ${editorials.formError ? `<p class="board-notice error">${escapeHtml(editorials.formError)}</p>` : ''}
+      <label for="ed-title">HEADLINE</label>
+      <input id="ed-title" name="title" maxlength="${EDITORIAL_LIMITS.title}" value="${field('title')}" required />
+      <label for="ed-kind">KIND</label>
+      <select id="ed-kind" name="kind">${Object.entries(KINDS).map(([key, label]) => `<option value="${key}" ${values.kind === key ? 'selected' : ''}>${escapeHtml(label)}</option>`).join('')}</select>
+      <label for="ed-byline">BYLINE, AS IT SHOULD PRINT</label>
+      <input id="ed-byline" name="byline" maxlength="${EDITORIAL_LIMITS.byline}" value="${field('byline')}" placeholder="Name, Title, Sumter County Citizens for Transparency" required />
+      <label for="ed-date">DATE (LEAVE BLANK FOR TODAY)</label>
+      <input id="ed-date" name="publishedOn" type="date" max="${editorialToday()}" value="${field('publishedOn')}" />
+      <label for="ed-summary">ONE-LINE SUMMARY (OPTIONAL, SHOWN IN THE LIST AND LINK PREVIEWS)</label>
+      <input id="ed-summary" name="summary" maxlength="${EDITORIAL_LIMITS.summary}" value="${field('summary')}" />
+      <label for="ed-body">TEXT</label>
+      <textarea id="ed-body" name="body" rows="18" maxlength="${EDITORIAL_LIMITS.body}" required>${field('body')}</textarea>
+      <p class="editorial-help">Paste straight from Word: each paragraph stays a paragraph. Optional marks: <code>## Subheading</code> on its own line, <code>&gt; </code> before a line to pull-quote it, <code>**bold**</code>, <code>*italic*</code>, and links as <code>[words](https://…)</code>. Leave out phone numbers and email addresses: everything here is public once published.</p>
+      <div class="editorial-form-actions">
+        <button type="submit" value="published" ${editorials.saving ? 'disabled' : ''}>${editorials.saving ? 'Saving…' : published ? 'Save and keep published' : 'Publish now'}</button>
+        <button type="submit" value="draft" class="quiet" ${editorials.saving ? 'disabled' : ''}>${published ? 'Unpublish (save as draft)' : 'Save as draft'}</button>
+        <button type="button" class="quiet" data-editorial-cancel>Cancel</button>
+        ${existing ? `<button type="button" class="danger" data-editorial-delete="${escapeHtml(existing.slug)}">Delete</button>` : ''}
+      </div>
+    </form>`;
+}
+
+function editorialsPage() {
+  const notice = editorials.state === 'unavailable'
+    ? '<p class="board-notice">The community server is online but its database is not configured yet, so editorials cannot be read.</p>'
+    : editorials.state === 'error' ? `<p class="board-notice error">Could not load the editorials: ${escapeHtml(editorials.error)}</p>`
+    : '';
+
+  if (route.view === 'editorial') {
+    if (editorials.author && editorials.editing === route.slug) return `${topbar()}<main class="board editorials">${editorialForm()}</main>${searchPanel()}`;
+    const piece = findEditorial(route.slug);
+    const body = piece
+      ? editorialArticleHtml(piece, {actions: editorials.author ? `<p class="editorial-tools"><button class="strip-link" data-editorial-edit="${escapeHtml(piece.slug)}">EDIT THIS PIECE</button></p>` : ''})
+      : editorials.state === 'loading' || editorials.state === 'idle' ? '<p class="board-count">Loading…</p>'
+      : `${notice}<p class="board-notice">That piece was not found. It may have been taken down. <a href="/editorials/">See all editorials →</a></p>`;
+    return `${topbar()}<main class="board editorials">${body}</main>${searchPanel()}`;
+  }
+
+  const actions = editorials.author
+    ? (editorials.editing === 'new' ? editorialForm() : '<div class="hero-actions"><button data-editorial-new>Write a new piece <span>→</span></button></div>')
+    : '';
+  const empty = editorials.state === 'loading' && !editorials.list.length ? '<p class="board-count">Loading…</p>'
+    : editorials.state === 'ready' && !editorials.list.length ? '<p class="board-count">Nothing published yet.</p>' : '';
+  return `${topbar()}<main class="board editorials">${editorialListHtml(editorials.list, {actions, notice: notice + empty})}${
+    editorials.author ? '' : `<p class="editorial-foot">Writing for the group? ${user ? 'Ask an organizer to add your account as a writer.' : isConfigured() ? '<button class="strip-link" data-login>SIGN IN</button> to post.' : ''}</p>`
+  }</main>${searchPanel()}`;
+}
+
+function bindEditorials() {
+  document.querySelectorAll('[data-editorials]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'editorials'}); }));
+  document.querySelector('[data-editorial-new]')?.addEventListener('click', () => { editorials = {...editorials, editing: 'new', draft: {}, formError: ''}; render(); document.querySelector('#ed-title')?.focus(); });
+  document.querySelectorAll('[data-editorial-edit]').forEach((button) => button.addEventListener('click', () => { editorials = {...editorials, editing: button.dataset.editorialEdit, draft: {}, formError: ''}; render(); }));
+  document.querySelector('[data-editorial-cancel]')?.addEventListener('click', () => { editorials = {...editorials, editing: null, draft: {}, formError: ''}; render(); });
+  document.querySelector('[data-editorial-delete]')?.addEventListener('click', (event) => deleteEditorial(event.currentTarget.dataset.editorialDelete));
+  document.querySelector('[data-editorial-form]')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    saveEditorial(event.currentTarget, event.submitter?.value === 'draft' ? 'draft' : 'published');
+  });
+}
+
 const communityFeatures = [
   {number: 'C2', title: 'Surveys', text: 'Structured community input on the draft ordinance and its conditions.'},
 ];
@@ -1897,6 +2054,8 @@ function updateHead() {
     : route.view === 'records' ? 'Open records log, Sumter Field Desk'
     : route.view === 'join' ? 'Join us, Sumter County Citizens for Transparency'
     : route.view === 'volunteers' ? 'Volunteer sign-ups, Sumter Field Desk'
+    : route.view === 'editorials' ? 'Editorials, Sumter County Citizens for Transparency'
+    : route.view === 'editorial' ? editorialTitle(route.slug)
     : route.view === 'meetings' ? 'Public meetings, Sumter Field Desk'
     : route.view === 'meeting' ? meetingSeoTitle(findMeeting(route.id))
     : route.view === 'slides' ? deckSeoTitle()
@@ -1925,6 +2084,7 @@ async function render() {
       : route.view === 'records' ? recordsPage()
       : route.view === 'join' ? joinPage()
       : route.view === 'volunteers' ? volunteersPage()
+      : route.view === 'editorials' || route.view === 'editorial' ? editorialsPage()
       : route.view === 'meetings' ? meetingsPage()
       : route.view === 'meeting' ? meetingPage(route.id)
       : route.view === 'slides' ? slidesPage()
@@ -1945,6 +2105,8 @@ async function render() {
   }
   if (route.view === 'join') mountTurnstile();
   if (route.view === 'volunteers' && user && volunteerList.state !== 'loading' && volunteerList.loadedAs !== user.sub) loadVolunteers();
+  // Reloaded when sign-in finishes, so a writer's drafts and controls appear.
+  if ((route.view === 'editorials' || route.view === 'editorial') && editorials.state !== 'loading' && editorials.loadedAs !== (user?.sub || '')) loadEditorials();
   if (route.view !== 'home') scrollTo({top: 0, behavior: 'auto'});
   if (searchOpen) requestAnimationFrame(() => document.querySelector('#search-input')?.focus());
 }
@@ -1963,6 +2125,7 @@ function bind() {
   bindRecords();
   document.querySelectorAll('[data-join]').forEach((button) => button.addEventListener('click', () => { searchOpen = false; setRoute({view: 'join'}); }));
   document.querySelector('[data-volunteer]')?.addEventListener('submit', (event) => { event.preventDefault(); submitVolunteer(event.currentTarget); });
+  bindEditorials();
   document.querySelectorAll('[data-contacted]').forEach((button) => button.addEventListener('click', () => markContacted(button.dataset.contacted, button.dataset.value === 'true')));
   document.querySelectorAll('[data-thread]').forEach((button) => button.addEventListener('click', () => setRoute({view: 'board', threadId: button.dataset.thread})));
   document.querySelector('[data-sign]')?.addEventListener('submit', (event) => { event.preventDefault(); submitSignature(event.currentTarget); });

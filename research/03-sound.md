@@ -44,7 +44,9 @@ Low frequencies have long wavelengths, about 56 feet at 20 Hz and 18 feet at 63 
 
 The [signed development agreement](09-development-agreement.md) requires noise to be measured at the property line with industry-standard meters against federal, state, EPD and City of Americus limits, and requires corrective measures if a governmental entity finds an exceedance (§9). It separately preserves the city's power to enforce its own ordinances on sound, vibration, buffers, and outdoor lighting (§5(B)).
 
-Neither provision states a decibel limit, and the city has not yet adopted one for data centers. An effective ordinance would need the protections below. Possible meeting dates are on the [public meeting calendar](/meetings/).
+Neither provision states a decibel limit. The city has now set one: the [zoning ordinance signed October 24, 2026](/research/ordinance-zoning-data-center-district-signed-2026-10-24.pdf) bars noise above **55 decibels at the exterior property line**, down from the 70 dB discussed in July (§94-159(d)(1)). It requires a sound study of existing noise with the rezoning application, mitigation if levels are exceeded, and a second study with all systems running before a certificate of occupancy. The [city code addition signed October 22](/research/ordinance-chapter-14-data-centers-signed-2026-10-22.pdf) adds an acoustic barrier around all exterior mechanical equipment (Sec. 14-407).
+
+The limit does not say whether it is A- or C-weighted, and it sets no nighttime, tonal or low-frequency limit. Those are the protections below that the adopted text still lacks. Possible meeting dates are on the [public meeting calendar](/meetings/).
 
 - No exemption for cooling or HVAC equipment
 - Cumulative limits covering every phase and generator

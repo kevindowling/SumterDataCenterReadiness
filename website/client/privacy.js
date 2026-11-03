@@ -10,7 +10,7 @@
 import {escapeHtml} from './content.js';
 import {organizers} from './contacts.js';
 
-export const effective = {iso: '2026-10-18', label: 'October 18, 2026'};
+export const effective = {iso: '2026-11-02', label: 'November 2, 2026'};
 
 // One row per thing a person can do that leaves data behind.
 export const collected = [
@@ -55,6 +55,11 @@ export const collected = [
     who: `Organizers only. It is emailed to ${organizers.email} and listed on a page only organizers can open. It is never published, and we do not email the address you give except to write back to you personally.`,
   },
   {
+    activity: 'Writing an editorial (the group\'s writers only)',
+    what: 'The headline, byline and text you enter, your account ID, and when you saved or changed it.',
+    who: 'The byline and text are public once you publish. Drafts are seen only by the other writers. Your account ID is never shown.',
+  },
+  {
     activity: 'Logging an open-records request',
     what: 'Your name, the agency and custodian, what you asked for, the dates it was sent and answered, any denial citation, and any documents you upload.',
     who: 'Your name and the request are public, so neighbors can find you instead of filing the same request twice. Uploaded documents are stored privately in a Google Drive account run by the desk. The document is then redacted, and only the redacted copy is published. The original upload is deleted once the redacted copy is up, or if an organizer decides it cannot be published.',
@@ -66,7 +71,7 @@ export const collected = [
 // both only ever hold what the rows above already describe.
 export const services = [
   {name: 'GitHub Pages', role: 'Hosts the public pages.'},
-  {name: 'A rented server and a managed database', role: 'Run the sign-in features, petition, message board, survey, open-records log and volunteer sign-ups, and store what they collect.'},
+  {name: 'A rented server and a managed database', role: 'Run the sign-in features, petition, message board, survey, open-records log, editorials and volunteer sign-ups, and store what they collect.'},
   {name: 'Auth0', role: 'Handles sign-in. Its script is loaded from jsDelivr.'},
   {name: 'Cloudflare', role: 'Routes mail sent to the desk\'s address, and runs the anti-bot check on the petition and volunteer forms.'},
   {name: 'Resend', role: 'Sends petition confirmation emails, and sends each volunteer sign-up to the organizers.'},

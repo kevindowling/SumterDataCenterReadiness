@@ -18,6 +18,7 @@ import {
   cleanFilename, dueDate, isOverdue, kindOf, validateRequest, validateUpdate,
 } from '../client/records.js';
 import {INTERESTS, validateVolunteer} from '../client/volunteer.js';
+import {LIMITS as EDITORIAL_LIMITS, SLUG, slugify, validateEditorial} from '../client/editorials.js';
 import {organizers} from '../client/contacts.js';
 import {deleteFile, driveConfigured, driveLink, requestFolder, uploadFile} from './drive.mjs';
 import {UploadError, receiveUpload} from './uploads.mjs';
@@ -91,12 +92,13 @@ const sendJson = (response, status, body) => {
   response.end(JSON.stringify(body));
 };
 
-function readJsonBody(request) {
+// `limit` is in characters. Most forms fit the default; an editorial does not.
+function readJsonBody(request, limit = 10_000) {
   return new Promise((resolve, reject) => {
     let body = '';
     request.on('data', (chunk) => {
       body += chunk;
-      if (body.length > 10_000) { reject(new Error('Body too large')); request.destroy(); }
+      if (body.length > limit) { reject(new Error('Body too large')); request.destroy(); }
     });
     request.on('end', () => { try { resolve(JSON.parse(body || '{}')); } catch { reject(new Error('Invalid JSON body')); } });
     request.on('error', reject);
@@ -1449,8 +1451,111 @@ async function handleVolunteers(pathname, request, response) {
   sendJson(response, 404, {error: 'Unknown volunteers route'});
 }
 
+// --- Editorials --------------------------------------------------------------
+// Published pieces are public, like the records log: the build reads this list
+// signed out to write the static pages. Writers are EDITORIAL_AUTHORS, falling
+// back to BOARD_ADMINS. Any writer may edit any piece; there are only a few of
+// them and they edit each other's work. They publish directly, by design: a
+// writer's piece goes up without a second sign-off.
+const editorialAuthors = new Set((process.env.EDITORIAL_AUTHORS || process.env.BOARD_ADMINS || '')
+  .split(',').map((id) => id.trim()).filter(Boolean));
+const isEditorialAuthor = (claims) => Boolean(claims) && editorialAuthors.has(claims.sub);
+
+const EDITORIAL_COLUMNS = `id, slug, kind, title, byline, summary, body, status,
+  published_on::text AS published_on, created_at, updated_at`;
+const editorialRow = (row) => ({
+  id: Number(row.id), slug: row.slug, kind: row.kind, title: row.title, byline: row.byline,
+  summary: row.summary, body: row.body, status: row.status, publishedOn: row.published_on,
+  createdAt: row.created_at, updatedAt: row.updated_at,
+});
+
+// A first headline that collides with an existing slug gets -2, -3, ...
+async function freeSlug(database, title) {
+  const base = slugify(title);
+  const {rows} = await database.query('SELECT slug FROM editorials WHERE slug = $1 OR slug LIKE $2', [base, `${base}-%`]);
+  const taken = new Set(rows.map((row) => row.slug));
+  if (!taken.has(base)) return base;
+  let suffix = 2;
+  while (taken.has(`${base}-${suffix}`)) suffix += 1;
+  return `${base}-${suffix}`;
+}
+
+// Room for the longest body plus the other fields and JSON escaping.
+const EDITORIAL_BODY_CHARS = EDITORIAL_LIMITS.body * 2 + 5_000;
+
+async function handleEditorials(pathname, request, response) {
+  const rest = pathname.slice('/api/editorials'.length);
+
+  // GET /api/editorials -> every published piece; a writer also gets drafts
+  if (rest === '' && request.method === 'GET') {
+    const database = await getPool();
+    if (!database) { sendJson(response, 501, {error: 'Database not configured'}); return; }
+    const author = isEditorialAuthor(await optionalClaims(request));
+    const {rows} = await database.query(
+      `SELECT ${EDITORIAL_COLUMNS} FROM editorials ${author ? '' : "WHERE status = 'published'"}
+        ORDER BY published_on DESC NULLS FIRST, id DESC LIMIT 500`);
+    sendJson(response, 200, {editorials: rows.map(editorialRow), author});
+    return;
+  }
+
+  // Everything below writes. The token is checked before the database, as the
+  // other gates are.
+  if (!authConfig.audience) { sendJson(response, 501, {error: 'Set authConfig.audience to enable API routes.'}); return; }
+  let claims;
+  try { claims = await verifyToken(request); }
+  catch (error) { sendJson(response, 401, {error: error.message}); return; }
+  if (!isEditorialAuthor(claims)) { sendJson(response, 403, {error: 'Only the group\'s editorial writers can post here.'}); return; }
+  const database = await getPool();
+  if (!database) { sendJson(response, 501, {error: 'Database not configured'}); return; }
+
+  // POST /api/editorials -> a new piece
+  if (rest === '' && request.method === 'POST') {
+    const {value, error} = validateEditorial(await readJsonBody(request, EDITORIAL_BODY_CHARS));
+    if (error) { sendJson(response, 400, {error}); return; }
+    if (throttled(`editorial:${claims.sub}`, 10, 60 * 60_000)) { sendJson(response, 429, {error: 'That is a lot of new pieces in an hour. Try again later.'}); return; }
+    const {rows} = await database.query(
+      `INSERT INTO editorials (slug, kind, title, byline, summary, body, status, published_on, created_by, updated_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9) RETURNING ${EDITORIAL_COLUMNS}`,
+      [await freeSlug(database, value.title), value.kind, value.title, value.byline, value.summary, value.body,
+        value.status, value.publishedOn, claims.sub]);
+    sendJson(response, 201, {editorial: editorialRow(rows[0])});
+    return;
+  }
+
+  const match = rest.match(/^\/([a-z0-9-]+)$/);
+  if (!match || !SLUG.test(match[1])) { sendJson(response, 404, {error: 'Unknown editorials route'}); return; }
+
+  // PUT /api/editorials/:slug -> save changes. The slug never changes, so a
+  // link already shared keeps working after a retitle.
+  if (request.method === 'PUT') {
+    const {value, error} = validateEditorial(await readJsonBody(request, EDITORIAL_BODY_CHARS));
+    if (error) { sendJson(response, 400, {error}); return; }
+    const {rows} = await database.query(
+      `UPDATE editorials SET kind = $2, title = $3, byline = $4, summary = $5, body = $6, status = $7,
+              published_on = $8, updated_by = $9, updated_at = now()
+        WHERE slug = $1 RETURNING ${EDITORIAL_COLUMNS}`,
+      [match[1], value.kind, value.title, value.byline, value.summary, value.body, value.status, value.publishedOn, claims.sub]);
+    if (!rows.length) { sendJson(response, 404, {error: 'Editorial not found'}); return; }
+    sendJson(response, 200, {editorial: editorialRow(rows[0])});
+    return;
+  }
+
+  // DELETE /api/editorials/:slug -> gone for good. Unpublishing is a save as
+  // draft; this is for a piece that should not exist at all.
+  if (request.method === 'DELETE') {
+    const {rowCount} = await database.query('DELETE FROM editorials WHERE slug = $1', [match[1]]);
+    if (!rowCount) { sendJson(response, 404, {error: 'Editorial not found'}); return; }
+    sendJson(response, 200, {deleted: true});
+    return;
+  }
+
+  sendJson(response, 405, {error: 'Method not allowed'});
+}
+
 async function handleApi(pathname, request, response, url) {
   if (pathname === '/api/health') { sendJson(response, 200, {ok: true}); return; }
+  // Published pieces are public; the write routes verify a token themselves.
+  if (pathname === '/api/editorials' || pathname.startsWith('/api/editorials/')) { await handleEditorials(pathname, request, response); return; }
   // Sign-up is public; reading the list verifies a token itself.
   if (pathname === '/api/volunteers' || pathname.startsWith('/api/volunteers/')) { await handleVolunteers(pathname, request, response); return; }
   // Public on purpose: see the note above handlePetition.
@@ -1486,7 +1591,7 @@ const aliasedFiles = ['/index.html', '/sw.js'];
 // of these paths; in dev the shell is served and the router resolves the path.
 // Deliberately an explicit pattern rather than a catch-all, so an unknown path
 // still 403s instead of leaking the shell for anything not on this list.
-const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|privacy|records|join|volunteers|meetings(\/[a-z0-9-]+(\/slides)?)?|board(\/\d+)?)\/?$/;
+const spaRoute = /^\/(doc\/[a-z0-9-]+|community|map|petition|contact|privacy|records|join|volunteers|editorials(\/[a-z][a-z0-9-]*)?|meetings(\/[a-z0-9-]+(\/slides)?)?|board(\/\d+)?)\/?$/;
 
 // The one file whose "./" paths have to be rewritten before it is served.
 const isShell = (file) => file.endsWith(join('website', 'index.html'));

@@ -14,6 +14,7 @@ const required = [
   'website/client/app.js', 'website/client/auth.js', 'website/client/auth-config.js',
   'website/client/content.js', 'website/client/petition.js', 'website/client/contacts.js',
   'website/client/privacy.js', 'website/client/org.js', 'website/client/volunteer.js',
+  'website/client/editorials.js',
   'website/client/records.js',
   'website/client/map.js', 'website/client/gis-sources.js', 'website/client/install.js',
   'website/client/meetings.js', 'website/client/meetings-data.js',
@@ -40,6 +41,8 @@ const required = [
   'research/americus-tech-campus-rendering.jpg',
   'research/pda-minutes-2026-03-09-excerpt.pdf',
   'research/model-ordinance-v6-2026-09-16.pdf',
+  'research/ordinance-zoning-data-center-district-signed-2026-10-24.pdf',
+  'research/ordinance-chapter-14-data-centers-signed-2026-10-22.pdf',
   ...docs.map((name) => `research/${name}`),
 ];
 const errors = [];

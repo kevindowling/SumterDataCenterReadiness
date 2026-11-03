@@ -69,7 +69,7 @@ Exhibit B also puts numbers to Phase 1 that the development agreement does not: 
 The following clauses impose operating requirements:
 
 - **No private wells, no private sewer.** Liberty "shall not construct or utilize water wells" and shall not build its own sanitary sewer. It must apply to the City of Americus for water and sewer service. §5(C)
-- **No open-loop cooling under the PDA agreement.** Closed-loop cooling or other technologies "designed to minimize water consumption" are required; open-loop and once-through systems are prohibited. The city ordinance contains no matching water-use standard, so the city cannot enforce this term through zoning. §11
+- **No open-loop cooling under the PDA agreement.** Closed-loop cooling or other technologies "designed to minimize water consumption" are required; open-loop and once-through systems are prohibited. The [city code addition signed October 22, 2026](/research/ordinance-chapter-14-data-centers-signed-2026-10-22.pdf) now requires closed-loop cooling too (Sec. 14-408), for plans submitted after it takes effect; neither it nor the agreement caps consumption. §11
 - **Generators for emergencies only.** Routine testing is limited to 8:00 a.m. to 6:00 p.m., Monday through Friday, and backup generators "shall be used only in emergency situations." §10
 - **Noise measured at the property line**, using industry-standard meters, against federal, state, EPD and City of Americus limits. If a governmental entity finds an exceedance, the operator must take corrective measures. §9
 - **Lighting shielded and directed downward** to limit glare and spillover onto adjacent property. §12
@@ -128,4 +128,4 @@ See [how to obtain the records and reach the officials](11-open-government.md) f
 
 ## Safe public statement
 
-> The signed development agreement fixes the site, phasing, buildout floor, 30-year operating covenant and several operating conditions. Other planning material identifies a 400 MW IT load, but the agreement states no megawatt, gallon or decibel limit. Its water terms bind the parties to the PDA agreement; the city ordinance contains no matching water-use standard. The agreement's only monetary remedy for default is the $469,000 value of the land, and its merger clause excludes promises made outside the contract.
+> The signed development agreement fixes the site, phasing, buildout floor, 30-year operating covenant and several operating conditions. Other planning material identifies a 400 MW IT load, but the agreement states no megawatt, gallon or decibel limit. Its water terms bind the parties to the PDA agreement; the city's October 2026 code addition requires closed-loop cooling for plans submitted after it takes effect, but sets no cap in gallons either. The agreement's only monetary remedy for default is the $469,000 value of the land, and its merger clause excludes promises made outside the contract.

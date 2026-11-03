@@ -46,7 +46,11 @@ The [car comparison](https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-
 
 The [signed development agreement](09-development-agreement.md) states that backup generators “shall be used only in emergency situations” and limits routine testing to 8:00 a.m. through 6:00 p.m., Monday through Friday (§10). It does not define “emergency,” cap annual testing days or identify the engines, fuel and emission controls. The following conditions would supply those details.
 
-The [draft ordinance passed by the Zoning Committee](/research/ordinance-draft-zoning-committee-2026-08-18.pdf) on August 18, 2026 says nothing about on-site generation either: no emergency definition, no hour limits, and nothing addressing "bring your own generation," a data center building or contracting its own dedicated generating capacity instead of waiting on utility interconnection. If the project goes that route, this draft would not regulate it as the power plant it would be.
+The [zoning ordinance signed October 24, 2026](/research/ordinance-zoning-data-center-district-signed-2026-10-24.pdf) limits generators to "backup/ emergency use only," except for testing, maintenance and commissioning, and keeps them away from residential and agricultural neighbors and out of buffers and setbacks (§94-159(d)(2)). The [city code addition signed October 22](/research/ordinance-chapter-14-data-centers-signed-2026-10-22.pdf) requires them to be screened and at least 100 feet from adjacent property lines (Sec. 14-405), and requires a Georgia Power or other supplier letter confirming capacity before a permit (Sec. 14-409).
+
+Neither defines "emergency," caps testing hours, or sets an emission standard. Neither addresses "bring your own generation," a data center building or contracting its own dedicated generating capacity instead of waiting on utility interconnection. 
+
+There are claims that BYOG will be prevented by the use of a "refusal of occupancy permit" if they don't have permanent power from the utilities. This is only word of mouth at this point. 
 
 - List every engine and turbine by model, rating, fuel, controls, and location.
 - Separate hours for testing, outages, demand response, peak shaving, and delayed grid connection.

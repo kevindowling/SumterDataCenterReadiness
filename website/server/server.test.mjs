@@ -37,7 +37,7 @@ test('serves site assets and research notes', async () => {
 // deep link the same way the built site does. In production these are separate
 // prerendered files; here one shell answers for all of them.
 test('serves the shell at every client-side route', async () => {
-  for (const path of ['/doc/records/', '/doc/records', '/doc/water/', '/community/', '/map/', '/board/', '/board/12']) {
+  for (const path of ['/doc/records/', '/doc/records', '/doc/water/', '/community/', '/map/', '/board/', '/board/12', '/editorials/', '/editorials/no-rezoning-without-a-development-plan/']) {
     const response = await fetch(`${base}${path}`);
     assert.equal(response.status, 200, `${path} should serve the shell`);
     assert.match(await response.text(), /Sumter Field Desk/, `${path} should return the app shell`);
@@ -505,5 +505,21 @@ test('serves the join and volunteers pages and the bylaws', async () => {
   for (const path of ['/join/', '/join', '/volunteers/', '/research/scc4t-bylaws-2026-10-13.pdf']) {
     const response = await fetch(`${base}${path}`);
     assert.equal(response.status, 200, `${path} should be served`);
+  }
+});
+
+test('editorials are readable without a token', async () => {
+  const response = await fetch(`${base}/api/editorials`);
+  // No database in the test environment: the public route gets as far as
+  // asking for one, rather than stopping at the auth gate.
+  assert.notEqual(response.status, 401);
+  assert.notEqual(response.status, 403);
+});
+
+test('editorial writes sit behind the auth gate', async () => {
+  const calls = [['POST', '/api/editorials', '{}'], ['PUT', '/api/editorials/some-piece', '{}'], ['DELETE', '/api/editorials/some-piece']];
+  for (const [method, path, body] of calls) {
+    const response = await fetch(`${base}${path}`, {method, body, headers: body ? {'Content-Type': 'application/json'} : {}});
+    assert.equal(response.status, 401, `${method} ${path} should need a token`);
   }
 });

@@ -54,7 +54,7 @@ The number, model, fuel, capacity, emission controls, and permitted hours of the
 
 ### Cooling, wells and sewer
 
-**Partly answered.** The PDA agreement bars private water wells and private sanitary sewer, requires city water and sewer service, and prohibits open-loop and once-through cooling. It does not name the cooling equipment or cap consumption, and a closed circuit can still reject heat by evaporation. The city ordinance contains no water-use provision, so §11 is not enforceable by the city as a zoning standard. Obtain the equipment schedule, water balance and a city ordinance with measurable water requirements.
+**Partly answered.** The PDA agreement bars private water wells and private sanitary sewer, requires city water and sewer service, and prohibits open-loop and once-through cooling. It does not name the cooling equipment or cap consumption, and a closed circuit can still reject heat by evaporation. The [city code addition signed October 22, 2026](/research/ordinance-chapter-14-data-centers-signed-2026-10-22.pdf) now requires closed-loop cooling, limits evaporative replacement to 10% of system capacity a year, and requires an independent hydrogeologic study before a permit, but sets no consumption cap. It applies to plans submitted on or after its effective date, and the signed copy is still headed "DRAFT" with blank reading dates. Obtain the numbered final ordinance with its reading dates, the equipment schedule, and the water balance.
 
 ## Numbers that remain planning scenarios
 

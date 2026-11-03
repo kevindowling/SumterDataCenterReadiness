@@ -13,7 +13,7 @@
 // /meetings/ URL. Anyone who had ever opened the site saw it; a first-time
 // visitor saw the calendar. Reproduce by loading the old build, deploying the
 // new one to the same origin, and opening the new route.
-const VERSION = 'field-desk-v14';
+const VERSION = 'field-desk-v15';
 // Rooted, not './'-relative. This file has to stay at the site root to claim
 // scope '/', but the assets it caches now live under /client and /assets.
 const SHELL = [
@@ -29,6 +29,7 @@ const SHELL = [
   '/client/privacy.js',
   '/client/org.js',
   '/client/volunteer.js',
+  '/client/editorials.js',
   '/client/records.js',
   '/client/meetings.js',
   '/client/meetings-data.js',

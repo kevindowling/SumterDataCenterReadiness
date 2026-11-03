@@ -32,7 +32,14 @@ The [signed development agreement](09-development-agreement.md) prohibits open-l
 
 The agreement does not cap consumption. “Closed-loop” describes the circuit, and a closed circuit may still reject heat through evaporation. The agreement contains no water balance.
 
-The [draft ordinance passed by the Zoning Committee](/research/ordinance-draft-zoning-committee-2026-08-18.pdf) on August 18, 2026 does not mention water use: no cooling technology, source, water balance, consumption limit or capacity certification. Section 11 of the PDA agreement is a contract term, not a city zoning standard. The city therefore cannot enforce it through this ordinance. Any contractual enforcement available to the PDA is separate from city code enforcement.
+The August 18 draft said nothing about water. The [city code addition signed October 22, 2026](/research/ordinance-chapter-14-data-centers-signed-2026-10-22.pdf) does (Sec. 14-408):
+
+- Before a site plan is approved, the applicant must submit an analysis of raw water needs, including the quantity required.
+- Evaporative cooling that replaces more than 10% of system capacity in any twelve-month period is not permitted. Closed-loop cooling "or its equivalent" is required; anything else needs a variance.
+- Before a permit, an independent third-party engineering firm must estimate annual water use in a hydrogeologic study, compared with the property's prior use or similar nearby areas.
+- Treatment, discharge and sewer plans go to the city and to Georgia EPD; the cost of connecting is the developer's.
+
+What it still lacks: a cap in gallons, any tie to the city's 3.75 MGD withdrawal permit, and a capacity certification from the water system. The 10% rule limits *replacement* water against *system capacity*, so its real effect depends on how large the system is. This ordinance applies to plans submitted on or after its effective date (Section 3); whether Liberty's plans fall under it is not yet known.
 
 ## Scale scenario, not a project forecast
 
