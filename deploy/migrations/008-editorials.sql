@@ -43,29 +43,11 @@ Good planning begins with good information. The public deserves transparency.$bo
 )
 ON CONFLICT (slug) DO NOTHING;
 
--- The October 25 draft of the same letter, submitted in the group's name. It
--- carries the three paragraphs the later draft cut, so both are kept.
-INSERT INTO editorials (slug, kind, title, byline, body, status, published_on)
-VALUES (
-  'no-rezoning-without-a-development-plan-october-25',
-  'letter',
-  'No Rezoning Without a Development Plan',
-  'Sumter County Citizens for Transparency (SCC4T)',
-  $body$The recent request by a landowner to rezone his Bumphead Road property on the north side of town, moving it from its current Agricultural use, jumping over the planned residential use all the way to light industrial was an exercise in zoning procedures that should be improved. The request for Light Industrial zoning would have allowed a data center to be located there near many of our schools.
-Proponents of the rezoning argued that there were other safeguards in place such as Georgia State Development of Regional Impact (DRI) review. Americus City Attorney Coleman, who sits on the DRI board, told us, “Don’t count on those safeguards to stop data centers.” Indeed, the triggers for requiring the DRI study are larger than the proposed Liberty project: more than 500,000 gross square feet, or more than 200 acres.
-Fortunately, two of the Bumphead parcels were denied the rezoning request and four were tabled for 90 days. Citizens’ presence and comments had clearly influenced the County Zoning Board.
-The seller said he didn’t have a buyer, but a likely prospect had indicated that they were interested in putting an Amazon distribution center on the property. Driving past the schools, this property would put that warehouse 37 miles away from I-75. But maybe they are planning on using flying cars.
-The meeting taught us an important lesson: Sumter County residents deserve to know what is being proposed before their elected officials change how land can be used. A rezoning decision can affect nearby homes, farms, roads, water supplies, and public services long after the vote is taken. Residents did a wonderful job explaining the risks to the Sumter County schoolchildren. At that meeting, we saw that citizens’ voices do matter.
-That is why Sumter County should adopt a straightforward rule: when a developer requests rezoning for a proposed project, the application must include a meaningful development plan before the County considers approval.
-The plan should explain what will be built, its approximate size and location, proposed road access, anticipated traffic, water and sewer needs, electrical demand, stormwater controls, and potential effects on neighboring properties and wetlands. These need not be final engineering drawings. But they must be detailed enough for citizens and officials to understand the proposal and its likely impacts.
-The zoning board procedures can be modified and notices can and should be posted regularly and in a timely manner on the County Commissioners and the City of Americus government websites.
-If a developer materially changes the proposal, the public should have an opportunity to review those changes before a final decision to move from conditional zoning to re-zoning is granted by local government.
-Property owners have a legitimate right to seek rezoning, and developers need predictable procedures. Residents have an equally legitimate interest in knowing what new land-use rights are being requested. Clear requirements protect both sides by reducing surprises, confusion, and costly disputes.
-Good planning begins with good information. The public deserves transparency.$body$,
-  'published',
-  '2026-10-25'
-)
-ON CONFLICT (slug) DO NOTHING;
+-- The October 25 draft of the letter above ran here as a second piece until
+-- November 4, when the group asked for the duplicate to come down. Replaying this
+-- file deletes it, so a deploy cannot bring it back; the text remains in git
+-- history and in the group's October 25 draft.
+DELETE FROM editorials WHERE slug = 'no-rezoning-without-a-development-plan-october-25';
 
 -- October 29: emergency services and fire. The draft is unsigned, so it runs
 -- under the group's name until the writer says otherwise.
