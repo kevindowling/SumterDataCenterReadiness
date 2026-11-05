@@ -312,7 +312,7 @@ const editorials = await publishedEditorials();
 const editorialsUrl = `${SITE_ORIGIN}/editorials/`;
 written.push(await emit(join('editorials', 'index.html'), withHead(shell, {
   title: 'Editorials - Sumter County Citizens for Transparency',
-  description: 'Letters, op-eds and statements by members of Sumter County Citizens for Transparency on the proposed Americus data center and local land-use decisions.',
+  description: 'Letters, op-eds, statements and press releases by members of Sumter County Citizens for Transparency on the proposed Americus data center and local land-use decisions.',
   url: editorialsUrl,
 }).replace(
   '<div id="app"><noscript>This research desk requires JavaScript.</noscript></div>',

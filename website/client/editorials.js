@@ -1,4 +1,4 @@
-// Editorials: letters to the editor, op-eds and statements by the group's
+// Editorials: letters to the editor, op-eds, statements and press releases by the group's
 // writers. The rules and the HTML are shared by the browser (app.js), the API
 // (server.mjs) and the build (prerender.mjs), so like org.js it must stay free
 // of DOM and Node globals.
@@ -15,6 +15,7 @@ export const KINDS = {
   letter: 'Letter to the editor',
   oped: 'Op-ed',
   statement: 'Statement',
+  press: 'Press release',
 };
 
 export const STATES = ['draft', 'published'];
@@ -130,7 +131,7 @@ export function editorialListHtml(list, {actions = '', notice = ''} = {}) {
   return `<header class="editorials-head">
       <p class="eyebrow"><span></span> EDITORIALS</p>
       <h1>In our <em>own words.</em></h1>
-      <p class="lede">Letters, op-eds and statements by members of Sumter County Citizens for Transparency. The research notes report what the record shows; these pieces argue for what we think should happen next.</p>
+      <p class="lede">Letters, op-eds, statements and press releases by members of Sumter County Citizens for Transparency. The research notes report what the record shows; these pieces argue for what we think should happen next.</p>
     </header>
     ${notice}
     ${actions}

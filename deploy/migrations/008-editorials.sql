@@ -69,3 +69,28 @@ A gasoline car fire can usually be put out with 700 gallons of water. A Tesla ca
   '2026-10-29'
 )
 ON CONFLICT (slug) DO NOTHING;
+
+-- The group's press release dated October 23. Same rule as above: edits made on
+-- the site are never overwritten.
+INSERT INTO editorials (slug, kind, title, byline, summary, body, status, published_on)
+VALUES (
+  'sumter-county-citizens-for-transparency-files-nonprofit-paperwork',
+  'press',
+  'Sumter County Citizens for Transparency Files Nonprofit Paperwork',
+  'Sumter County Citizens for Transparency (SCC4T)',
+  'Organization seeks 501(c)(3) recognition to expand civic education, government accountability and environmental protection',
+  $body$Media contact: Kirk Lyman-Barner, Co-Chair | 229-942-9025 | scc4t.com
+AMERICUS, Ga. — Sumter County Citizens for Transparency (SCC4T) announces the filing of paperwork to establish a nonprofit organization seeking federal tax-exempt recognition under Section 501(c)(3). This effort will create a lasting foundation for public education, factual research and lawful, nonpartisan community engagement in Sumter County and surrounding communities.
+SCC4T’s mission is to help residents understand local government operations, obtain public records and participate meaningfully in decisions affecting land use, the environment and public infrastructure. Its vision includes educating the community on Georgia’s Sunshine Laws, Open Records Requests, non-compliant bidding process, meeting notices, public hearings and the legal options available when government fails to meet its obligations.
+When public officials are not operating in good faith as we have seen with the transfer of publicly owned land and the City’s handling of the open records requests, constituents need to be empowered to respond.
+SCC4T will help monitor and document Sunshine and ordinance violations, seek to educate elected officials about the appropriates procedures, and when necessary, seek corrective action and pursue available remedies to hold officials to a higher standard.
+While individual SCC4T Trustees and volunteers are free to campaign as individuals, as an organization seeking 501(c)(3) recognition, SCC4T will not endorse or oppose candidates or participate in candidate campaigns. The organization can provide neutral public education about Georgia’s referendum and recall procedures but will not campaign for replacement candidates.
+SCC4T intends to raise funds for legal action when necessary to protect the public from Georgia Sunshine Law violations and to protect land-use and environmental interests in Sumter County. The local mission continues to advocate for the relocation of the proposed data center and ensure all data centers are regulated to protect the residents and community assets from the potential harm caused by reckless developers.
+Beyond Sumter County, SCC4T is already collaborating with Data Center Resistance, led by attorney Ed FitzGerald; Sowega Aquifer Alliance, which was instrumental in developing a Model Data Center Ordinance; and Grassroots Data Center Resistance, which is building collaborations across the country. Working groups are developing science- and law-based online tools and white papers to strengthen the factual resources available to the hundreds of community groups organizing across the United States.
+The speculative and secretive Liberty Data proposal may have brought our community together, but it has exposed a much bigger issue: the need for transparency, accountability, and public trust in local government.
+Darrell Sabbs, Sr. observed, "When a proposal comes up, we need transparency and inclusion to make the community comfortable with the idea. Sumter County Citizens for Transparency is much needed."
+Residents interested in training, research, volunteering or supporting this work can visit scc4t.com/join or contact Kirk Lyman-Barner at 229-942-9025.$body$,
+  'published',
+  '2026-10-23'
+)
+ON CONFLICT (slug) DO NOTHING;
